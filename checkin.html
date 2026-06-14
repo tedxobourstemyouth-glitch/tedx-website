@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TEDx Ticket Scanner</title>
+  <style>
+    body { font-family: 'IBM Plex Sans', sans-serif; background: #111; color: #fff; padding: 20px; text-align: center; margin: 0; }
+    .card { background: #222; border-radius: 12px; padding: 30px 20px; max-width: 400px; margin: 20px auto; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+    h1 { margin-top: 0; color: #E62B1E; font-size: 32px; font-weight: normal; font-family: 'Times New Roman', serif; }
+    .data-row { margin: 15px 0; font-size: 16px; color: #ccc; border-bottom: 1px solid #333; padding-bottom: 15px; }
+    .data-row strong { color: #fff; display: block; font-size: 26px; margin-bottom: 5px; font-family: sans-serif; text-transform: uppercase; }
+    .status-box { padding: 15px; border-radius: 8px; margin: 25px 0; font-size: 20px; font-weight: bold; }
+    .status-ok { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 2px solid #28a745; }
+    .status-used { background: rgba(230, 43, 30, 0.1); color: #E62B1E; border: 2px solid #E62B1E; }
+    .btn { width: 100%; padding: 18px; font-size: 20px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; }
+    .btn-green { background: #28a745; color: #fff; }
+    .btn-green:hover { background: #218838; }
+    .btn-disabled { background: #555; color: #999; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+  <div class="card" id="content">
+    <h1>SCANNER</h1>
+    <div id="loading" style="color: #ccc;">Loading ticket data...</div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticketId = urlParams.get('id');
+      const content = document.getElementById('content');
+
+      if (!ticketId) {
+        content.innerHTML = '<div class="status-box status-used">❌ INVALID QR CODE</div><p>No ticket ID found.</p>';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/admin/checkin/${ticketId}`);
+        if (res.status === 401) {
+          content.innerHTML = '<div class="status-box status-used">🔒 UNAUTHORIZED</div><p>You must log in to scan tickets.</p>';
+          return;
+        }
+        
+        const data = await res.json();
+        if (!res.ok) {
+          content.innerHTML = `<div class="status-box status-used">❌ ${data.message || 'Error'}</div>`;
+          return;
+        }
+        renderTicket(data);
+      } catch (err) {
+        content.innerHTML = `<div class="status-box status-used">❌ Connection Error</div>`;
+      }
+    });
+
+    function renderTicket(ticket) {
+      const content = document.getElementById('content');
+      let statusHtml = '', actionHtml = '';
+
+      if (ticket.status !== 'approved') {
+        statusHtml = `<div class="status-box status-used">⚠️ NOT APPROVED</div>`;
+      } else if (ticket.checked_in) {
+        statusHtml = `<div class="status-box status-used">❌ ALREADY USED<div style="font-size: 14px; margin-top: 10px; font-weight: normal; color: #fff;">Checked in at:<br>${ticket.checkin_time}</div></div>`;
+        actionHtml = `<button class="btn btn-disabled" disabled>Ticket is void</button>`;
+      } else {
+        statusHtml = `<div class="status-box status-ok">✅ VALID TICKET</div>`;
+        actionHtml = `<button class="btn btn-green" onclick="confirmCheckin(${ticket.id})">Confirm Check-in</button>`;
+      }
+
+      content.innerHTML = `<h1>SCANNER</h1><div class="data-row"><strong>${ticket.full_name}</strong>${ticket.governorate || ''}</div><div class="data-row" style="font-size: 14px;">Ticket ID: ${ticket.id}<br>Phone: ${ticket.phone}</div>${statusHtml}${actionHtml}`;
+    }
+
+    async function confirmCheckin(id) {
+      if (!confirm('Are you sure you want to check in this ticket? This cannot be undone.')) return;
+      try {
+        const res = await fetch(`/api/admin/checkin/${id}`, { method: 'POST' });
+        const data = await res.json();
+        if (res.ok) { renderTicket(data.ticket); } else { alert(data.message || 'Error checking in'); }
+      } catch (err) { alert('Connection Error'); }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Ticket | TEDx Obour STEM Youth</title>
+  <link rel="icon" type="image/jpeg" href="Logo .jpg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  
+  <style>
+    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 20px; text-align: center; box-sizing: border-box; overflow-x: hidden; }
+    
+    .ticket-container {
+      position: relative;
+      width: 100%;
+      max-width: 500px; /* Adjust this to make the web preview larger or smaller */
+      margin: 30px auto;
+      border-radius: 16px;
+      box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.15), 0 0 40px rgba(230,43,30,0.2);
+      overflow: hidden;
+      display: none; /* Hidden until loaded */
+    }
+
+    .ticket-bg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .error-fallback { color: var(--red); font-family: var(--mono); font-size: 12px; }
+  </style>
+</head>
+<body>
+
+  <div class="eyebrow reveal in">Official Access Pass</div>
+  <h2 class="display reveal in" style="margin-top: 10px;"><span class="em">Your Ticket.</span></h2>
+  <p style="color: var(--bone-dim); max-width: 400px; margin: 10px auto;">Present the QR code at the door. You can download a high-resolution copy below.</p>
+
+  <div id="status-message" style="margin-top: 40px; font-family: var(--mono); color: var(--red); letter-spacing: 0.1em; text-transform: uppercase;">
+    [ Fetching Ticket Data... ]
+  </div>
+
+  <!-- Responsive Ticket Wrapper -->
+  <div class="ticket-container reveal in" id="ticket-container">
+    <!-- Rendered directly from the backend to preserve identical template formatting -->
+    <img src="" class="ticket-bg" id="ticket-bg" alt="TEDx Ticket">
+  </div>
+
+  <button class="btn btn-primary" id="download-btn" style="display: none; margin-top: 40px;">
+    Download Ticket <span class="arr">↓</span>
+  </button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const ticketId = urlParams.get('id');
+      const statusMsg = document.getElementById('status-message');
+
+      if (!ticketId) {
+        statusMsg.innerText = '[ Error: No Ticket ID Provided ]';
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/ticket/${ticketId}`);
+        const data = await res.json();
+
+        if (!res.ok) throw new Error(data.message || 'Ticket not found.');
+
+        // Show ticket
+        statusMsg.style.display = 'none';
+        document.getElementById('ticket-container').style.display = 'block';
+
+        // Fetch the perfectly composited image natively from the server
+        const ticketImg = document.getElementById('ticket-bg');
+        
+        ticketImg.onerror = () => {
+          statusMsg.innerText = '[ Preview failed to load. You can still download your ticket below. ]';
+          statusMsg.style.display = 'block';
+        };
+        
+        ticketImg.src = `/api/ticket/render/${ticketId}`;
+
+        const downloadBtn = document.getElementById('download-btn');
+        downloadBtn.style.display = 'inline-flex';
+
+        downloadBtn.addEventListener('click', async () => {
+          downloadBtn.innerHTML = 'Downloading...';
+          downloadBtn.disabled = true;
+          
+          try {
+            // Use Fetch -> Blob to force mobile browsers to download instead of opening a new tab
+            const imgResp = await fetch(`/api/ticket/render/${ticketId}`);
+            const imgBlob = await imgResp.blob();
+            const url = window.URL.createObjectURL(imgBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `TEDx-Ticket-${data.id}.jpg`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+          } catch (e) {
+            alert("Download failed. Please check your connection and try again.");
+          }
+          
+          downloadBtn.innerHTML = 'Download Ticket <span class="arr">↓</span>';
+          downloadBtn.disabled = false;
+        });
+
+      } catch (err) {
+        statusMsg.innerText = `[ Error: ${err.message} ]`;
+      }
+    });
+  </script>
+</body>
+</html>
