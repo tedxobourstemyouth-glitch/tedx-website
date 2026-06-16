@@ -11,6 +11,9 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
+// Public domain used to build links. Falls back to localhost for local dev.
+const BASE_URL = (process.env.BASE_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
 
 // 1. Basic Settings
 app.use(cors());
@@ -219,7 +222,7 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
             <p style="color: #333333; font-size: 16px;">Your ticket is APPROVED. Please save your official ticket below to show at the door.</p>
             <img src="cid:ticket_final" alt="Event Ticket" class="ticket-img" />
             <div style="margin-top: 30px;">
-              <a href="http://localhost:${PORT}/ticket-view.html?id=${ticket.id}" class="btn">View & Download Ticket Online</a>
+              <a href="${BASE_URL}/ticket-view.html?id=${ticket.id}" class="btn">View & Download Ticket Online</a>
             </div>
             <p style="color: #777777; font-size: 13px; margin-top: 20px;">* Your high-resolution ticket is also attached to this email.</p>
           </div>
@@ -349,10 +352,11 @@ app.post('/api/admin/checkin/:id', adminAuth, (req, res) => {
   res.json({ message: 'Check-in successful!', ticket: db[ticketIndex] });
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   console.log(`
 🚀 The new anti-crash server is running!
-📡 http://localhost:${PORT}
-🛠️  Admin Dashboard: http://localhost:${PORT}/admin
+📡 Listening on ${HOST}:${PORT}
+🌐 Public URL: ${BASE_URL}
+🛠️  Admin Dashboard: ${BASE_URL}/admin
   `);
 });

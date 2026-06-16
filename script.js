@@ -49,7 +49,7 @@
       // Calculate mouse position relative to center of screen (-1 to 1)
       const x = (e.clientX / window.innerWidth - 0.5);
       const y = (e.clientY / window.innerHeight - 0.5);
-      
+
       // Apply subtle translations (opposite directions for depth)
       heroCopy.style.transform = `translate(${x * 15}px, ${y * 15}px)`;
       heroPhoto.style.transform = `translate(${x * -20}px, ${y * -20}px)`;
@@ -114,14 +114,14 @@
 
       // Collect data from the form
       const formData = new FormData(ticketForm);
-      
+
       // Show loading state then success message
       submitBtn.innerHTML = 'Submitting...';
       submitBtn.disabled = true;
 
       try {
         // Send data directly to localhost so it works even if the file is opened directly
-        const response = await fetch('http://localhost:3001/submit', {
+        const response = await fetch(`${process.env.BASE_URL}/submit`, {
           method: 'POST',
           body: formData
         });
