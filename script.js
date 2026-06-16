@@ -120,8 +120,8 @@
       submitBtn.disabled = true;
 
       try {
-        // Send data directly to localhost so it works even if the file is opened directly
-        const response = await fetch(`${process.env.BASE_URL}/submit`, {
+        // Relative path: works on whatever domain the site is served from
+        const response = await fetch('/submit', {
           method: 'POST',
           body: formData
         });
