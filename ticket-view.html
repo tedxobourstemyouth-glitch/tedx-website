@@ -11,46 +11,101 @@
   <link rel="stylesheet" href="style.css">
   
   <style>
-    body { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 40px 20px; text-align: center; box-sizing: border-box; overflow-x: hidden; }
+    body { 
+      display: flex; flex-direction: column; align-items: center; justify-content: center; 
+      min-height: 100vh; padding: 60px 20px; text-align: center; box-sizing: border-box; overflow-x: hidden; 
+      background-color: var(--ink);
+      background-image:
+        radial-gradient(circle at 50% -10%, rgba(230,43,30,0.15) 0%, transparent 70%),
+        linear-gradient(rgba(245,241,234,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245,241,234,0.02) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+      background-position: top center, center center, center center;
+    }
     
+    .header-badge {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border: 1px solid rgba(230,43,30,0.3); border-radius: 999px;
+      background: rgba(230,43,30,0.1); color: var(--red);
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .header-badge .dot { width: 6px; height: 6px; background: var(--red); border-radius: 50%; box-shadow: 0 0 8px var(--red); animation: pulse 2s infinite; }
+
+    .ticket-frame {
+      position: relative;
+      padding: 24px;
+      margin: 30px auto;
+      perspective: 1200px;
+      display: none; /* Hidden until loaded */
+    }
+    .ticket-frame::before, .ticket-frame::after,
+    .ticket-frame .corner-bl, .ticket-frame .corner-br {
+      content: ''; position: absolute; width: 30px; height: 30px; border: 2px solid var(--red); opacity: 0.4; transition: opacity 0.3s;
+    }
+    .ticket-frame::before { top: 0; left: 0; border-right: none; border-bottom: none; }
+    .ticket-frame::after { top: 0; right: 0; border-left: none; border-bottom: none; }
+    .ticket-frame .corner-bl { bottom: 0; left: 0; border-right: none; border-top: none; }
+    .ticket-frame .corner-br { bottom: 0; right: 0; border-left: none; border-top: none; }
+    .ticket-frame:hover::before, .ticket-frame:hover::after,
+    .ticket-frame:hover .corner-bl, .ticket-frame:hover .corner-br { opacity: 1; }
+
     .ticket-container {
       position: relative;
       width: 100%;
-      max-width: 500px; /* Adjust this to make the web preview larger or smaller */
-      margin: 30px auto;
+      max-width: 500px;
       border-radius: 16px;
-      box-shadow: 0 40px 80px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.15), 0 0 40px rgba(230,43,30,0.2);
+      box-shadow: 0 40px 80px -20px rgba(0,0,0,0.9), 0 0 0 1px rgba(255,255,255,0.15), 0 0 60px rgba(230,43,30,0.25);
       overflow: hidden;
       display: none; /* Hidden until loaded */
+      animation: floatTicket 8s ease-in-out infinite;
+      transform-style: preserve-3d;
+      background: #000;
     }
 
-    .ticket-bg {
-      display: block;
-      width: 100%;
-      height: auto;
+    .ticket-bg { display: block; width: 100%; height: auto; position: relative; z-index: 2; }
+
+    .scan-line {
+      position: absolute; top: 0; left: 0; right: 0; height: 2px; background: #fff;
+      box-shadow: 0 0 20px 4px var(--red), 0 0 10px 2px #fff;
+      animation: scan 4s ease-in-out infinite; z-index: 10;
     }
 
-    .error-fallback { color: var(--red); font-family: var(--mono); font-size: 12px; }
+    #status-message {
+      font-family: var(--mono); color: var(--bone-dim); font-size: 13px; letter-spacing: 0.15em; text-transform: uppercase;
+      margin-top: 40px; margin-bottom: 20px;
+    }
+    .status-blink { animation: blink 1.2s step-end infinite; color: var(--red) !important; }
+
+    @keyframes floatTicket { 0%, 100% { transform: translateY(0) rotateX(2deg) rotateY(-2deg); } 50% { transform: translateY(-15px) rotateX(-2deg) rotateY(2deg); } }
+    @keyframes scan { 0% { top: -10%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { top: 110%; opacity: 0; } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.5; } }
+    @keyframes blink { 50% { opacity: 0; } }
   </style>
 </head>
 <body>
 
-  <div class="eyebrow reveal in">Official Access Pass</div>
+  <div class="header-badge reveal in"><span class="dot"></span> Official Access Pass</div>
   <h2 class="display reveal in" style="margin-top: 10px;"><span class="em">Your Ticket.</span></h2>
-  <p style="color: var(--bone-dim); max-width: 400px; margin: 10px auto;">Present the QR code at the door. You can download a high-resolution copy below.</p>
+  <p style="color: var(--bone-dim); max-width: 440px; margin: 10px auto 30px; font-size: 15px;">Present the QR code at the door. You can securely download a high-resolution copy below for offline access.</p>
 
-  <div id="status-message" style="margin-top: 40px; font-family: var(--mono); color: var(--red); letter-spacing: 0.1em; text-transform: uppercase;">
-    [ Fetching Ticket Data... ]
+  <div id="status-message" class="status-blink reveal in">
+    [ FETCHING TICKET DATA_ ]
   </div>
 
-  <!-- Responsive Ticket Wrapper -->
-  <div class="ticket-container reveal in" id="ticket-container">
-    <!-- Rendered directly from the backend to preserve identical template formatting -->
-    <img src="" class="ticket-bg" id="ticket-bg" alt="TEDx Ticket">
+  <div class="ticket-frame reveal in" id="ticket-frame">
+    <div class="corner-bl"></div><div class="corner-br"></div>
+    <!-- Responsive Ticket Wrapper -->
+    <div class="ticket-container" id="ticket-container">
+      <div class="scan-line" id="scan-line"></div>
+      <!-- Rendered directly from the backend to preserve identical template formatting -->
+      <img src="" class="ticket-bg" id="ticket-bg" alt="TEDx Ticket">
+    </div>
   </div>
 
-  <button class="btn btn-primary" id="download-btn" style="display: none; margin-top: 40px;">
-    Download Ticket <span class="arr">↓</span>
+  <button class="btn btn-primary" id="download-btn" style="display: none; margin-top: 30px; min-width: 240px; font-size: 14px;">
+    <svg style="width:18px; height:18px; margin-right:8px; fill:none; stroke:currentColor; stroke-width:2; vertical-align:middle;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+    Save Securely
   </button>
 
   <script>
@@ -71,9 +126,17 @@
 
         if (!res.ok) throw new Error(data.message || 'Ticket not found.');
 
-        // Show ticket
-        statusMsg.style.display = 'none';
-        document.getElementById('ticket-container').style.display = 'block';
+        // Show success status then reveal ticket
+        statusMsg.classList.remove('status-blink');
+        statusMsg.style.color = '#28a745';
+        statusMsg.innerText = '[ ACCESS GRANTED ]';
+        
+        setTimeout(() => {
+          statusMsg.style.display = 'none';
+          document.getElementById('ticket-frame').style.display = 'inline-block';
+          document.getElementById('ticket-container').style.display = 'block';
+          document.getElementById('download-btn').style.display = 'inline-flex';
+        }, 800);
 
         // Fetch the perfectly composited image natively from the server
         const ticketImg = document.getElementById('ticket-bg');
@@ -81,12 +144,12 @@
         ticketImg.onerror = () => {
           statusMsg.innerText = '[ Preview failed to load. You can still download your ticket below. ]';
           statusMsg.style.display = 'block';
+          statusMsg.style.color = 'var(--red)';
         };
         
         ticketImg.src = `/api/ticket/render/${ticketId}`;
 
         const downloadBtn = document.getElementById('download-btn');
-        downloadBtn.style.display = 'inline-flex';
 
         downloadBtn.addEventListener('click', async () => {
           downloadBtn.innerHTML = 'Downloading...';
@@ -109,7 +172,7 @@
             alert("Download failed. Please check your connection and try again.");
           }
           
-          downloadBtn.innerHTML = 'Download Ticket <span class="arr">↓</span>';
+          downloadBtn.innerHTML = '<svg style="width:18px; height:18px; margin-right:8px; fill:none; stroke:currentColor; stroke-width:2; vertical-align:middle;" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg> Save Securely';
           downloadBtn.disabled = false;
         });
 

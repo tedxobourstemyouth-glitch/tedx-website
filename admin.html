@@ -1,100 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - TEDx</title>
-  <style>
-    body { font-family: 'IBM Plex Sans', sans-serif; padding: 20px; background: #111; color: #fff; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 12px; border: 1px solid #333; text-align: left; }
-    th { background: #E62B1E; color: white; }
-    a { color: #E62B1E; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-    img { max-width: 100px; max-height: 100px; border-radius: 4px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - TEDx</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root { --red: #E62B1E; --ink: #0a0a0a; --ink-2: #141414; --bone: #fcfaf5; --bone-dim: #d3cec4; --rule: rgba(245, 241, 234, .12); }
+        body { font-family: 'IBM Plex Sans', sans-serif; padding: 20px; background: var(--ink); color: var(--bone); margin: 0; -webkit-font-smoothing: antialiased; }
+        .dashboard-header { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .dashboard-header h1 { margin: 0; font-weight: 500; font-size: 28px; }
+        .dashboard-header h1 span { color: var(--red); }
+        .controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
+        .search-box { padding: 10px 15px; width: 100%; max-width: 300px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--rule); background: var(--ink-2); color: var(--bone); font-family: inherit; font-size: 14px; }
+        .btn { padding: 10px 20px; background: var(--red); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap; font-size: 14px; transition: background 0.2s; }
+        .btn:hover { background: #b8211a; }
+        .filters { display: flex; gap: 10px; background: var(--ink-2); padding: 5px; border-radius: 8px; border: 1px solid var(--rule); }
+        .filter-btn { padding: 8px 16px; background: transparent; color: var(--bone-dim); border: none; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.2s, color 0.2s; }
+        .filter-btn.active { background: var(--red); color: white; font-weight: 500; }
+        #data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
+        .ticket-card { background: var(--ink-2); border: 1px solid var(--rule); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; transition: border-color 0.2s; }
+        .ticket-card:hover { border-color: rgba(245, 241, 234, .25); }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
+        .attendee-info { display: grid; gap: 4px; }
+        .attendee-info .name { font-size: 20px; font-weight: 500; color: var(--bone); }
+        .attendee-info .email { font-size: 14px; color: var(--bone-dim); }
+        .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
+        .status-pending { background: #ffc107; color: #000; }
+        .status-approved { background: #28a745; color: #fff; }
+        .status-rejected { background: #dc3545; color: #fff; }
+        .card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 15px 0; }
+        .info-item { display: grid; gap: 4px; }
+        .info-item .label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--bone-dim); text-transform: uppercase; }
+        .info-item .value { font-size: 14px; color: var(--bone); }
+        .info-item .value.promo { color: var(--red); font-weight: 500; }
+        .screenshot-link { display: block; margin-top: auto; }
+        .screenshot-link img { width: 100%; height: auto; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid var(--rule); }
+        .card-footer { display: flex; gap: 10px; margin-top: auto; }
+        .action-btn { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .action-btn.approve { background: #28a745; color: white; }
+        .action-btn.approve:hover:not(:disabled) { background: #218838; }
+        .action-btn.reject { background: #dc3545; color: white; }
+        .action-btn.reject:hover:not(:disabled) { background: #c82333; }
+        .action-btn:disabled { background: #555; color: #999; cursor: not-allowed; }
+        #loading-state, #no-results { text-align: center; padding: 50px; font-size: 16px; color: var(--bone-dim); grid-column: 1 / -1; }
+        @media (max-width: 480px) {
+            body { padding: 15px; }
+            .controls { flex-direction: column; align-items: stretch; }
+            .search-box { max-width: none; }
+            #data-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-  <h1>🎟️ TEDx Ticket Requests</h1>
-  <div style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="🔍 Search by name, phone, governorate..." style="padding: 10px 15px; width: 100%; max-width: 350px; box-sizing: border-box; border-radius: 6px; border: 1px solid #333; background: #222; color: #fff; font-family: inherit;">
-    <button onclick="exportToCSV()" style="padding: 10px 20px; background: #E62B1E; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap;">Download CSV 📥</button>
-  </div>
-  <div style="overflow-x: auto; width: 100%;">
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Phone</th>
-        <th>Governorate</th>
-        <th>School Name</th>
-        <th>Promo Code</th>
-        <th>Transfer From</th>
-        <th>Date Submitted</th>
-        <th>Screenshot</th>
-        <th>Status</th>
-        <th>Check-in (Door)</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody id="data-table">
-      <tr><td colspan="8">Loading data...</td></tr>
-    </tbody>
-  </table>
-  </div>
+    <header class="dashboard-header">
+        <h1>TEDx Requests <span>Dashboard</span></h1>
+        <div class="controls">
+            <div class="filters">
+                <button class="filter-btn active" data-filter="all">All</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="filter-btn" data-filter="approved">Approved</button>
+                <button class="filter-btn" data-filter="rejected">Rejected</button>
+            </div>
+            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by name, email, phone...">
+            <button onclick="exportToCSV()" class="btn">Download CSV 📥</button>
+        </div>
+    </header>
+
+    <main id="data-grid">
+        <div id="loading-state">Loading ticket data...</div>
+    </main>
 
   <script>
     let allData = [];
+    let currentFilter = 'all';
 
     fetch('/api/admin/data')
       .then(res => res.json())
       .then(data => {
         allData = data.reverse(); // Show newest requests first
-        renderTable(allData);
+        renderGrid();
       });
 
-    function renderTable(data) {
-        const tbody = document.getElementById('data-table');
-        tbody.innerHTML = '';
-        if (data.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding: 20px;">No requests found.</td></tr>';
-          return;
-        }
-        data.forEach(row => {
-          const fileName = row.screenshotPath ? row.screenshotPath.split('\\').pop().split('/').pop() : '';
-          const imgHtml = fileName ? `<a href="/uploads/${fileName}" target="_blank"><img src="/uploads/${fileName}" alt="Receipt"></a>` : 'No Image';
-          const status = row.status || 'pending';
-          const statusColor = status === 'approved' ? '#28a745' : '#ffc107';
-          const btnDisabled = status === 'approved' ? 'disabled style="background:#555;color:#999;border:none;padding:6px 10px;border-radius:4px;"' : 'style="cursor:pointer;background:#E62B1E;color:white;border:none;padding:6px 10px;border-radius:4px;"';
+    function renderGrid() {
+        const grid = document.getElementById('data-grid');
+        grid.innerHTML = '';
 
-          tbody.innerHTML += `
-            <tr>
-              <td>${row.full_name}</td><td>${row.email}</td><td>${row.phone}</td>
-              <td>${row.governorate} (${row.quantity})</td><td>${row.school_name || '-'}</td>
-              <td><span style="color:var(--red); font-weight:bold;">${row.promo_code || '-'}</span></td>
-              <td>${row.transfer_number || '-'}</td>
-              <td>${row.date}</td><td>${imgHtml}</td>
-              <td><span style="background:${statusColor};color:#000;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:bold;">${status.toUpperCase()}</span></td>
-              <td><span style="font-weight:bold; color:${row.checked_in ? '#28a745' : '#ccc'}">${row.checked_in ? '✅ Inside' : '❌ Waiting'}</span></td>
-              <td><button onclick="approveTicket(${row.id})" ${btnDisabled}>${status === 'approved' ? 'Approved' : 'Approve'}</button></td>
-            </tr>`;
+        const query = document.getElementById('searchInput').value.toLowerCase();
+        const filteredData = allData.filter(row => {
+            const matchesSearch = (
+                row.full_name.toLowerCase().includes(query) ||
+                row.email.toLowerCase().includes(query) ||
+                row.phone.includes(query)
+            );
+            const matchesFilter = (
+                currentFilter === 'all' ||
+                row.status === currentFilter
+            );
+            return matchesSearch && matchesFilter;
+        });
+
+        if (filteredData.length === 0) {
+            grid.innerHTML = `<div id="no-results">No requests found.</div>`;
+            return;
+        }
+
+        filteredData.forEach(row => {
+            const card = document.createElement('div');
+            card.className = 'ticket-card';
+
+            const status = row.status || 'pending';
+            const isFinished = status === 'approved' || status === 'rejected';
+            const quantity = parseInt(row.quantity, 10) || 1;
+            const fileName = row.screenshotPath ? row.screenshotPath.split('\\').pop().split('/').pop() : '';
+
+            let checkinStatusHtml = '';
+            if (status === 'approved') {
+                if (quantity > 1 && row.checkins && row.checkins.length > 0) {
+                    const checkedCount = row.checkins.filter(st => st.checked).length;
+                    checkinStatusHtml = `${checkedCount} / ${quantity} Checked In`;
+                } else {
+                    checkinStatusHtml = row.checked_in ? '✅ Inside' : '❌ Waiting';
+                }
+            }
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="attendee-info">
+                        <div class="name">${row.full_name}</div>
+                        <div class="email">${row.email}</div>
+                    </div>
+                    <div class="status-badge status-${status}">${status}</div>
+                </div>
+                <div class="card-body">
+                    <div class="info-item"><span class="label">Phone</span><span class="value">${row.phone}</span></div>
+                    <div class="info-item"><span class="label">Governorate</span><span class="value">${row.governorate}</span></div>
+                    <div class="info-item"><span class="label">Quantity</span><span class="value">${quantity}</span></div>
+                    <div class="info-item"><span class="label">School</span><span class="value">${row.school_name || '-'}</span></div>
+                    <div class="info-item"><span class="label">Payment</span><span class="value">${row.payment_method || '-'}${row.wallet_provider ? ` (${row.wallet_provider})` : ''}</span></div>
+                    <div class="info-item"><span class="label">Promo</span><span class="value promo">${row.promo_code || '-'}</span></div>
+                </div>
+                ${fileName ? `<a href="/uploads/${fileName}" target="_blank" class="screenshot-link"><img src="/uploads/${fileName}" alt="Receipt"></a>` : ''}
+                ${checkinStatusHtml ? `<div class="info-item" style="text-align:center; padding-top:10px;"><span class="label">Check-in Status</span><span class="value">${checkinStatusHtml}</span></div>` : ''}
+                <div class="card-footer">
+                    <button class="action-btn approve" onclick="approveTicket(${row.id}, ${quantity})" ${isFinished ? 'disabled' : ''}>Approve</button>
+                    <button class="action-btn reject" onclick="rejectTicket(${row.id})" ${isFinished ? 'disabled' : ''}>Reject</button>
+                </div>
+            `;
+            grid.appendChild(card);
         });
     }
 
-    function filterTable() {
-      const query = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = allData.filter(row =>
-        row.full_name.toLowerCase().includes(query) ||
-        row.phone.includes(query) ||
-        row.governorate.toLowerCase().includes(query) ||
-        (row.promo_code && row.promo_code.toLowerCase().includes(query))
-      );
-      renderTable(filtered);
-    }
+    document.getElementById('searchInput').addEventListener('keyup', renderGrid);
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelector('.filter-btn.active').classList.remove('active');
+            btn.classList.add('active');
+            currentFilter = btn.dataset.filter;
+            renderGrid();
+        });
+    });
 
     function exportToCSV() {
-      const headers = ['ID', 'Date', 'Status', 'Full Name', 'Email', 'Phone', 'Governorate', 'Quantity', 'School', 'Promo Code', 'Transfer Number'];
+      const headers = ['ID', 'Date', 'Status', 'Full Name', 'Email', 'Phone', 'Governorate', 'Quantity', 'School', 'Promo Code', 'Transfer Source', 'Payment Method', 'Wallet Provider'];
       let csvContent = headers.join(',') + '\n';
 
       allData.forEach(row => {
@@ -109,7 +179,9 @@
           row.quantity,
           `"${row.school_name || ''}"`,
           `"${row.promo_code || ''}"`,
-          row.transfer_number || ''
+          `"${row.transfer_source || ''}"`,
+          `"${row.payment_method || ''}"`,
+          `"${row.wallet_provider || ''}"`
         ];
         csvContent += rowData.join(',') + '\n';
       });
@@ -125,17 +197,46 @@
       document.body.removeChild(link);
     }
 
-    // Approve ticket and send QR code function
-    function approveTicket(id) {
-      if(!confirm('Are you sure you want to approve this ticket and send the QR code?')) return;
+    // Approve ticket and send QR code function (with dynamic quantity for groups)
+    function approveTicket(id, requestedQty) {
+      let finalQty = requestedQty;
       
-      fetch('/api/admin/approve/' + id, { method: 'POST' })
+      if (requestedQty > 1) {
+        const userInput = prompt(`This is a group request for ${requestedQty} tickets.\nYou can change the number of tickets to generate if they paid for a different amount:`, requestedQty);
+        if (userInput === null) return; // User cancelled
+        finalQty = parseInt(userInput, 10);
+        if (isNaN(finalQty) || finalQty < 1) {
+          alert('Invalid quantity entered.');
+          return;
+        }
+      } else {
+        if(!confirm('Are you sure you want to approve this ticket and send the QR code?')) return;
+      }
+      
+      fetch(`/api/admin/approve/${id}`, { 
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity: finalQty })
+      })
         .then(res => res.json())
         .then(data => {
           alert(data.message);
           location.reload(); // Reload page to see changes
         })
         .catch(err => alert('Error approving ticket'));
+    }
+
+    // Reject ticket function
+    function rejectTicket(id) {
+      if(!confirm('Are you sure you want to REJECT this ticket? The user will be notified via email.')) return;
+      
+      fetch(`/api/admin/reject/${id}`, { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          alert(data.message);
+          location.reload(); // Reload page to see changes
+        })
+        .catch(err => alert('Error rejecting ticket'));
     }
   </script>
 </body>

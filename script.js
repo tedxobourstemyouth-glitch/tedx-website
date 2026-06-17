@@ -7,6 +7,8 @@
         preloader.classList.add('hidden');
       }, 600); // Small delay for cinematic feel
     });
+      // Fallback: Hide preloader after 3 seconds if network is slow
+      setTimeout(() => preloader.classList.add('hidden'), 3000);
   }
 
   // --- Reveal on scroll animations ---
@@ -45,14 +47,20 @@
   const heroCopy = document.getElementById('hero-copy-parallax');
   const heroPhoto = document.getElementById('hero-photo-parallax');
   if (heroCopy && heroPhoto) {
+    let ticking = false;
     document.addEventListener('mousemove', (e) => {
-      // Calculate mouse position relative to center of screen (-1 to 1)
-      const x = (e.clientX / window.innerWidth - 0.5);
-      const y = (e.clientY / window.innerHeight - 0.5);
-      
-      // Apply subtle translations (opposite directions for depth)
-      heroCopy.style.transform = `translate(${x * 15}px, ${y * 15}px)`;
-      heroPhoto.style.transform = `translate(${x * -20}px, ${y * -20}px)`;
+      if (window.innerWidth <= 1100) return; // Disable effect on mobile to improve performance
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          // Calculate mouse position relative to center of screen (-1 to 1)
+          const x = (e.clientX / window.innerWidth - 0.5);
+          const y = (e.clientY / window.innerHeight - 0.5);
+          heroCopy.style.transform = `translate(${x * 15}px, ${y * 15}px)`;
+          heroPhoto.style.transform = `translate(${x * -20}px, ${y * -20}px)`;
+          ticking = false;
+        });
+        ticking = true;
+      }
     });
   }
 
@@ -72,45 +80,34 @@
   }
 
   // --- Ticket Form Logic ---
-  const ticketForm = document.getElementById('ticket-request-form');
-  if (ticketForm) {
-    const isGroupCheckbox = document.getElementById('is-group-booking');
-    const groupNameInput = document.getElementById('group-name');
-    const groupMembersTextarea = document.getElementById('group-members');
-    const groupMembersField = document.getElementById('group-members-field'); // The whole label/textarea block
+  const ticketForm = document.getElementById('ticket-request-form'); // The form itself
+  const fullscreenSuccess = document.getElementById('fullscreen-success'); // The new success overlay
+  const newRequestBtnFullscreen = document.getElementById('new-request-button-fullscreen'); // The button on the new overlay
 
-    // Function to show/hide group fields based on checkbox
-    const toggleGroupFields = () => {
-      const isChecked = isGroupCheckbox.checked;
+  if (ticketForm && fullscreenSuccess) {
+    // --- Conditional Payment Fields Logic ---
+    const paymentMethodSelect = document.getElementById('payment-method-select');
+    const walletProviderField = document.getElementById('wallet-provider-field');
+    const walletProviderSelect = document.getElementById('wallet-provider-select');
 
-      // Enable/disable the inputs so they are only submitted if visible
-      groupNameInput.disabled = !isChecked;
-      groupMembersTextarea.disabled = !isChecked;
-
-      // Show/hide the fields visually
-      groupNameInput.closest('.form-field').style.display = isChecked ? 'inline-flex' : 'none';
-      groupMembersField.style.display = isChecked ? 'block' : 'none';
-    };
-
-    // Set the initial state when the page loads
-    toggleGroupFields();
-
-    // Add event listener to run the function whenever the checkbox is clicked
-    isGroupCheckbox.addEventListener('change', toggleGroupFields);
+    if (paymentMethodSelect) {
+      paymentMethodSelect.addEventListener('change', () => {
+        if (paymentMethodSelect.value === 'Mobile Wallet') {
+          walletProviderField.style.display = 'block';
+          walletProviderSelect.required = true;
+        } else {
+          walletProviderField.style.display = 'none';
+          walletProviderSelect.required = false;
+          walletProviderSelect.value = '';
+        }
+      });
+    }
 
     // --- Form Submission Handling ---
-    const successScreen = document.getElementById('ticket-success');
-    const newRequestBtn = document.getElementById('new-request-button');
     const submitBtn = ticketForm.querySelector('.form-submit');
 
     ticketForm.addEventListener('submit', async (e) => {
       e.preventDefault(); // Prevent page refresh
-
-      // Strict validation: check if required fields are empty
-      if (!ticketForm.checkValidity()) {
-        ticketForm.reportValidity();
-        return;
-      }
 
       // Collect data from the form
       const formData = new FormData(ticketForm);
@@ -120,35 +117,61 @@
       submitBtn.disabled = true;
 
       try {
-        // Send data directly to localhost so it works even if the file is opened directly
-        const response = await fetch('http://localhost:3001/submit', {
+        // Smart routing: Direct local testing to the correct server port
+        const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+        const isWrongPort = window.location.port === '5500' || window.location.port === '5501';
+        const submitUrl = (window.location.protocol === 'file:' || (isLocal && isWrongPort)) 
+          ? 'http://localhost:3001/submit' 
+          : '/submit';
+
+        const response = await fetch(submitUrl, {
           method: 'POST',
           body: formData
         });
 
+        let responseText = await response.text();
+        let responseData;
+        try {
+          responseData = JSON.parse(responseText);
+        } catch (e) {
+          throw new Error('Local server is down. Please open Terminal and run "node server.js" first!');
+        }
+
         if (response.ok) {
-          ticketForm.style.display = 'none';
-          successScreen.hidden = false;
+          // Show the new fullscreen success screen
+          fullscreenSuccess.hidden = false;
+          document.body.classList.add('success-open');
         } else {
-          const errorData = await response.json();
-          alert('Error: ' + (errorData.message || 'Please try again.'));
+          alert('Error: ' + (responseData.message || 'Please try again.'));
         }
       } catch (error) {
         console.error('Error:', error);
-        alert('Could not connect to the server. Is the local server running?');
+        let userMessage = 'An unknown error occurred. Please try again.';
+        if (error.message.includes('Failed to fetch')) {
+            userMessage = 'Server connection failed! 😫\n\nPlease ensure:\n1. The server is running via Terminal command: node server.js\n2. No Antivirus is blocking the connection.';
+        } else {
+            userMessage = error.message;
+        }
+        alert(userMessage);
       } finally {
         submitBtn.innerHTML = 'Submit Request <span class="arr">↗</span>';
-        submitBtn.disabled = false;
+        // Fix freeze issue: Re-enable the button if an error occurs
+        if (fullscreenSuccess.hidden) {
+          submitBtn.disabled = false;
+        }
       }
     });
 
     // Handle "Submit another request" button
-    if (newRequestBtn) {
-      newRequestBtn.addEventListener('click', () => {
-        successScreen.hidden = true;
+    if (newRequestBtnFullscreen) {
+      newRequestBtnFullscreen.addEventListener('click', () => {
+        fullscreenSuccess.hidden = true;
+        document.body.classList.remove('success-open');
         ticketForm.reset();
-        ticketForm.style.display = 'block';
-        toggleGroupFields(); // Reset group fields
+        submitBtn.disabled = false; // Re-enable the submit button
+        // Reset conditional fields
+        walletProviderField.style.display = 'none';
+        walletProviderSelect.required = false;
       });
     }
   }

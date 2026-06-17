@@ -55,7 +55,6 @@
         </div>
         <div class="ticket-actions">
           <a href="#ticket-form" class="btn btn-primary">Start Request <span class="arr">↓</span></a>
-          <a href="https://www.instagram.com/tedxobourstemyouth?utm_source=ig_web_button_share_sheet&amp;igsh=ZDNlZDc0MzIxNw==" class="btn btn-ghost" target="_blank" rel="noreferrer">Ticket Updates <span class="arr">↗</span></a>
         </div>
       </div>
 
@@ -164,43 +163,47 @@
               <input type="text" name="school_name" placeholder="Your school name" required>
             </label>
 
-            <label class="form-field">
-              <span>Promo Code (Optional)</span>
-              <input type="text" name="promo_code" placeholder="Enter your code for discount">
-            </label>
-
             <!-- Payment Details -->
             <label class="form-field">
-              <span>Payment Reference</span>
-              <input type="text" name="payment_reference" placeholder="Transfer reference / receipt id" required>
+              <span>Transfer Phone / Account No.</span>
+              <input type="text" name="transfer_source" placeholder="The number or account you paid from" required>
             </label>
-
-          <label class="form-field">
-            <span>Transfer Sender Number</span>
-            <input type="tel" name="transfer_number" placeholder="Number you transferred from (e.g. Vodafone Cash)" required>
-          </label>
 
             <label class="form-field">
               <span>Payment Date</span>
               <input type="date" name="payment_date" required>
             </label>
-          </div>
-
-          <div class="form-split">
-            <label class="form-check">
-              <input type="checkbox" name="is_group" id="is-group-booking">
-              <span>This booking is for a group</span>
-            </label>
-
-            <label class="form-field inline-field">
-              <span>Group Name</span>
-              <input type="text" name="group_name" id="group-name" placeholder="Optional group or school name" disabled>
+            
+            <label class="form-field">
+              <span>Promo Code (Optional)</span>
+              <input type="text" name="promo_code" placeholder="Enter your code for discount">
             </label>
           </div>
 
-          <label class="form-field" id="group-members-field">
-            <span>Group Members</span>
-            <textarea name="group_members" id="group-members" rows="5" placeholder="Add one attendee per line: Full Name - Phone - Email" disabled></textarea>
+          <div class="form-grid" style="gap: 16px; align-items: flex-end;">
+            <label class="form-field" style="margin-bottom: 0;">
+              <span>Payment Method</span>
+              <select name="payment_method" id="payment-method-select" required>
+                <option value="" disabled selected>Select method...</option>
+                <option value="Mobile Wallet">Mobile Wallet</option>
+                <option value="InstaPay">InstaPay</option>
+              </select>
+            </label>
+            <label class="form-field" id="wallet-provider-field" style="display: none; margin-bottom: 0;">
+              <span>Wallet Provider</span>
+              <select name="wallet_provider" id="wallet-provider-select">
+                <option value="" disabled selected>Select provider...</option>
+                <option value="Vodafone Cash">Vodafone Cash</option>
+                <option value="Orange Cash">Orange Cash</option>
+                <option value="Etisalat Cash">Etisalat Cash</option>
+                <option value="WE Pay">WE Pay</option>
+              </select>
+            </label>
+          </div>
+
+          <label class="form-check" style="margin-bottom: 18px; grid-column: 1 / -1;">
+            <input type="checkbox" name="is_group" id="is-group-booking">
+            <span>This booking is for a group (Make sure to set the Quantity above)</span>
           </label>
 
           <label class="form-field upload-field" style="grid-column: 1 / -1;">
@@ -219,27 +222,6 @@
             <p class="form-status" id="ticket-form-status" aria-live="polite"></p>
           </div>
         </form>
-
-        <div class="ticket-success" id="ticket-success" hidden>
-          <div class="animated-check-wrapper">
-            <svg class="animated-check" viewBox="0 0 24 24">
-              <circle class="check-circle" cx="12" cy="12" r="11"></circle>
-              <polyline class="check-line" points="7 13 10 16 17 9"></polyline>
-            </svg>
-            <div class="confetti"></div>
-          </div>
-          <div class="ticket-success-kicker">Request Received</div>
-          <h3>Your ticket request has been logged.</h3>
-          <p>The chapter will review the submitted details and payment proof, then contact you using the phone number or email you entered.</p>
-          <div class="ticket-success-meta">
-            <span id="success-request-id">Request ID: --</span>
-            <span id="success-created-at">Submitted: --</span>
-          </div>
-          <div class="ticket-actions">
-            <button type="button" class="btn btn-ghost" id="new-request-button">Submit Another Request <span class="arr">↓</span></button>
-            <a href="index.html" class="btn btn-primary">Back Home <span class="arr">↗</span></a>
-          </div>
-        </div>
       </div>
     </div>
   </section>
@@ -290,6 +272,7 @@
       <div class="foot-col">
         <h4>Contact</h4>
         <p style="color:var(--bone-dim);font-size:14px">tedxobourstemyouth@gmail.com</p>
+        <a href="https://maps.app.goo.gl/XtnmVnJkhjWEx1De7" target="_blank" style="color:var(--red);font-size:14px;display:block;margin-bottom:10px;">Location: 6th of October Educational City ↗</a>
       </div>
     </div>
     <div class="foot-bottom">
@@ -298,6 +281,25 @@
     </div>
   </div>
 </footer>
+
+<!-- Fullscreen Success Screen -->
+<div class="fullscreen-success" id="fullscreen-success" hidden>
+  <div class="success-content">
+    <div class="success-logo">
+      <span class="ted">TED</span><span class="x">x</span>
+    </div>
+    <div class="success-animation">
+      <svg class="animated-check" viewBox="0 0 24 24">
+        <circle class="check-circle" cx="12" cy="12" r="11"></circle>
+        <polyline class="check-line" points="7 13 10 16 17 9"></polyline>
+      </svg>
+    </div>
+    <h2 class="success-title">Thank you for registering.</h2>
+    <p class="success-message">Your registration request has been received successfully. Your payment will be reviewed shortly.</p>
+    <p class="success-footer">We look forward to seeing you at TEDx Obour STEM Youth.</p>
+    <button type="button" class="btn btn-ghost" id="new-request-button-fullscreen">Submit Another Request</button>
+  </div>
+</div>
 
 <script src="script.js"></script>
 </body>

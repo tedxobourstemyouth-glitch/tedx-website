@@ -29,6 +29,7 @@
     document.addEventListener('DOMContentLoaded', async () => {
       const urlParams = new URLSearchParams(window.location.search);
       const ticketId = urlParams.get('id');
+      const subId = urlParams.get('sub_id');
       const content = document.getElementById('content');
 
       if (!ticketId) {
@@ -37,7 +38,8 @@
       }
 
       try {
-        const res = await fetch(`/api/admin/checkin/${ticketId}`);
+        const apiUrl = subId ? `/api/admin/checkin/${ticketId}?sub_id=${subId}` : `/api/admin/checkin/${ticketId}`;
+        const res = await fetch(apiUrl);
         if (res.status === 401) {
           content.innerHTML = '<div class="status-box status-used">🔒 UNAUTHORIZED</div><p>You must log in to scan tickets.</p>';
           return;
@@ -56,25 +58,34 @@
 
     function renderTicket(ticket) {
       const content = document.getElementById('content');
+      const subId = new URLSearchParams(window.location.search).get('sub_id');
       let statusHtml = '', actionHtml = '';
+      let isCheckedIn = ticket.is_sub_ticket ? ticket.checked : ticket.checked_in;
+      let checkinTime = ticket.is_sub_ticket ? ticket.time : ticket.checkin_time;
 
       if (ticket.status !== 'approved') {
         statusHtml = `<div class="status-box status-used">⚠️ NOT APPROVED</div>`;
-      } else if (ticket.checked_in) {
-        statusHtml = `<div class="status-box status-used">❌ ALREADY USED<div style="font-size: 14px; margin-top: 10px; font-weight: normal; color: #fff;">Checked in at:<br>${ticket.checkin_time}</div></div>`;
+      } else if (isCheckedIn) {
+        statusHtml = `<div class="status-box status-used">❌ ALREADY USED<div style="font-size: 14px; margin-top: 10px; font-weight: normal; color: #fff;">Checked in at:<br>${checkinTime}</div></div>`;
         actionHtml = `<button class="btn btn-disabled" disabled>Ticket is void</button>`;
       } else {
         statusHtml = `<div class="status-box status-ok">✅ VALID TICKET</div>`;
-        actionHtml = `<button class="btn btn-green" onclick="confirmCheckin(${ticket.id})">Confirm Check-in</button>`;
+        actionHtml = `<button class="btn btn-green" onclick="confirmCheckin(${ticket.id}, ${subId})">Confirm Check-in</button>`;
       }
 
-      content.innerHTML = `<h1>SCANNER</h1><div class="data-row"><strong>${ticket.full_name}</strong>${ticket.governorate || ''}</div><div class="data-row" style="font-size: 14px;">Ticket ID: ${ticket.id}<br>Phone: ${ticket.phone}</div>${statusHtml}${actionHtml}`;
+      let subTicketInfo = '';
+      if (ticket.is_sub_ticket) {
+        subTicketInfo = ` (Ticket ${ticket.sub_id} of ${ticket.quantity})`;
+      }
+
+      content.innerHTML = `<h1>SCANNER</h1><div class="data-row"><strong>${ticket.full_name}</strong>${ticket.governorate || ''}${subTicketInfo}</div><div class="data-row" style="font-size: 14px;">Ticket ID: ${ticket.id}<br>Phone: ${ticket.phone}</div>${statusHtml}${actionHtml}`;
     }
 
-    async function confirmCheckin(id) {
+    async function confirmCheckin(id, subId) {
       if (!confirm('Are you sure you want to check in this ticket? This cannot be undone.')) return;
       try {
-        const res = await fetch(`/api/admin/checkin/${id}`, { method: 'POST' });
+        const apiUrl = subId ? `/api/admin/checkin/${id}?sub_id=${subId}` : `/api/admin/checkin/${id}`;
+        const res = await fetch(apiUrl, { method: 'POST' });
         const data = await res.json();
         if (res.ok) { renderTicket(data.ticket); } else { alert(data.message || 'Error checking in'); }
       } catch (err) { alert('Connection Error'); }

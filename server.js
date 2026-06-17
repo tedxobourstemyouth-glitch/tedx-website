@@ -16,11 +16,14 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+const dataDir = path.join(__dirname, '.data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+app.use('/uploads', express.static(path.join(__dirname, '.data', 'uploads')));
 app.use(express.static(__dirname)); // To serve the entire website
 
 // 2. Server Anti-Crash System (If the database file is corrupted, it fixes itself)
-const dbPath = path.join(__dirname, 'database.json');
+const dbPath = path.join(__dirname, '.data', 'database.json');
 function readDatabase() {
   try {
     if (!fs.existsSync(dbPath)) return [];
@@ -52,14 +55,14 @@ const adminAuth = (req, res, next) => {
 
 app.use('/admin.html', adminAuth);
 
-// حماية صفحة الـ Scan عشان محدش يقدر يفتحها غير الأدمن
+// Protect the scan page so only admins can access it
 app.use('/checkin.html', adminAuth); 
 
 // 4. Image Upload Settings (Fully Secure)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    const uploadDir = path.join(__dirname, 'uploads');
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
+    const uploadDir = path.join(__dirname, '.data', 'uploads');
+    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
@@ -104,8 +107,18 @@ app.post('/submit', (req, res, next) => {
       date: new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo', dateStyle: 'medium', timeStyle: 'short' }),
       status: 'pending',
       ...formData,
-      screenshotPath: file ? file.filename : null
+      screenshotPath: file ? file.filename : null,
+      checked_in: false, // For single tickets
+      checkins: [] // For group tickets
     };
+
+    const quantity = parseInt(formData.quantity, 10) || 1;
+    if (quantity > 1) {
+        for (let i = 1; i <= quantity; i++) {
+            newEntry.checkins.push({ sub_id: i, checked: false, time: null });
+        }
+    }
+
     db.push(newEntry);
     writeDatabase(db);
     console.log('✅ New ticket saved for:', formData.full_name);
@@ -130,12 +143,46 @@ app.post('/submit', (req, res, next) => {
       console.log('⚠️ Email not sent but ticket saved. Reason:', emailErr.message);
     }
     
-    res.status(200).json({ message: 'Success' });
+    res.status(200).json({ message: 'Success', ticketId: newEntry.id, date: newEntry.date });
   } catch (error) {
     console.error('❌ Unexpected error:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
+
+async function generateTicketImage(qrUrl, templatePath) {
+  const ticketImg = await Jimp.read(templatePath);
+
+  // Dynamic QR code positioning
+  const ticketW = ticketImg.bitmap.width;
+  const ticketH = ticketImg.bitmap.height;
+  const QR_SIZE = Math.floor(ticketW * (1.96 / 8.5));
+  const QR_X = Math.floor(ticketW * (6.22 / 8.5));
+  const QR_Y = Math.floor(ticketH * (0.65 / 2.75));
+
+  const qrCodeBuffer = await QRCode.toBuffer(qrUrl, {
+    type: 'png',
+    color: { dark: '#000000', light: '#ffffff' },
+    margin: 0,
+    width: QR_SIZE
+  });
+  const qrImg = await Jimp.read(qrCodeBuffer);
+
+  // Ensure exact size
+  if (qrImg.bitmap.width !== QR_SIZE || qrImg.bitmap.height !== QR_SIZE) {
+    try { qrImg.resize(QR_SIZE, QR_SIZE); } catch (e) { qrImg.resize({ w: QR_SIZE, h: QR_SIZE }); }
+  }
+
+  ticketImg.composite(qrImg, QR_X, QR_Y);
+
+  // Export final image
+  const mimeType = 'image/jpeg';
+  const finalTicketBuffer = typeof ticketImg.getBufferAsync === 'function'
+    ? await ticketImg.getBufferAsync(mimeType)
+    : await ticketImg.getBuffer(mimeType);
+
+  return finalTicketBuffer;
+}
 
 // 7. Ticket Approval Route (Anti-Crash)
 app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
@@ -149,45 +196,51 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
 
     const ticket = db[ticketIndex];
 
-    // 1. Read Template (Fallback to 'Event Ticket.jpg' if the renamed one isn't found)
+    // Read Template
     let templatePath = path.join(__dirname, 'template Event Ticket.jpg');
     if (!fs.existsSync(templatePath)) templatePath = path.join(__dirname, 'Event Ticket.jpg');
-    
     if (!fs.existsSync(templatePath)) {
       throw new Error(`Ticket template not found! Please make sure '${path.basename(templatePath)}' exists in the folder.`);
     }
-    const ticketImg = await Jimp.read(templatePath);
 
-    // حساب الأبعاد ديناميكياً بناءً على مقاسات Canva اللي بعتها (Width: 8.5in, Height: 2.75in)
-    // الكود ده هيظبط الـ QR في المربع الأحمر بالمللي مهما كانت جودة أو حجم صورة التذكرة
-    const ticketW = ticketImg.bitmap.width;
-    const ticketH = ticketImg.bitmap.height;
-    const QR_SIZE = Math.floor(ticketW * (1.96 / 8.5));
-    const QR_X = Math.floor(ticketW * (6.22 / 8.5));
-    const QR_Y = Math.floor(ticketH * (0.65 / 2.75));
-    
-    // تغيير الـ QR ليكون رابط حقيقي يفتح صفحة الفحص الخاصة بالتذكرة
-    const qrUrl = `${req.protocol}://${req.get('host')}/checkin.html?id=${ticket.id}`;
-    const qrCodeBuffer = await QRCode.toBuffer(qrUrl, {
-      type: 'png',
-      color: { dark: '#000000', light: '#ffffff' },
-      margin: 0,
-      width: QR_SIZE
-    });
-    const qrImg = await Jimp.read(qrCodeBuffer);
-    
-    // Force exact 543x543 size in case the QRCode library rounds pixels
-    if (qrImg.bitmap.width !== QR_SIZE || qrImg.bitmap.height !== QR_SIZE) {
-      try { qrImg.resize(QR_SIZE, QR_SIZE); } catch (e) { qrImg.resize({ w: QR_SIZE, h: QR_SIZE }); }
+ن    // Adjust quantity if admin changed it during approval
+    if (req.body && req.body.quantity) {
+      const newQty = parseInt(req.body.quantity, 10);
+      if (newQty > 0) {
+        ticket.quantity = newQty;
+        ticket.checkins = [];
+        if (newQty > 1) {
+          for (let i = 1; i <= newQty; i++) {
+            ticket.checkins.push({ sub_id: i, checked: false, time: null });
+          }
+        }
+      }
     }
-    
-    ticketImg.composite(qrImg, QR_X, QR_Y);
 
-    // 4. Export the final composited image preserving all original dimensions
-    const mimeType = 'image/jpeg';
-    const finalTicketBuffer = typeof ticketImg.getBufferAsync === 'function' 
-      ? await ticketImg.getBufferAsync(mimeType) // For Jimp v0.16.x
-      : await ticketImg.getBuffer(mimeType);     // For Jimp v1.x.x
+    const quantity = parseInt(ticket.quantity, 10) || 1;
+    const attachments = [];
+
+    if (quantity > 1) {
+      // Group ticket logic
+      for (let i = 1; i <= quantity; i++) {
+        const qrUrl = `${req.protocol}://${req.get('host')}/checkin.html?id=${ticket.id}&sub_id=${i}`;
+        const finalTicketBuffer = await generateTicketImage(qrUrl, templatePath);
+        attachments.push({
+          filename: `Official_Ticket_${ticket.id}_(${i}_of_${quantity}).jpg`,
+          content: finalTicketBuffer,
+          cid: `ticket_final_${i}`
+        });
+      }
+    } else {
+      // Single ticket logic
+      const qrUrl = `${req.protocol}://${req.get('host')}/checkin.html?id=${ticket.id}`;
+      const finalTicketBuffer = await generateTicketImage(qrUrl, templatePath);
+      attachments.push({
+        filename: `Official_Ticket_${ticket.id}.jpg`,
+        content: finalTicketBuffer,
+        cid: 'ticket_final'
+      });
+    }
 
     const approvedEmail = `
       <!DOCTYPE html>
@@ -217,9 +270,9 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
             <h2 style="color: #E62B1E; margin-top: 0;">TEDx Obour STEM Youth</h2>
             <p style="color: #333333; font-size: 16px;">Congratulations <strong>${ticket.full_name}</strong>!</p>
             <p style="color: #333333; font-size: 16px;">Your ticket is APPROVED. Please save your official ticket below to show at the door.</p>
-            <img src="cid:ticket_final" alt="Event Ticket" class="ticket-img" />
+            <img src="cid:${attachments[0].cid}" alt="Event Ticket" class="ticket-img" />
             <div style="margin-top: 30px;">
-              <a href="http://localhost:${PORT}/ticket-view.html?id=${ticket.id}" class="btn">View & Download Ticket Online</a>
+              <a href="${req.protocol}://${req.get('host')}/ticket-view.html?id=${ticket.id}" class="btn">View & Download Ticket Online</a>
             </div>
             <p style="color: #777777; font-size: 13px; margin-top: 20px;">* Your high-resolution ticket is also attached to this email.</p>
           </div>
@@ -236,15 +289,9 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
         to: ticket.email,
         subject: 'Ticket Approved! - TEDx',
         html: approvedEmail,
-        attachments: [
-          {
-            filename: `Official_Ticket_${ticket.id}.jpg`,
-            content: finalTicketBuffer,
-            cid: 'ticket_final'
-          }
-        ]
+        attachments: attachments
       });
-      console.log('📧 Ticket successfully sent to:', ticket.email);
+      console.log(`📧 ${quantity} ticket(s) successfully sent to:`, ticket.email);
     } catch (emailErr) {
       console.log('⚠️ Failed to send email:', emailErr.message);
       return res.status(500).json({ message: 'Failed to send email, please check the password.' });
@@ -252,9 +299,52 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
 
     db[ticketIndex].status = 'approved';
     writeDatabase(db);
-    res.json({ message: 'Ticket approved, QR generated, and email sent successfully!' });
+    res.json({ message: `Ticket approved, ${quantity} QR(s) generated, and email sent successfully!` });
   } catch (error) {
     console.error('❌ Error during approval:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+});
+
+// 7.5 Ticket Rejection Route
+app.post('/api/admin/reject/:id', adminAuth, async (req, res) => {
+  try {
+    const reqId = parseInt(req.params.id);
+    let db = readDatabase();
+    const ticketIndex = db.findIndex(t => t.id === reqId);
+    
+    if (ticketIndex === -1) return res.status(404).json({ message: 'Ticket not found' });
+    if (db[ticketIndex].status === 'approved') return res.status(400).json({ message: 'Cannot reject an already approved ticket' });
+    if (db[ticketIndex].status === 'rejected') return res.status(400).json({ message: 'Already rejected' });
+
+    const ticket = db[ticketIndex];
+    
+    const rejectedEmail = `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2 style="color: #E62B1E;">TEDx Obour STEM Youth</h2>
+        <p>Hello <strong>${ticket.full_name}</strong>,</p>
+        <p>We regret to inform you that your ticket request (ID: ${ticket.id}) could not be approved at this time.</p>
+        <p>This might be due to an invalid payment screenshot, incorrect details, or because we have reached full capacity.</p>
+        <p>If you believe this is a mistake, please reply to this email to contact our team.</p>
+      </div>`;
+
+    try {
+      await transporter.sendMail({
+        from: `"TEDx Obour STEM" <${process.env.EMAIL_USER}>`,
+        to: ticket.email,
+        subject: 'Update on your ticket request - TEDx',
+        html: rejectedEmail
+      });
+      console.log('📧 Rejection email sent to:', ticket.email);
+    } catch (emailErr) {
+      console.log('⚠️ Failed to send rejection email:', emailErr.message);
+    }
+
+    db[ticketIndex].status = 'rejected';
+    writeDatabase(db);
+    res.json({ message: 'Ticket rejected successfully and user notified!' });
+  } catch (error) {
+    console.error('❌ Error during rejection:', error);
     res.status(500).json({ message: 'Internal Server Error' });
   }
 });
@@ -321,38 +411,59 @@ app.get('/api/ticket/render/:id', async (req, res) => {
   }
 });
 
-// 11. Check-in Routes (مسارات تأكيد الحضور على الباب)
+// 11. Check-in Routes
 app.get('/api/admin/checkin/:id', adminAuth, (req, res) => {
-  const reqId = parseInt(req.params.id);
-  const db = readDatabase();
-  const ticket = db.find(t => t.id === reqId);
-  if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
-  res.json(ticket);
+  try {
+    const reqId = parseInt(req.params.id);
+    const subId = req.query.sub_id ? parseInt(req.query.sub_id, 10) : null;
+    const db = readDatabase();
+    const ticket = db.find(t => t.id === reqId);
+
+    if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
+
+    if (subId) {
+      const subTicket = ticket.checkins.find(st => st.sub_id === subId);
+      if (!subTicket) return res.status(404).json({ message: 'Sub-ticket not found' });
+      res.json({ ...ticket, ...subTicket, is_sub_ticket: true });
+    } else {
+      res.json(ticket);
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 app.post('/api/admin/checkin/:id', adminAuth, (req, res) => {
   const reqId = parseInt(req.params.id);
+  const subId = req.query.sub_id ? parseInt(req.query.sub_id, 10) : null;
   let db = readDatabase();
   const ticketIndex = db.findIndex(t => t.id === reqId);
   
   if (ticketIndex === -1) return res.status(404).json({ message: 'Ticket not found' });
 
-  if (db[ticketIndex].checked_in) {
-    return res.status(400).json({ message: 'Ticket has ALREADY been used!' });
+  if (subId) {
+    const subTicketIndex = db[ticketIndex].checkins.findIndex(st => st.sub_id === subId);
+    if (subTicketIndex === -1) return res.status(404).json({ message: 'Sub-ticket not found' });
+    if (db[ticketIndex].checkins[subTicketIndex].checked) {
+      return res.status(400).json({ message: 'This specific ticket has ALREADY been used!' });
+    }
+    db[ticketIndex].checkins[subTicketIndex].checked = true;
+    db[ticketIndex].checkins[subTicketIndex].time = new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo', dateStyle: 'medium', timeStyle: 'short' });
+  } else {
+    if (db[ticketIndex].checked_in) return res.status(400).json({ message: 'Ticket has ALREADY been used!' });
+    db[ticketIndex].checked_in = true;
+    db[ticketIndex].checkin_time = new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo', dateStyle: 'medium', timeStyle: 'short' });
   }
-
-  // حرق التذكرة وتأكيد الدخول
-  db[ticketIndex].checked_in = true;
-  db[ticketIndex].checkin_time = new Date().toLocaleString('en-US', { timeZone: 'Africa/Cairo', dateStyle: 'medium', timeStyle: 'short' });
   
   writeDatabase(db);
   res.json({ message: 'Check-in successful!', ticket: db[ticketIndex] });
 });
 
-app.listen(PORT, () => {
+const HOST = process.env.IP || '0.0.0.0';
+app.listen(PORT, HOST, () => {
   console.log(`
 🚀 The new anti-crash server is running!
-📡 http://localhost:${PORT}
-🛠️  Admin Dashboard: http://localhost:${PORT}/admin
+📡 http://${HOST}:${PORT}
+🛠️  Admin Dashboard: http://${HOST}:${PORT}/admin
   `);
 });
