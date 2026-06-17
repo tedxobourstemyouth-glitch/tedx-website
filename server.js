@@ -11,6 +11,9 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
+// Public domain used to build links. Falls back to localhost for local dev.
+const BASE_URL = (process.env.BASE_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
 
 // 1. Basic Settings
 app.use(cors());
@@ -272,7 +275,11 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
             <p style="color: #333333; font-size: 16px;">Your ticket is APPROVED. Please save your official ticket below to show at the door.</p>
             <img src="cid:${attachments[0].cid}" alt="Event Ticket" class="ticket-img" />
             <div style="margin-top: 30px;">
+<<<<<<< HEAD
               <a href="${req.protocol}://${req.get('host')}/ticket-view.html?id=${ticket.id}" class="btn">View & Download Ticket Online</a>
+=======
+              <a href="${BASE_URL}/ticket-view.html?id=${ticket.id}" class="btn">View & Download Ticket Online</a>
+>>>>>>> bfc33ded4f6f67306f813e41a8d216bc70149855
             </div>
             <p style="color: #777777; font-size: 13px; margin-top: 20px;">* Your high-resolution ticket is also attached to this email.</p>
           </div>
@@ -459,11 +466,20 @@ app.post('/api/admin/checkin/:id', adminAuth, (req, res) => {
   res.json({ message: 'Check-in successful!', ticket: db[ticketIndex] });
 });
 
+<<<<<<< HEAD
 const HOST = process.env.IP || '0.0.0.0';
 app.listen(PORT, HOST, () => {
   console.log(`
 🚀 The new anti-crash server is running!
 📡 http://${HOST}:${PORT}
 🛠️  Admin Dashboard: http://${HOST}:${PORT}/admin
+=======
+app.listen(PORT, HOST, () => {
+  console.log(`
+🚀 The new anti-crash server is running!
+📡 Listening on ${HOST}:${PORT}
+🌐 Public URL: ${BASE_URL}
+🛠️  Admin Dashboard: ${BASE_URL}/admin
+>>>>>>> bfc33ded4f6f67306f813e41a8d216bc70149855
   `);
 });
