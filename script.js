@@ -49,7 +49,6 @@
   if (heroCopy && heroPhoto) {
     let ticking = false;
     document.addEventListener('mousemove', (e) => {
-<<<<<<< HEAD
       if (window.innerWidth <= 1100) return; // Disable effect on mobile to improve performance
       if (!ticking) {
         window.requestAnimationFrame(() => {
@@ -62,15 +61,6 @@
         });
         ticking = true;
       }
-=======
-      // Calculate mouse position relative to center of screen (-1 to 1)
-      const x = (e.clientX / window.innerWidth - 0.5);
-      const y = (e.clientY / window.innerHeight - 0.5);
-
-      // Apply subtle translations (opposite directions for depth)
-      heroCopy.style.transform = `translate(${x * 15}px, ${y * 15}px)`;
-      heroPhoto.style.transform = `translate(${x * -20}px, ${y * -20}px)`;
->>>>>>> bfc33ded4f6f67306f813e41a8d216bc70149855
     });
   }
 
@@ -127,7 +117,6 @@
       submitBtn.disabled = true;
 
       try {
-<<<<<<< HEAD
         // Smart routing: Direct local testing to the correct server port
         const isLocal = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
         const isWrongPort = window.location.port === '5500' || window.location.port === '5501';
@@ -136,10 +125,6 @@
           : '/submit';
 
         const response = await fetch(submitUrl, {
-=======
-        // Relative path: works on whatever domain the site is served from
-        const response = await fetch('/submit', {
->>>>>>> bfc33ded4f6f67306f813e41a8d216bc70149855
           method: 'POST',
           body: formData
         });
