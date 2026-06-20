@@ -77,6 +77,50 @@ function getNextTicketId(db) {
   return Math.max(...numericIds) + 1;
 }
 
+function buildRatingLink(req, ticketId, rating, subId = null) {
+  const base = `${req.protocol}://${req.get('host')}`;
+  const params = new URLSearchParams({ rating: String(rating) });
+  if (subId) params.set('sub_id', String(subId));
+  return `${base}/rate-event/${ticketId}?${params.toString()}`;
+}
+
+function getStarMarkup(req, ticketId, subId = null) {
+  return [1, 2, 3, 4, 5]
+    .map((rating) => `
+      <a href="${buildRatingLink(req, ticketId, rating, subId)}"
+         style="display:inline-block;margin:0 4px;font-size:32px;text-decoration:none;color:#E62B1E;"
+         aria-label="Rate ${rating} out of 5 stars">★</a>`)
+    .join('');
+}
+
+async function sendRatingEmail(ticket, req, subId = null) {
+  const subjectSuffix = subId ? ` - Ticket ${subId}` : '';
+  const ratingEmail = `
+    <div style="font-family: Arial, sans-serif; padding: 24px; background:#f6f6f6;">
+      <div style="max-width:600px;margin:0 auto;background:#ffffff;border-radius:16px;padding:28px;text-align:center;">
+        <h2 style="color:#E62B1E;margin-top:0;">TEDx Obour STEM Youth</h2>
+        <p style="font-size:16px;color:#1a1a1a;">Hello <strong>${ticket.full_name}</strong>,</p>
+        <p style="font-size:16px;color:#444;line-height:1.7;">
+          Thank you for attending TEDx Obour STEM Youth${subId ? ` (Ticket ${subId})` : ''}.
+          Please rate your event experience by choosing a star below.
+        </p>
+        <div style="margin:22px 0 12px;line-height:1;">
+          ${getStarMarkup(req, ticket.id, subId)}
+        </div>
+        <p style="font-size:13px;color:#777;line-height:1.7;">
+          1 star means poor experience, 5 stars means excellent experience.
+        </p>
+      </div>
+    </div>`;
+
+  await transporter.sendMail({
+    from: `"TEDx Obour STEM" <${process.env.EMAIL_USER}>`,
+    to: ticket.email,
+    subject: `Rate Your TEDx Experience${subjectSuffix}`,
+    html: ratingEmail
+  });
+}
+
 function validateSubmission(formData, file) {
   const fieldErrors = {};
   const requiredFields = {
@@ -181,7 +225,10 @@ app.post('/submit', (req, res, next) => {
       ...formData,
       screenshotPath: file ? file.filename : null,
       checked_in: false,
-      checkins: []
+      checkins: [],
+      rating_email_sent: false,
+      rating_emails_sent: [],
+      ratings: []
     };
 
     const quantity = parseInt(formData.quantity, 10) || 1;
@@ -511,6 +558,79 @@ app.get('/api/ticket/render/:id', async (req, res) => {
   }
 });
 
+app.get('/rate-event/:id', (req, res) => {
+  const reqId = parseInt(req.params.id, 10);
+  const rating = parseInt(req.query.rating, 10);
+  const subId = req.query.sub_id ? parseInt(req.query.sub_id, 10) : null;
+
+  if (![1, 2, 3, 4, 5].includes(rating)) {
+    return res.status(400).send('<h1>Invalid rating.</h1>');
+  }
+
+  const db = readDatabase();
+  const ticketIndex = db.findIndex((t) => t.id === reqId);
+  if (ticketIndex === -1) {
+    return res.status(404).send('<h1>Ticket not found.</h1>');
+  }
+
+  const ticket = db[ticketIndex];
+  if (ticket.status !== 'approved') {
+    return res.status(400).send('<h1>This ticket is not eligible for rating.</h1>');
+  }
+
+  ticket.ratings = Array.isArray(ticket.ratings) ? ticket.ratings : [];
+
+  const ratedAt = new Date().toLocaleString('en-US', {
+    timeZone: 'Africa/Cairo',
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  });
+
+  if (subId) {
+    const subTicket = Array.isArray(ticket.checkins)
+      ? ticket.checkins.find((st) => st.sub_id === subId)
+      : null;
+
+    if (!subTicket) {
+      return res.status(404).send('<h1>Sub-ticket not found.</h1>');
+    }
+
+    const existingRatingIndex = ticket.ratings.findIndex((entry) => entry.sub_id === subId);
+    const payload = { sub_id: subId, rating, rated_at: ratedAt };
+    if (existingRatingIndex >= 0) ticket.ratings[existingRatingIndex] = payload;
+    else ticket.ratings.push(payload);
+  } else {
+    ticket.event_rating = rating;
+    ticket.event_rated_at = ratedAt;
+  }
+
+  db[ticketIndex] = ticket;
+  writeDatabase(db);
+
+  return res.send(`
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Thank You | TEDx Obour STEM Youth</title>
+      <style>
+        body{margin:0;font-family:Arial,sans-serif;background:#0b0b0b;color:#fcfaf5;display:grid;place-items:center;min-height:100vh;padding:24px}
+        .card{max-width:560px;width:100%;background:#111;border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:32px;text-align:center;box-shadow:0 24px 50px -36px rgba(0,0,0,.9)}
+        h1{margin:0 0 16px;font-size:34px;color:#E62B1E}
+        p{margin:0;color:#d0cbc2;line-height:1.8;font-size:16px}
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <h1>Thank You</h1>
+        <p>Your ${rating}-star rating has been recorded successfully.</p>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
 app.get('/api/admin/checkin/:id', adminAuth, (req, res) => {
   try {
     const reqId = parseInt(req.params.id, 10);
@@ -546,6 +666,8 @@ app.post('/api/admin/checkin/:id', adminAuth, (req, res) => {
     return res.status(400).json({ message: 'This QR code is not approved for check-in.' });
   }
 
+  let shouldSendRatingEmail = false;
+
   if (subId) {
     const subTicketIndex = db[ticketIndex].checkins.findIndex((st) => st.sub_id === subId);
     if (subTicketIndex === -1) return res.status(404).json({ message: 'Sub-ticket not found' });
@@ -558,6 +680,13 @@ app.post('/api/admin/checkin/:id', adminAuth, (req, res) => {
       dateStyle: 'medium',
       timeStyle: 'short'
     });
+    db[ticketIndex].rating_emails_sent = Array.isArray(db[ticketIndex].rating_emails_sent)
+      ? db[ticketIndex].rating_emails_sent
+      : [];
+    if (!db[ticketIndex].rating_emails_sent.includes(subId)) {
+      db[ticketIndex].rating_emails_sent.push(subId);
+      shouldSendRatingEmail = true;
+    }
   } else {
     if (db[ticketIndex].checked_in) return res.status(400).json({ message: 'Ticket has ALREADY been used!' });
     db[ticketIndex].checked_in = true;
@@ -566,10 +695,22 @@ app.post('/api/admin/checkin/:id', adminAuth, (req, res) => {
       dateStyle: 'medium',
       timeStyle: 'short'
     });
+    if (!db[ticketIndex].rating_email_sent) {
+      db[ticketIndex].rating_email_sent = true;
+      shouldSendRatingEmail = true;
+    }
   }
 
   writeDatabase(db);
-  res.json({ message: 'Check-in successful!', ticket: db[ticketIndex] });
+  const updatedTicket = db[ticketIndex];
+
+  if (shouldSendRatingEmail) {
+    sendRatingEmail(updatedTicket, req, subId).catch((error) => {
+      console.error('Failed to send rating email:', error.message);
+    });
+  }
+
+  res.json({ message: 'Check-in successful!', ticket: updatedTicket });
 });
 
 app.listen(PORT, HOST, () => {
