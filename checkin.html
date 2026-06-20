@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TEDx Ticket Scanner</title>
+  <title>TEDx QR Scan</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -457,20 +457,20 @@
     <aside class="scanner-aside">
       <div>
         <div class="eyebrow">TEDx Check-in</div>
-        <h1 class="brand-title">Scan the <em>ticket.</em></h1>
-        <p class="brand-copy">Review attendee details, confirm validity, and complete entry without leaving the scanner view.</p>
+        <h1 class="brand-title">Scan <em>QR.</em></h1>
+        <p class="brand-copy">Check the ticket and confirm entry.</p>
         <div class="scanner-reticle" aria-hidden="true"></div>
       </div>
 
       <div class="scanner-grid">
-        <div class="status-pill"><span class="dot"></span> Live verification</div>
+        <div class="status-pill"><span class="dot"></span> Live scan</div>
         <div class="scanner-panel">
-          <strong>Single-use access</strong>
-          <span>Each ticket can only be checked in once. Group tickets are tracked per sub-ticket.</span>
+          <strong>One scan only</strong>
+          <span>Each ticket can be used once.</span>
         </div>
         <div class="scanner-panel">
-          <strong>Admin protected</strong>
-          <span>This page requires authenticated admin access before any scan can be processed.</span>
+          <strong>Admin only</strong>
+          <span>Login is required.</span>
         </div>
       </div>
     </aside>
@@ -480,7 +480,7 @@
         <div class="loading-shell">
           <div class="ticket-top">
             <div>
-              <div class="ticket-code">Preparing scanner</div>
+              <div class="ticket-code">Preparing</div>
             </div>
             <div class="ticket-state waiting">Loading</div>
           </div>
@@ -509,11 +509,11 @@
           code: 'Invalid QR',
           stateClass: 'error',
           stateText: 'Invalid',
-          title: 'No ticket ID found',
-          meta: 'The scanned QR code does not contain a valid ticket identifier.',
+          title: 'No ticket ID',
+          meta: 'This QR code is invalid.',
           messageType: 'error',
           messageTitle: 'Scan failed',
-          messageBody: 'Please rescan a valid TEDx ticket QR code.',
+          messageBody: 'Please scan a valid QR code.',
           actions: []
         });
         return;
@@ -528,11 +528,11 @@
             code: `Ticket ${ticketId}`,
             stateClass: 'error',
             stateText: 'Locked',
-            title: 'Authentication required',
-            meta: 'You must log in as an admin before scanning tickets.',
+            title: 'Login required',
+            meta: 'Admin access is required.',
             messageType: 'error',
             messageTitle: 'Unauthorized',
-            messageBody: 'Reload the page and complete the admin login prompt to continue.',
+            messageBody: 'Reload and sign in again.',
             actions: []
           });
           return;
@@ -544,11 +544,11 @@
             code: `Ticket ${ticketId}`,
             stateClass: 'error',
             stateText: 'Error',
-            title: 'Ticket not available',
-            meta: 'The requested ticket could not be loaded from the scanner API.',
+            title: 'Ticket not found',
+            meta: 'The ticket could not be loaded.',
             messageType: 'error',
-            messageTitle: 'Scanner response',
-            messageBody: data.message || 'An unexpected scanner error occurred.',
+            messageTitle: 'Scanner error',
+            messageBody: data.message || 'Unexpected error.',
             actions: []
           });
           return;
@@ -561,10 +561,10 @@
           stateClass: 'error',
           stateText: 'Offline',
           title: 'Connection error',
-          meta: 'The scanner could not reach the server to validate this ticket.',
+          meta: 'The server could not be reached.',
           messageType: 'error',
           messageTitle: 'Network issue',
-          messageBody: 'Check the server connection and try again.',
+          messageBody: 'Check the connection and try again.',
           actions: []
         });
       }
@@ -586,7 +586,7 @@
           </div>
           ${renderActions(actions)}
         </div>
-        <div class="footer-note">TEDx Obour STEM Youth scanner keeps check-in logic unchanged while improving scan visibility and confirmation states.</div>
+        <div class="footer-note">TEDx Obour STEM Youth scanner</div>
       `;
     }
 
@@ -615,8 +615,8 @@
       let stateClass = 'waiting';
       let stateText = 'Review';
       let messageType = '';
-      let messageTitle = 'Ready for review';
-      let messageBody = 'Inspect the attendee details below before taking action.';
+      let messageTitle = 'Ready';
+      let messageBody = 'Review the details before check-in.';
       let actions = [];
 
       if (ticket.status !== 'approved') {
@@ -624,12 +624,12 @@
         stateText = 'Blocked';
         messageType = 'error';
         messageTitle = 'Not approved';
-        messageBody = 'This ticket request has not been approved yet and cannot be checked in.';
+        messageBody = 'This ticket cannot be checked in.';
       } else if (isCheckedIn) {
         stateClass = 'error';
         stateText = 'Used';
         messageType = 'error';
-        messageTitle = 'Ticket already used';
+        messageTitle = 'Already used';
         messageBody = `This ticket was checked in at ${checkinTime}.`;
         actions = [{ label: 'Ticket is void', disabled: true, onclick: '' }];
       } else {
@@ -637,7 +637,7 @@
         stateText = 'Valid';
         messageType = 'success';
         messageTitle = 'Valid ticket';
-        messageBody = 'All checks passed. You can confirm check-in now.';
+        messageBody = 'You can confirm check-in now.';
         actions = [{
           label: 'Confirm Check-in',
           primary: true,
@@ -646,6 +646,7 @@
       }
 
       const subTicketInfo = ticket.is_sub_ticket ? `Ticket ${ticket.sub_id} of ${ticket.quantity}` : 'Single ticket';
+      const entryTime = isCheckedIn ? checkinTime : 'Not checked in yet';
 
       const content = document.getElementById('content');
       content.innerHTML = `
@@ -656,24 +657,24 @@
           </div>
 
           <h2 class="attendee-name">${ticket.full_name}</h2>
-          <div class="attendee-meta">${ticket.governorate || 'Governorate not provided'} · ${subTicketInfo}</div>
+          <div class="attendee-meta">${subTicketInfo}</div>
 
           <div class="info-grid">
             <div class="info-item">
-              <span>Phone</span>
+              <span>ID</span>
+              <strong>${ticket.id}</strong>
+            </div>
+            <div class="info-item">
+              <span>Email</span>
+              <strong>${ticket.email || '-'}</strong>
+            </div>
+            <div class="info-item">
+              <span>Mobile</span>
               <strong>${ticket.phone || '-'}</strong>
             </div>
             <div class="info-item">
-              <span>Status</span>
-              <strong>${ticket.status || 'pending'}</strong>
-            </div>
-            <div class="info-item">
-              <span>Booking type</span>
-              <strong>${ticket.quantity && Number(ticket.quantity) > 1 ? 'Group request' : 'Solo request'}</strong>
-            </div>
-            <div class="info-item">
-              <span>Check-in</span>
-              <strong>${isCheckedIn ? checkinTime : 'Not checked in yet'}</strong>
+              <span>Check-in time</span>
+              <strong>${entryTime}</strong>
             </div>
           </div>
 
@@ -684,7 +685,7 @@
 
           ${renderActions(actions)}
         </div>
-        <div class="footer-note">Once confirmed, this action cannot be undone and the ticket will be marked as used immediately.</div>
+        <div class="footer-note">Check-in cannot be undone.</div>
       `;
     }
 

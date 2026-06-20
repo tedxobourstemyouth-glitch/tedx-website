@@ -185,13 +185,37 @@ const upload = multer({
   }
 });
 
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS
+function createTransporter() {
+  const auth = process.env.EMAIL_USER && process.env.EMAIL_PASS
+    ? {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    : undefined;
+
+  if (process.env.SMTP_HOST) {
+    return nodemailer.createTransport({
+      host: process.env.SMTP_HOST,
+      port: parseInt(process.env.SMTP_PORT || '587', 10),
+      secure: String(process.env.SMTP_SECURE || 'false').toLowerCase() === 'true',
+      auth
+    });
   }
-});
+
+  if (process.env.EMAIL_SERVICE) {
+    return nodemailer.createTransport({
+      service: process.env.EMAIL_SERVICE,
+      auth
+    });
+  }
+
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth
+  });
+}
+
+const transporter = createTransporter();
 
 app.post('/submit', (req, res, next) => {
   upload.single('payment_screenshot')(req, res, (err) => {
