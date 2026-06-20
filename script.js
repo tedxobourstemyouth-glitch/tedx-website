@@ -85,10 +85,71 @@
   const newRequestBtnFullscreen = document.getElementById('new-request-button-fullscreen'); // The button on the new overlay
 
   if (ticketForm && fullscreenSuccess) {
+    const requiredValidation = {
+      full_name: 'Full Name is required.',
+      email: 'Email Address is required.',
+      phone: 'Mobile Number is required.',
+      payment_date: 'Payment Date is required.',
+      transfer_source: 'Transfer Phone / Account No. is required.',
+      payment_screenshot: 'Transfer Screenshot is required.'
+    };
+
+    const getField = (fieldName) => ticketForm.querySelector(`[name="${fieldName}"]`);
+    const getErrorNode = (fieldName) => ticketForm.querySelector(`[data-error-for="${fieldName}"]`);
+    const setFieldError = (fieldName, message) => {
+      const field = getField(fieldName);
+      const errorNode = getErrorNode(fieldName);
+      if (field) field.classList.toggle('input-error', Boolean(message));
+      if (errorNode) errorNode.textContent = message || '';
+    };
+    const clearFieldError = (fieldName) => setFieldError(fieldName, '');
+    const clearAllFieldErrors = () => {
+      Object.keys(requiredValidation).forEach(clearFieldError);
+    };
+    const validateRequiredFields = () => {
+      const errors = {};
+      Object.entries(requiredValidation).forEach(([fieldName, message]) => {
+        const field = getField(fieldName);
+        if (!field) return;
+        const value = field.type === 'file' ? field.files.length : field.value.trim();
+        if (!value) errors[fieldName] = message;
+      });
+      return errors;
+    };
+
     // --- Conditional Payment Fields Logic ---
     const paymentMethodSelect = document.getElementById('payment-method-select');
     const walletProviderField = document.getElementById('wallet-provider-field');
     const walletProviderSelect = document.getElementById('wallet-provider-select');
+    const quantityField = document.querySelector('[name="quantity"]');
+    const promoCodeField = document.querySelector('[name="promo_code"]');
+    const summaryQuantity = document.getElementById('summary-quantity');
+    const summaryPayment = document.getElementById('summary-payment');
+    const summaryTrack = document.getElementById('summary-track');
+    const summaryStatus = document.getElementById('summary-status');
+
+    const updateTicketSummary = () => {
+      if (!summaryQuantity || !summaryPayment || !summaryTrack || !summaryStatus) return;
+
+      const quantity = Math.max(parseInt(quantityField?.value || '1', 10) || 1, 1);
+      const paymentMethod = paymentMethodSelect?.value || 'Not selected';
+      const hasPromo = Boolean((promoCodeField?.value || '').trim());
+      const track = quantity > 1 && hasPromo ? 'Promo Group'
+        : hasPromo ? 'Promo Regular'
+        : 'Regular';
+      const requiredFilled = Object.keys(requiredValidation).every((fieldName) => {
+        const field = getField(fieldName);
+        if (!field) return false;
+        return field.type === 'file' ? field.files.length > 0 : Boolean(field.value.trim());
+      });
+
+      summaryQuantity.textContent = `${quantity} ${quantity === 1 ? 'ticket' : 'tickets'}`;
+      summaryPayment.textContent = paymentMethod;
+      summaryTrack.textContent = track;
+      summaryStatus.textContent = requiredFilled
+        ? 'Ready to submit'
+        : 'Ready when required fields are complete';
+    };
 
     if (paymentMethodSelect) {
       paymentMethodSelect.addEventListener('change', () => {
@@ -100,14 +161,42 @@
           walletProviderSelect.required = false;
           walletProviderSelect.value = '';
         }
+        updateTicketSummary();
       });
     }
 
     // --- Form Submission Handling ---
     const submitBtn = ticketForm.querySelector('.form-submit');
 
+    Object.keys(requiredValidation).forEach((fieldName) => {
+      const field = getField(fieldName);
+      if (!field) return;
+      const eventName = field.type === 'file' || field.tagName === 'SELECT' ? 'change' : 'input';
+      field.addEventListener(eventName, () => {
+        clearFieldError(fieldName);
+        updateTicketSummary();
+      });
+    });
+
+    [quantityField, promoCodeField, walletProviderSelect].forEach((field) => {
+      if (!field) return;
+      const eventName = field.tagName === 'SELECT' ? 'change' : 'input';
+      field.addEventListener(eventName, updateTicketSummary);
+    });
+
+    updateTicketSummary();
+
     ticketForm.addEventListener('submit', async (e) => {
       e.preventDefault(); // Prevent page refresh
+      clearAllFieldErrors();
+
+      const clientErrors = validateRequiredFields();
+      if (Object.keys(clientErrors).length > 0) {
+        Object.entries(clientErrors).forEach(([fieldName, message]) => setFieldError(fieldName, message));
+        const firstInvalidField = getField(Object.keys(clientErrors)[0]);
+        if (firstInvalidField) firstInvalidField.focus();
+        return;
+      }
 
       // Collect data from the form
       const formData = new FormData(ticketForm);
@@ -142,6 +231,11 @@
           fullscreenSuccess.hidden = false;
           document.body.classList.add('success-open');
         } else {
+          if (responseData.fieldErrors) {
+            Object.entries(responseData.fieldErrors).forEach(([fieldName, message]) => setFieldError(fieldName, message));
+            const firstInvalidField = getField(Object.keys(responseData.fieldErrors)[0]);
+            if (firstInvalidField) firstInvalidField.focus();
+          }
           alert('Error: ' + (responseData.message || 'Please try again.'));
         }
       } catch (error) {
@@ -169,9 +263,11 @@
         document.body.classList.remove('success-open');
         ticketForm.reset();
         submitBtn.disabled = false; // Re-enable the submit button
+        clearAllFieldErrors();
         // Reset conditional fields
         walletProviderField.style.display = 'none';
         walletProviderSelect.required = false;
+        updateTicketSummary();
       });
     }
   }

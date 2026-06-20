@@ -1,182 +1,962 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - TEDx</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-        :root { --red: #E62B1E; --ink: #0a0a0a; --ink-2: #141414; --bone: #fcfaf5; --bone-dim: #d3cec4; --rule: rgba(245, 241, 234, .12); }
-        body { font-family: 'IBM Plex Sans', sans-serif; padding: 20px; background: var(--ink); color: var(--bone); margin: 0; -webkit-font-smoothing: antialiased; }
-        .dashboard-header { display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .dashboard-header h1 { margin: 0; font-weight: 500; font-size: 28px; }
-        .dashboard-header h1 span { color: var(--red); }
-        .controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; }
-        .search-box { padding: 10px 15px; width: 100%; max-width: 300px; box-sizing: border-box; border-radius: 6px; border: 1px solid var(--rule); background: var(--ink-2); color: var(--bone); font-family: inherit; font-size: 14px; }
-        .btn { padding: 10px 20px; background: var(--red); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; white-space: nowrap; font-size: 14px; transition: background 0.2s; }
-        .btn:hover { background: #b8211a; }
-        .filters { display: flex; gap: 10px; background: var(--ink-2); padding: 5px; border-radius: 8px; border: 1px solid var(--rule); }
-        .filter-btn { padding: 8px 16px; background: transparent; color: var(--bone-dim); border: none; border-radius: 6px; cursor: pointer; font-size: 14px; transition: background 0.2s, color 0.2s; }
-        .filter-btn.active { background: var(--red); color: white; font-weight: 500; }
-        #data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 20px; }
-        .ticket-card { background: var(--ink-2); border: 1px solid var(--rule); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 15px; transition: border-color 0.2s; }
-        .ticket-card:hover { border-color: rgba(245, 241, 234, .25); }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; }
-        .attendee-info { display: grid; gap: 4px; }
-        .attendee-info .name { font-size: 20px; font-weight: 500; color: var(--bone); }
-        .attendee-info .email { font-size: 14px; color: var(--bone-dim); }
-        .status-badge { padding: 5px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; text-transform: uppercase; white-space: nowrap; }
-        .status-pending { background: #ffc107; color: #000; }
-        .status-approved { background: #28a745; color: #fff; }
-        .status-rejected { background: #dc3545; color: #fff; }
-        .card-body { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 15px 0; }
-        .info-item { display: grid; gap: 4px; }
-        .info-item .label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--bone-dim); text-transform: uppercase; }
-        .info-item .value { font-size: 14px; color: var(--bone); }
-        .info-item .value.promo { color: var(--red); font-weight: 500; }
-        .screenshot-link { display: block; margin-top: auto; }
-        .screenshot-link img { width: 100%; height: auto; max-height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid var(--rule); }
-        .card-footer { display: flex; gap: 10px; margin-top: auto; }
-        .action-btn { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .action-btn.approve { background: #28a745; color: white; }
-        .action-btn.approve:hover:not(:disabled) { background: #218838; }
-        .action-btn.reject { background: #dc3545; color: white; }
-        .action-btn.reject:hover:not(:disabled) { background: #c82333; }
-        .action-btn:disabled { background: #555; color: #999; cursor: not-allowed; }
-        #loading-state, #no-results { text-align: center; padding: 50px; font-size: 16px; color: var(--bone-dim); grid-column: 1 / -1; }
-        @media (max-width: 480px) {
-            body { padding: 15px; }
-            .controls { flex-direction: column; align-items: stretch; }
-            .search-box { max-width: none; }
-            #data-grid { grid-template-columns: 1fr; }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - TEDx</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #E62B1E;
+      --red-deep: #b8211a;
+      --ink: #090909;
+      --ink-2: #111111;
+      --ink-3: #191919;
+      --bone: #fcfaf5;
+      --bone-dim: #c9c4bb;
+      --rule: rgba(245, 241, 234, 0.12);
+      --rule-strong: rgba(245, 241, 234, 0.22);
+      --green: #28a745;
+      --amber: #ffc107;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'IBM Plex Sans', sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.14), transparent 24%),
+        radial-gradient(circle at bottom left, rgba(230, 43, 30, 0.08), transparent 22%),
+        linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
+      color: var(--bone);
+      padding: 24px;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(245, 241, 234, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245, 241, 234, 0.018) 1px, transparent 1px);
+      background-size: 72px 72px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.26), transparent 92%);
+      opacity: 0.75;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .page-shell {
+      max-width: 1440px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .dashboard-header {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 28px;
+      padding: 24px;
+      border: 1px solid var(--rule);
+      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+      border-radius: 24px;
+      backdrop-filter: blur(14px);
+      overflow: hidden;
+      box-shadow: 0 28px 60px -42px rgba(0,0,0,0.88);
+    }
+
+    .dashboard-header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.12) 0%, rgba(230, 43, 30, 0) 28%),
+        linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 34%);
+      pointer-events: none;
+    }
+
+    .title-block {
+      display: grid;
+      gap: 10px;
+    }
+
+    .eyebrow {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .dashboard-header h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 46px);
+      line-height: 1;
+      font-weight: 500;
+    }
+
+    .dashboard-header h1 span { color: var(--red); }
+    .dashboard-subcopy { margin: 0; color: var(--bone-dim); max-width: 540px; line-height: 1.7; }
+    .live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 9px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(245, 241, 234, 0.12);
+      background: rgba(255,255,255,0.03);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--bone);
+    }
+
+    .live-badge::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 6px rgba(230, 43, 30, 0.12);
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .btn,
+    .icon-btn,
+    .filter-btn,
+    .action-btn,
+    .settings-action {
+      border: 1px solid transparent;
+      transition: 0.2s ease;
+    }
+
+    .btn,
+    .icon-btn {
+      background: var(--ink-2);
+      color: var(--bone);
+      border-color: var(--rule);
+      border-radius: 14px;
+      min-height: 48px;
+    }
+
+    .btn {
+      padding: 0 18px;
+      font-weight: 500;
+    }
+
+    .btn:hover,
+    .icon-btn:hover {
+      border-color: var(--rule-strong);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff3120 0%, var(--red) 100%);
+      border-color: rgba(230, 43, 30, 0.4);
+      color: #fff;
+    }
+
+    .btn-primary:hover { background: var(--red-deep); }
+
+    .icon-btn {
+      width: 48px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .icon-btn svg { width: 20px; height: 20px; stroke: currentColor; fill: none; stroke-width: 1.8; }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      border: 1px solid var(--rule);
+      background: linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0.012));
+      box-shadow: 0 18px 34px -32px rgba(0,0,0,0.9);
+    }
+
+    .filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px;
+      border: 1px solid var(--rule);
+      background: var(--ink-2);
+      border-radius: 18px;
+    }
+
+    .filter-btn {
+      background: transparent;
+      color: var(--bone-dim);
+      border-radius: 12px;
+      padding: 10px 16px;
+      font-size: 14px;
+    }
+
+    .filter-btn.active,
+    .filter-btn:hover {
+      background: rgba(230, 43, 30, 0.16);
+      color: var(--bone);
+      border-color: rgba(230, 43, 30, 0.2);
+    }
+
+    .search-shell {
+      flex: 1;
+      min-width: 260px;
+      position: relative;
+    }
+
+    .search-shell input {
+      width: 100%;
+      min-height: 56px;
+      border-radius: 18px;
+      border: 1px solid var(--rule);
+      background: rgba(17, 17, 17, 0.94);
+      color: var(--bone);
+      padding: 0 18px 0 52px;
+    }
+
+    .search-shell svg {
+      position: absolute;
+      top: 50%;
+      left: 18px;
+      width: 18px;
+      height: 18px;
+      transform: translateY(-50%);
+      stroke: var(--bone-dim);
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      position: relative;
+      padding: 18px 20px;
+      border-radius: 20px;
+      border: 1px solid var(--rule);
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.08), rgba(230, 43, 30, 0) 32%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+      overflow: hidden;
+      box-shadow: 0 20px 40px -34px rgba(0,0,0,0.95);
+    }
+
+    .stat-card::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: 0;
+      width: 52px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--red), rgba(230, 43, 30, 0));
+    }
+
+    .stat-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .stat-value {
+      margin-top: 10px;
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 600;
+    }
+
+    #data-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 18px;
+    }
+
+    .ticket-card {
+      position: relative;
+      border: 1px solid var(--rule);
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.08), rgba(230, 43, 30, 0) 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.014));
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      box-shadow: 0 22px 44px -36px rgba(0,0,0,0.96);
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .ticket-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--rule-strong);
+      box-shadow: 0 26px 56px -34px rgba(0,0,0,0.92);
+    }
+
+    .ticket-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 22px;
+      right: 22px;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(230, 43, 30, 0.8) 50%, transparent 100%);
+      opacity: 0.72;
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px;
+      align-items: flex-start;
+      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0));
+    }
+    .card-head-main {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      width: 100%;
+    }
+    .card-top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 0 0 auto;
+    }
+    .mini-action-btn {
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(230, 43, 30, 0.24);
+      background: rgba(230, 43, 30, 0.12);
+      color: #ffb2ab;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+    .mini-action-btn:hover {
+      transform: translateY(-1px);
+      border-color: rgba(230, 43, 30, 0.4);
+      background: rgba(230, 43, 30, 0.18);
+    }
+
+    .card-name {
+      font-size: 22px;
+      line-height: 1.15;
+      font-weight: 500;
+      margin: 0 0 6px;
+    }
+
+    .card-email {
+      color: var(--bone-dim);
+      font-size: 14px;
+      word-break: break-word;
+    }
+    .card-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .meta-pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.03);
+      color: var(--bone-dim);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .status-badge {
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .status-pending { background: rgba(255, 193, 7, 0.18); color: #ffe08a; border: 1px solid rgba(255, 193, 7, 0.24); }
+    .status-approved { background: rgba(40, 167, 69, 0.14); color: #8de7a4; border: 1px solid rgba(40, 167, 69, 0.24); }
+    .status-rejected { background: rgba(220, 53, 69, 0.14); color: #ff9aa5; border: 1px solid rgba(220, 53, 69, 0.24); }
+
+    .card-body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 0 22px 18px;
+    }
+
+    .info-item {
+      display: grid;
+      gap: 5px;
+      padding: 14px;
+      border: 1px solid var(--rule);
+      border-radius: 16px;
+      background: rgba(255,255,255,0.02);
+      min-width: 0;
+    }
+
+    .info-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .info-value {
+      font-size: 14px;
+      line-height: 1.55;
+      word-break: break-word;
+    }
+
+    .checkin-banner {
+      margin: 0 22px 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.025));
+      border: 1px solid var(--rule);
+      color: var(--bone);
+    }
+
+    .screenshot-link {
+      display: block;
+      margin: 0 22px 18px;
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--rule);
+    }
+
+    .screenshot-link img {
+      display: block;
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+      transition: transform 0.28s ease, filter 0.28s ease;
+      filter: saturate(0.96) contrast(1.02);
+    }
+
+    .screenshot-link:hover img {
+      transform: scale(1.02);
+      filter: saturate(1.02) contrast(1.05);
+    }
+
+    .card-footer {
+      display: flex;
+      gap: 10px;
+      padding: 0 22px 22px;
+      margin-top: auto;
+    }
+
+    .action-btn {
+      flex: 1;
+      min-height: 48px;
+      border-radius: 14px;
+      font-weight: 600;
+    }
+
+    .action-btn.approve {
+      background: rgba(40, 167, 69, 0.14);
+      color: #8de7a4;
+      border-color: rgba(40, 167, 69, 0.24);
+    }
+
+    .action-btn.reject {
+      background: rgba(230, 43, 30, 0.16);
+      color: #ffb2ab;
+      border-color: rgba(230, 43, 30, 0.24);
+    }
+
+    .action-btn:hover:not(:disabled) { transform: translateY(-1px); }
+    .action-btn:disabled {
+      opacity: 0.42;
+      cursor: not-allowed;
+    }
+
+    #loading-state,
+    #no-results {
+      grid-column: 1 / -1;
+      padding: 56px 20px;
+      text-align: center;
+      color: var(--bone-dim);
+      border: 1px dashed var(--rule);
+      border-radius: 24px;
+      background: rgba(255,255,255,0.015);
+    }
+
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      min-width: 280px;
+      max-width: 420px;
+      padding: 16px 18px;
+      border-radius: 16px;
+      border: 1px solid var(--rule);
+      background: rgba(10, 10, 10, 0.96);
+      color: var(--bone);
+      transform: translateY(24px);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s ease;
+      z-index: 60;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success { border-color: rgba(40, 167, 69, 0.3); }
+    .toast.error { border-color: rgba(230, 43, 30, 0.3); }
+
+    .settings-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(420px, 100%);
+      height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.12), rgba(230, 43, 30, 0) 28%),
+        rgba(9, 9, 9, 0.985);
+      border-left: 1px solid var(--rule);
+      padding: 24px;
+      display: grid;
+      grid-template-rows: auto auto 1fr;
+      gap: 18px;
+      transform: translateX(100%);
+      transition: 0.25s ease;
+      z-index: 40;
+    }
+
+    .settings-panel.open { transform: translateX(0); }
+    .settings-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .settings-head h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 500;
+    }
+
+    .settings-copy {
+      color: var(--bone-dim);
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .settings-list {
+      display: grid;
+      gap: 14px;
+      align-content: start;
+    }
+
+    .settings-action {
+      text-align: left;
+      width: 100%;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.03);
+      border-color: var(--rule);
+      color: var(--bone);
+    }
+
+    .settings-action:hover {
+      border-color: var(--rule-strong);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .settings-action strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+
+    .settings-action span {
+      display: block;
+      color: var(--bone-dim);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .settings-action.danger strong { color: #ffb2ab; }
+
+    .overlay,
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.2s ease;
+      z-index: 35;
+    }
+
+    .overlay.show,
+    .modal-overlay.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-overlay {
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      z-index: 50;
+    }
+
+    .modal {
+      width: min(480px, 100%);
+      border-radius: 24px;
+      border: 1px solid var(--rule);
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.09), rgba(230, 43, 30, 0) 30%),
+        #101010;
+      padding: 24px;
+      transform: translateY(16px);
+      transition: 0.2s ease;
+    }
+
+    .modal-overlay.show .modal { transform: translateY(0); }
+    .modal h3 { margin: 0 0 12px; font-size: 24px; }
+    .modal p { margin: 0; color: var(--bone-dim); line-height: 1.7; }
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    @media (max-width: 900px) {
+      .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 16px; }
+      .dashboard-header,
+      .ticket-card,
+      .stat-card { border-radius: 20px; }
+      .header-actions { width: 100%; justify-content: stretch; }
+      .header-actions .btn { flex: 1; }
+      .toolbar { flex-direction: column; }
+      .search-shell { min-width: 0; }
+      .stats-row { grid-template-columns: 1fr; }
+      #data-grid { grid-template-columns: 1fr; }
+      .card-body { grid-template-columns: 1fr; }
+      .card-footer { flex-direction: column; }
+      .modal-actions { flex-direction: column-reverse; }
+      .modal-actions .btn { width: 100%; }
+    }
+  </style>
 </head>
 <body>
+  <div class="page-shell">
     <header class="dashboard-header">
-        <h1>TEDx Requests <span>Dashboard</span></h1>
-        <div class="controls">
-            <div class="filters">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="pending">Pending</button>
-                <button class="filter-btn" data-filter="approved">Approved</button>
-                <button class="filter-btn" data-filter="rejected">Rejected</button>
-            </div>
-            <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search by name, email, phone...">
-            <button onclick="exportToCSV()" class="btn">Download CSV 📥</button>
-        </div>
+      <div class="title-block">
+        <div class="eyebrow">TEDx Obour STEM Youth</div>
+        <h1>Requests <span>Dashboard</span></h1>
+        <div class="live-badge">Live Admin Control</div>
+        <p class="dashboard-subcopy">Review ticket requests, approve or reject attendees, inspect uploads, and manage stored responses from one place.</p>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn btn-primary" id="downloadCsvBtn" type="button">Download CSV</button>
+        <button class="icon-btn" id="settingsToggle" type="button" aria-label="Open dashboard settings">
+          <svg viewBox="0 0 24 24"><path d="M12 3v3"></path><path d="M12 18v3"></path><path d="M3 12h3"></path><path d="M18 12h3"></path><path d="m5.64 5.64 2.12 2.12"></path><path d="m16.24 16.24 2.12 2.12"></path><path d="m18.36 5.64-2.12 2.12"></path><path d="m7.76 16.24-2.12 2.12"></path><circle cx="12" cy="12" r="3.5"></circle></svg>
+        </button>
+      </div>
     </header>
 
+    <section class="toolbar">
+      <div class="filters">
+        <button class="filter-btn active" data-filter="all" type="button">All</button>
+        <button class="filter-btn" data-filter="pending" type="button">Pending</button>
+        <button class="filter-btn" data-filter="approved" type="button">Approved</button>
+        <button class="filter-btn" data-filter="rejected" type="button">Rejected</button>
+      </div>
+
+      <label class="search-shell" aria-label="Search requests">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+        <input type="text" id="searchInput" placeholder="Search by name, email, phone, school...">
+      </label>
+    </section>
+
+    <section class="stats-row" id="statsRow">
+      <article class="stat-card">
+        <div class="stat-label">All Requests</div>
+        <div class="stat-value" id="statAll">0</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" id="statPending">0</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">Approved</div>
+        <div class="stat-value" id="statApproved">0</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">Rejected</div>
+        <div class="stat-value" id="statRejected">0</div>
+      </article>
+    </section>
+
     <main id="data-grid">
-        <div id="loading-state">Loading ticket data...</div>
+      <div id="loading-state">Loading ticket data...</div>
     </main>
+  </div>
+
+  <div class="overlay" id="settingsOverlay"></div>
+  <aside class="settings-panel" id="settingsPanel" aria-hidden="true">
+    <div class="settings-head">
+      <div>
+        <div class="eyebrow">Dashboard Tools</div>
+        <h2>Settings</h2>
+      </div>
+      <button class="icon-btn" id="closeSettings" type="button" aria-label="Close settings">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12"></path><path d="M18 6 6 18"></path></svg>
+      </button>
+    </div>
+    <p class="settings-copy">Use these actions to export, clean, or remove stored submission data. Destructive actions require confirmation.</p>
+    <div class="settings-list">
+      <button class="settings-action" type="button" data-action="export-json">
+        <strong>Export Responses</strong>
+        <span>Download the full responses dataset as a JSON file.</span>
+      </button>
+      <button class="settings-action" type="button" data-action="download-csv">
+        <strong>Download CSV</strong>
+        <span>Export all responses in spreadsheet format.</span>
+      </button>
+      <button class="settings-action" type="button" data-action="clear-old">
+        <strong>Clear Old Records</strong>
+        <span>Remove submissions older than 30 days and clean uploaded receipts for those records.</span>
+      </button>
+      <button class="settings-action danger" type="button" data-action="delete-all">
+        <strong>Delete All Responses</strong>
+        <span>Permanently remove every stored submission and uploaded receipt.</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="modal-overlay" id="confirmModal" aria-hidden="true">
+    <div class="modal">
+      <h3 id="modalTitle">Confirm action</h3>
+      <p id="modalMessage">This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn" id="modalCancel" type="button">Cancel</button>
+        <button class="btn btn-primary" id="modalConfirm" type="button">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
 
   <script>
     let allData = [];
     let currentFilter = 'all';
+    let pendingAction = null;
 
-    fetch('/api/admin/data')
-      .then(res => res.json())
-      .then(data => {
-        allData = data.reverse(); // Show newest requests first
-        renderGrid();
-      });
+    const dataGrid = document.getElementById('data-grid');
+    const searchInput = document.getElementById('searchInput');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const settingsOverlay = document.getElementById('settingsOverlay');
+    const confirmModal = document.getElementById('confirmModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const modalConfirm = document.getElementById('modalConfirm');
+    const toast = document.getElementById('toast');
 
-    function renderGrid() {
-        const grid = document.getElementById('data-grid');
-        grid.innerHTML = '';
-
-        const query = document.getElementById('searchInput').value.toLowerCase();
-        const filteredData = allData.filter(row => {
-            const matchesSearch = (
-                row.full_name.toLowerCase().includes(query) ||
-                row.email.toLowerCase().includes(query) ||
-                row.phone.includes(query)
-            );
-            const matchesFilter = (
-                currentFilter === 'all' ||
-                row.status === currentFilter
-            );
-            return matchesSearch && matchesFilter;
-        });
-
-        if (filteredData.length === 0) {
-            grid.innerHTML = `<div id="no-results">No requests found.</div>`;
-            return;
-        }
-
-        filteredData.forEach(row => {
-            const card = document.createElement('div');
-            card.className = 'ticket-card';
-
-            const status = row.status || 'pending';
-            const isFinished = status === 'approved' || status === 'rejected';
-            const quantity = parseInt(row.quantity, 10) || 1;
-            const fileName = row.screenshotPath ? row.screenshotPath.split('\\').pop().split('/').pop() : '';
-
-            let checkinStatusHtml = '';
-            if (status === 'approved') {
-                if (quantity > 1 && row.checkins && row.checkins.length > 0) {
-                    const checkedCount = row.checkins.filter(st => st.checked).length;
-                    checkinStatusHtml = `${checkedCount} / ${quantity} Checked In`;
-                } else {
-                    checkinStatusHtml = row.checked_in ? '✅ Inside' : '❌ Waiting';
-                }
-            }
-
-            card.innerHTML = `
-                <div class="card-header">
-                    <div class="attendee-info">
-                        <div class="name">${row.full_name}</div>
-                        <div class="email">${row.email}</div>
-                    </div>
-                    <div class="status-badge status-${status}">${status}</div>
-                </div>
-                <div class="card-body">
-                    <div class="info-item"><span class="label">Phone</span><span class="value">${row.phone}</span></div>
-                    <div class="info-item"><span class="label">Governorate</span><span class="value">${row.governorate}</span></div>
-                    <div class="info-item"><span class="label">Quantity</span><span class="value">${quantity}</span></div>
-                    <div class="info-item"><span class="label">School</span><span class="value">${row.school_name || '-'}</span></div>
-                    <div class="info-item"><span class="label">Payment</span><span class="value">${row.payment_method || '-'}${row.wallet_provider ? ` (${row.wallet_provider})` : ''}</span></div>
-                    <div class="info-item"><span class="label">Promo</span><span class="value promo">${row.promo_code || '-'}</span></div>
-                </div>
-                ${fileName ? `<a href="/uploads/${fileName}" target="_blank" class="screenshot-link"><img src="/uploads/${fileName}" alt="Receipt"></a>` : ''}
-                ${checkinStatusHtml ? `<div class="info-item" style="text-align:center; padding-top:10px;"><span class="label">Check-in Status</span><span class="value">${checkinStatusHtml}</span></div>` : ''}
-                <div class="card-footer">
-                    <button class="action-btn approve" onclick="approveTicket(${row.id}, ${quantity})" ${isFinished ? 'disabled' : ''}>Approve</button>
-                    <button class="action-btn reject" onclick="rejectTicket(${row.id})" ${isFinished ? 'disabled' : ''}>Reject</button>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
+    function showToast(message, type = 'success') {
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+      window.clearTimeout(showToast.timeoutId);
+      showToast.timeoutId = window.setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3200);
     }
 
-    document.getElementById('searchInput').addEventListener('keyup', renderGrid);
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelector('.filter-btn.active').classList.remove('active');
-            btn.classList.add('active');
-            currentFilter = btn.dataset.filter;
-            renderGrid();
-        });
-    });
+    function updateStats() {
+      const counts = { all: allData.length, pending: 0, approved: 0, rejected: 0 };
+      allData.forEach((row) => {
+        const status = row.status || 'pending';
+        if (counts[status] !== undefined) counts[status] += 1;
+      });
+
+      document.getElementById('statAll').textContent = counts.all;
+      document.getElementById('statPending').textContent = counts.pending;
+      document.getElementById('statApproved').textContent = counts.approved;
+      document.getElementById('statRejected').textContent = counts.rejected;
+    }
+
+    function getFilteredData() {
+      const query = searchInput.value.trim().toLowerCase();
+      return allData.filter((row) => {
+        const searchable = [
+          row.full_name || '',
+          row.email || '',
+          row.phone || '',
+          row.school_name || '',
+          row.governorate || ''
+        ].join(' ').toLowerCase();
+
+        const matchesSearch = searchable.includes(query);
+        const matchesFilter = currentFilter === 'all' || (row.status || 'pending') === currentFilter;
+        return matchesSearch && matchesFilter;
+      });
+    }
+
+    function renderGrid() {
+      const filteredData = getFilteredData();
+      dataGrid.innerHTML = '';
+
+      if (!filteredData.length) {
+        dataGrid.innerHTML = '<div id="no-results">No requests found for the current filter.</div>';
+        return;
+      }
+
+      filteredData.forEach((row) => {
+        const card = document.createElement('article');
+        card.className = 'ticket-card';
+
+        const status = row.status || 'pending';
+        const quantity = parseInt(row.quantity, 10) || 1;
+        const isFinished = status === 'approved' || status === 'rejected';
+        const fileName = row.screenshotPath ? row.screenshotPath.split('\\').pop().split('/').pop() : '';
+
+        let checkinStatus = '';
+        if (status === 'approved') {
+          if (quantity > 1 && Array.isArray(row.checkins) && row.checkins.length > 0) {
+            const checkedCount = row.checkins.filter((st) => st.checked).length;
+            checkinStatus = `${checkedCount} / ${quantity} checked in`;
+          } else {
+            checkinStatus = row.checked_in ? 'Inside venue' : 'Waiting for check-in';
+          }
+        }
+
+        card.innerHTML = `
+          <div class="card-head">
+            <div class="card-head-main">
+              <div>
+                <h2 class="card-name">${row.full_name || 'Unnamed attendee'}</h2>
+                <div class="card-email">${row.email || '-'}</div>
+                <div class="card-meta">
+                  <span class="meta-pill">ID ${row.id}</span>
+                  <span class="meta-pill">${row.date || 'No date'}</span>
+                </div>
+              </div>
+              <div class="card-top-actions">
+                <button class="mini-action-btn" type="button" data-delete="${row.id}">Delete</button>
+                <span class="status-badge status-${status}">${status}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="info-item"><span class="info-label">Phone</span><span class="info-value">${row.phone || '-'}</span></div>
+            <div class="info-item"><span class="info-label">Governorate</span><span class="info-value">${row.governorate || '-'}</span></div>
+            <div class="info-item"><span class="info-label">Quantity</span><span class="info-value">${quantity}</span></div>
+            <div class="info-item"><span class="info-label">School</span><span class="info-value">${row.school_name || '-'}</span></div>
+            <div class="info-item"><span class="info-label">Payment</span><span class="info-value">${row.payment_method || '-'}${row.wallet_provider ? ` (${row.wallet_provider})` : ''}</span></div>
+            <div class="info-item"><span class="info-label">Promo</span><span class="info-value">${row.promo_code || '-'}</span></div>
+          </div>
+
+          ${checkinStatus ? `<div class="checkin-banner"><strong>Check-in:</strong> ${checkinStatus}</div>` : ''}
+          ${fileName ? `<a href="/uploads/${fileName}" target="_blank" class="screenshot-link" rel="noreferrer"><img src="/uploads/${fileName}" alt="Transfer receipt"></a>` : ''}
+
+          <div class="card-footer">
+            <button class="action-btn approve" type="button" data-approve="${row.id}" data-quantity="${quantity}" ${isFinished ? 'disabled' : ''}>Approve</button>
+            <button class="action-btn reject" type="button" data-reject="${row.id}" ${isFinished ? 'disabled' : ''}>Reject</button>
+          </div>
+        `;
+
+        dataGrid.appendChild(card);
+      });
+    }
+
+    async function parseResponse(response) {
+      const text = await response.text();
+      try {
+        return text ? JSON.parse(text) : {};
+      } catch (error) {
+        return { message: text || 'Unexpected server response.' };
+      }
+    }
+
+    async function loadData(showFeedback = false) {
+      if (!allData.length) {
+        dataGrid.innerHTML = '<div id="loading-state">Loading ticket data...</div>';
+      }
+
+      try {
+        const response = await fetch('/api/admin/data');
+        const data = await parseResponse(response);
+        if (!response.ok) throw new Error(data.message || 'Failed to load dashboard data.');
+        allData = Array.isArray(data) ? data.slice().reverse() : [];
+        updateStats();
+        renderGrid();
+        if (showFeedback) showToast('Dashboard updated successfully.');
+      } catch (error) {
+        dataGrid.innerHTML = `<div id="no-results">${error.message}</div>`;
+        showToast(error.message, 'error');
+      }
+    }
 
     function exportToCSV() {
       const headers = ['ID', 'Date', 'Status', 'Full Name', 'Email', 'Phone', 'Governorate', 'Quantity', 'School', 'Promo Code', 'Transfer Source', 'Payment Method', 'Wallet Provider'];
       let csvContent = headers.join(',') + '\n';
 
-      allData.forEach(row => {
+      allData.forEach((row) => {
         const rowData = [
           row.id,
-          `"${row.date}"`,
-          row.status,
-          `"${row.full_name}"`,
-          row.email,
-          row.phone,
-          `"${row.governorate}"`,
-          row.quantity,
+          `"${row.date || ''}"`,
+          row.status || 'pending',
+          `"${row.full_name || ''}"`,
+          `"${row.email || ''}"`,
+          `"${row.phone || ''}"`,
+          `"${row.governorate || ''}"`,
+          row.quantity || '',
           `"${row.school_name || ''}"`,
           `"${row.promo_code || ''}"`,
           `"${row.transfer_source || ''}"`,
@@ -187,57 +967,198 @@
       });
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', 'tedx_tickets.csv');
-      link.style.visibility = 'hidden';
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'tedx_tickets.csv';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     }
 
-    // Approve ticket and send QR code function (with dynamic quantity for groups)
-    function approveTicket(id, requestedQty) {
+    async function approveTicket(id, requestedQty) {
       let finalQty = requestedQty;
-      
+
       if (requestedQty > 1) {
         const userInput = prompt(`This is a group request for ${requestedQty} tickets.\nYou can change the number of tickets to generate if they paid for a different amount:`, requestedQty);
-        if (userInput === null) return; // User cancelled
+        if (userInput === null) return;
         finalQty = parseInt(userInput, 10);
-        if (isNaN(finalQty) || finalQty < 1) {
-          alert('Invalid quantity entered.');
+        if (Number.isNaN(finalQty) || finalQty < 1) {
+          showToast('Invalid quantity entered.', 'error');
           return;
         }
-      } else {
-        if(!confirm('Are you sure you want to approve this ticket and send the QR code?')) return;
+      } else if (!confirm('Are you sure you want to approve this ticket and send the QR code?')) {
+        return;
       }
-      
-      fetch(`/api/admin/approve/${id}`, { 
+
+      try {
+        const response = await fetch(`/api/admin/approve/${id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ quantity: finalQty })
-      })
-        .then(res => res.json())
-        .then(data => {
-          alert(data.message);
-          location.reload(); // Reload page to see changes
-        })
-        .catch(err => alert('Error approving ticket'));
+        });
+        const data = await parseResponse(response);
+        if (!response.ok) throw new Error(data.message || 'Error approving ticket.');
+        showToast(data.message || 'Ticket approved successfully.');
+        await loadData();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
     }
 
-    // Reject ticket function
-    function rejectTicket(id) {
-      if(!confirm('Are you sure you want to REJECT this ticket? The user will be notified via email.')) return;
-      
-      fetch(`/api/admin/reject/${id}`, { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          alert(data.message);
-          location.reload(); // Reload page to see changes
-        })
-        .catch(err => alert('Error rejecting ticket'));
+    async function rejectTicket(id) {
+      if (!confirm('Are you sure you want to reject this ticket? The user will be notified via email.')) return;
+
+      try {
+        const response = await fetch(`/api/admin/reject/${id}`, { method: 'POST' });
+        const data = await parseResponse(response);
+        if (!response.ok) throw new Error(data.message || 'Error rejecting ticket.');
+        showToast(data.message || 'Ticket rejected successfully.');
+        await loadData();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
     }
+
+    async function deleteTicket(id) {
+      if (!confirm(`Are you sure you want to delete request #${id}? This cannot be undone.`)) return;
+
+      try {
+        const response = await fetch(`/api/admin/delete/${id}`, { method: 'POST' });
+        const data = await parseResponse(response);
+        if (!response.ok) throw new Error(data.message || 'Error deleting request.');
+        showToast(data.message || 'Request deleted successfully.');
+        await loadData();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    function openSettings() {
+      settingsPanel.classList.add('open');
+      settingsPanel.setAttribute('aria-hidden', 'false');
+      settingsOverlay.classList.add('show');
+    }
+
+    function closeSettings() {
+      settingsPanel.classList.remove('open');
+      settingsPanel.setAttribute('aria-hidden', 'true');
+      settingsOverlay.classList.remove('show');
+    }
+
+    function openConfirm({ title, message, confirmLabel, onConfirm, confirmClass = 'btn btn-primary' }) {
+      pendingAction = onConfirm;
+      modalTitle.textContent = title;
+      modalMessage.textContent = message;
+      modalConfirm.textContent = confirmLabel;
+      modalConfirm.className = confirmClass;
+      confirmModal.classList.add('show');
+      confirmModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeConfirm() {
+      pendingAction = null;
+      confirmModal.classList.remove('show');
+      confirmModal.setAttribute('aria-hidden', 'true');
+    }
+
+    async function runAdminAction(url, successFallback) {
+      try {
+        const response = await fetch(url, { method: 'POST' });
+        const data = await parseResponse(response);
+        if (!response.ok) throw new Error(data.message || 'Action failed.');
+        showToast(data.message || successFallback);
+        await loadData();
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    document.getElementById('downloadCsvBtn').addEventListener('click', exportToCSV);
+    document.getElementById('settingsToggle').addEventListener('click', openSettings);
+    document.getElementById('closeSettings').addEventListener('click', closeSettings);
+    settingsOverlay.addEventListener('click', closeSettings);
+    searchInput.addEventListener('input', renderGrid);
+
+    document.querySelectorAll('.filter-btn').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.querySelector('.filter-btn.active').classList.remove('active');
+        button.classList.add('active');
+        currentFilter = button.dataset.filter;
+        renderGrid();
+      });
+    });
+
+    dataGrid.addEventListener('click', (event) => {
+      const approveButton = event.target.closest('[data-approve]');
+      const rejectButton = event.target.closest('[data-reject]');
+      const deleteButton = event.target.closest('[data-delete]');
+
+      if (approveButton) {
+        approveTicket(Number(approveButton.dataset.approve), Number(approveButton.dataset.quantity));
+      }
+
+      if (rejectButton) {
+        rejectTicket(Number(rejectButton.dataset.reject));
+      }
+
+      if (deleteButton) {
+        deleteTicket(Number(deleteButton.dataset.delete));
+      }
+    });
+
+    document.querySelectorAll('.settings-action').forEach((button) => {
+      button.addEventListener('click', async () => {
+        const action = button.dataset.action;
+
+        if (action === 'download-csv') {
+          exportToCSV();
+          return;
+        }
+
+        if (action === 'export-json') {
+          window.location.href = '/api/admin/export';
+          return;
+        }
+
+        if (action === 'clear-old') {
+          openConfirm({
+            title: 'Clear old records?',
+            message: 'This will remove submissions older than 30 days and delete their uploaded screenshots.',
+            confirmLabel: 'Clear old records',
+            onConfirm: async () => {
+              closeConfirm();
+              await runAdminAction('/api/admin/clear-old', 'Old records cleared.');
+            }
+          });
+          return;
+        }
+
+        if (action === 'delete-all') {
+          openConfirm({
+            title: 'Delete all responses?',
+            message: 'This will permanently remove every stored submission and uploaded screenshot from the dashboard.',
+            confirmLabel: 'Delete everything',
+            confirmClass: 'btn btn-primary',
+            onConfirm: async () => {
+              closeConfirm();
+              await runAdminAction('/api/admin/delete-all', 'All responses deleted.');
+            }
+          });
+        }
+      });
+    });
+
+    document.getElementById('modalCancel').addEventListener('click', closeConfirm);
+    confirmModal.addEventListener('click', (event) => {
+      if (event.target === confirmModal) closeConfirm();
+    });
+    modalConfirm.addEventListener('click', async () => {
+      if (pendingAction) await pendingAction();
+    });
+
+    loadData();
   </script>
 </body>
 </html>

@@ -4,16 +4,13 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-<!-- Primary Meta Tags -->
 <meta name="title" content="Tickets | TEDx Obour STEM Youth" />
 <meta name="description" content="Complete your ticket request for the second TEDx Obour STEM Youth edition." />
-<!-- Open Graph / Facebook / WhatsApp -->
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://your-website.com/tickets.html" />
 <meta property="og:title" content="Tickets | TEDx Obour STEM Youth" />
 <meta property="og:description" content="Complete your ticket request for the second TEDx Obour STEM Youth edition." />
 <meta property="og:image" content="https://your-website.com/Logo%20.jpg" />
-<!-- Favicon (Icon in browser tab) -->
 <link rel="icon" type="image/jpeg" href="Logo .jpg" />
 
 <title>Tickets | TEDx Obour STEM Youth</title>
@@ -50,9 +47,7 @@
         <div class="eyebrow">Ticketing</div>
         <h1 class="ticket-title">Complete your<br><span class="em">ticket request.</span></h1>
         <p class="ticket-lead">Fill in the attendee details, upload the transfer screenshot, and submit the request for review. This flow supports both solo and group bookings.</p>
-        <div style="margin-top: 20px; padding-left: 14px; border-left: 2px solid var(--red);">
-          <p style="font-size: 12px; color: var(--bone-dim); font-family: var(--mono); text-transform: uppercase; letter-spacing: 0.06em; line-height: 1.6;">* Requests are reviewed manually after payment proof is submitted.<br>Final confirmation is sent via email.</p>
-        </div>
+
         <div class="ticket-actions">
           <a href="#ticket-form" class="btn btn-primary">Start Request <span class="arr">↓</span></a>
         </div>
@@ -71,34 +66,42 @@
       <div class="tickets-head">
         <div>
           <div class="eyebrow reveal in">Ticket Pricing</div>
-          <h2 class="display reveal in">Choose your<br><span class="em">access.</span></h2>
+          <h2 class="display ticket-tier-title reveal in">Choose your<br><span class="em">access.</span></h2>
         </div>
         <p class="reveal in">All tickets include full access to the 8 movements, lunch, and the demo floor. Promo codes can be applied in the request form below.</p>
       </div>
       <div class="ticket-tier-grid">
         <div class="ticket-tier-card reveal in">
+          <div class="ticket-tier-topline">Standard pass</div>
           <div>
             <div class="ticket-tier-kicker">Standard</div>
             <div class="ticket-tier-name">Regular<br>Ticket</div>
-            <div class="ticket-tier-price" style="font-family: var(--serif); color: var(--red);">350 <small style="font-size: 16px; color: var(--bone-dim); font-family: var(--sans);">EGP</small></div>
+            <div class="ticket-tier-price">350 <small>EGP</small></div>
             <p>Full day access to all talks, demo floor, and lunch.</p>
           </div>
+          <div class="ticket-tier-link">General admission</div>
         </div>
+
         <div class="ticket-tier-card featured reveal in">
+          <div class="ticket-tier-topline">Best value</div>
           <div>
             <div class="ticket-tier-kicker">With Code</div>
             <div class="ticket-tier-name">Promo<br>Regular</div>
-            <div class="ticket-tier-price" style="font-family: var(--serif); color: var(--red);">300 <small style="font-size: 16px; color: var(--bone-dim); font-family: var(--sans);">EGP</small></div>
+            <div class="ticket-tier-price">300 <small>EGP</small></div>
             <p>Discounted standard ticket for attendees applying a valid promo code.</p>
           </div>
+          <div class="ticket-tier-link">Code required</div>
         </div>
+
         <div class="ticket-tier-card reveal in">
+          <div class="ticket-tier-topline">For teams</div>
           <div>
             <div class="ticket-tier-kicker">Group + Code</div>
             <div class="ticket-tier-name">Promo<br>Group</div>
-            <div class="ticket-tier-price" style="font-family: var(--serif); color: var(--red);">250 <small style="font-size: 16px; color: var(--bone-dim); font-family: var(--sans);">EGP</small> <span style="font-size: 14px; color: var(--bone-dim); font-family: var(--sans);">/ person</span></div>
+            <div class="ticket-tier-price">250 <small>EGP</small> <span>/ person</span></div>
             <p>Maximum discount applied for group packages using a valid promo code.</p>
           </div>
+          <div class="ticket-tier-link">Group booking</div>
         </div>
       </div>
     </div>
@@ -109,87 +112,144 @@
     <div class="container ticket-form-layout">
       <div class="ticket-form-copy">
         <div class="eyebrow reveal in">Booking Flow</div>
-        <h2 class="display reveal in">One request,<br><span class="em">fully tracked.</span></h2>
-        <p class="reveal in">Use this form to send the attendee information, contact number, ticket type, quantity, and the bank-transfer screenshot. If the booking is for a group, the form expands automatically.</p>
-
+        <p class="reveal in">A quick four-step flow to complete your request clearly and correctly.</p>
         <div class="ticket-process reveal in">
           <div class="ticket-process-item">
             <span>01</span>
-            <p>Enter attendee information including your governorate.</p>
+            <p>Enter details</p>
           </div>
           <div class="ticket-process-item">
             <span>02</span>
-            <p>Upload the transfer screenshot and add any notes for the team.</p>
+            <p>Choose payment</p>
           </div>
           <div class="ticket-process-item">
             <span>03</span>
-            <p>Submit the request and wait for manual review and confirmation.</p>
+            <p>Upload proof</p>
+          </div>
+          <div class="ticket-process-item">
+            <span>04</span>
+            <p>Submit request</p>
+          </div>
+        </div>
+
+        <div class="ticket-summary-card reveal in" id="ticket-summary-card">
+          <div class="ticket-summary-kicker">Live Summary</div>
+          <h3>Your request snapshot</h3>
+          <div class="ticket-summary-grid">
+            <div class="ticket-summary-item">
+              <span>Quantity</span>
+              <strong id="summary-quantity">1 ticket</strong>
+            </div>
+            <div class="ticket-summary-item">
+              <span>Payment</span>
+              <strong id="summary-payment">Not selected</strong>
+            </div>
+            <div class="ticket-summary-item">
+              <span>Pricing Track</span>
+              <strong id="summary-track">Regular</strong>
+            </div>
+            <div class="ticket-summary-item">
+              <span>Submission</span>
+              <strong id="summary-status">Ready when required fields are complete</strong>
+            </div>
           </div>
         </div>
       </div>
 
       <div class="ticket-form-shell reveal in">
+        <div class="ticket-form-head">
+          <div class="ticket-form-head-copy">
+            <div class="ticket-form-kicker">Secure Submission</div>
+            <h3>Attendee & payment details</h3>
+            <p>Fill the required details, choose the payment method, and upload the proof.</p>
+            <div class="ticket-form-head-tags">
+              <span class="ticket-form-tag">Required fields only</span>
+              <span class="ticket-form-tag">Manual review</span>
+            </div>
+          </div>
+          <div class="ticket-form-badge">Validated before submit</div>
+        </div>
+
         <form class="ticket-form" id="ticket-request-form" enctype="multipart/form-data" novalidate>
+          <div class="ticket-form-section-head">
+            <div class="ticket-form-section-num">01</div>
+            <div>
+              <h4>Attendee information</h4>
+              <p>Basic details used for communication and ticket issuing.</p>
+            </div>
+          </div>
+
           <div class="form-grid">
-            <!-- Attendee Info -->
             <label class="form-field">
               <span>Full Name</span>
-              <input type="text" name="full_name" placeholder="Your full name" required>
+              <input type="text" name="full_name" placeholder="Your full name" required aria-describedby="error-full-name">
+              <p class="field-error" id="error-full-name" data-error-for="full_name" aria-live="polite"></p>
             </label>
 
             <label class="form-field">
               <span>Email Address</span>
-              <input type="email" name="email" placeholder="name@example.com" required>
+              <input type="email" name="email" placeholder="name@example.com" required aria-describedby="error-email">
+              <p class="field-error" id="error-email" data-error-for="email" aria-live="polite"></p>
             </label>
 
             <label class="form-field">
               <span>Mobile Number</span>
-              <input type="tel" name="phone" placeholder="+20 ..." required>
+              <input type="tel" name="phone" placeholder="+20 ..." required aria-describedby="error-phone">
+              <p class="field-error" id="error-phone" data-error-for="phone" aria-live="polite"></p>
             </label>
 
-            <!-- Ticket Details -->
             <label class="form-field">
               <span>Governorate</span>
-              <input type="text" name="governorate" placeholder="Your governorate (e.g. Cairo, Giza)" required>
+              <input type="text" name="governorate" placeholder="Your governorate (e.g. Cairo, Giza)">
             </label>
 
             <label class="form-field">
               <span>Quantity</span>
-              <input type="number" name="quantity" min="1" max="10" value="1" required>
+              <input type="number" name="quantity" min="1" max="10" value="1">
             </label>
 
             <label class="form-field">
               <span>School Name</span>
-              <input type="text" name="school_name" placeholder="Your school name" required>
+              <input type="text" name="school_name" placeholder="Your school name">
             </label>
 
-            <!-- Payment Details -->
             <label class="form-field">
               <span>Transfer Phone / Account No.</span>
-              <input type="text" name="transfer_source" placeholder="The number or account you paid from" required>
+              <input type="text" name="transfer_source" placeholder="The number or account you paid from" required aria-describedby="error-transfer-source">
+              <p class="field-error" id="error-transfer-source" data-error-for="transfer_source" aria-live="polite"></p>
             </label>
 
             <label class="form-field">
               <span>Payment Date</span>
-              <input type="date" name="payment_date" required>
+              <input type="date" name="payment_date" required aria-describedby="error-payment-date">
+              <p class="field-error" id="error-payment-date" data-error-for="payment_date" aria-live="polite"></p>
             </label>
-            
+
             <label class="form-field">
               <span>Promo Code (Optional)</span>
               <input type="text" name="promo_code" placeholder="Enter your code for discount">
             </label>
           </div>
 
-          <div class="form-grid" style="gap: 16px; align-items: flex-end;">
-            <label class="form-field" style="margin-bottom: 0;">
+          <div class="ticket-form-section-head compact">
+            <div class="ticket-form-section-num">02</div>
+            <div>
+              <h4>Payment details</h4>
+              <p>Select how you paid and attach the payment proof below.</p>
+            </div>
+          </div>
+
+          <div class="form-grid form-grid-compact">
+            <label class="form-field inline-field">
               <span>Payment Method</span>
-              <select name="payment_method" id="payment-method-select" required>
+              <select name="payment_method" id="payment-method-select">
                 <option value="" disabled selected>Select method...</option>
                 <option value="Mobile Wallet">Mobile Wallet</option>
                 <option value="InstaPay">InstaPay</option>
               </select>
             </label>
-            <label class="form-field" id="wallet-provider-field" style="display: none; margin-bottom: 0;">
+
+            <label class="form-field inline-field" id="wallet-provider-field" style="display: none;">
               <span>Wallet Provider</span>
               <select name="wallet_provider" id="wallet-provider-select">
                 <option value="" disabled selected>Select provider...</option>
@@ -201,15 +261,23 @@
             </label>
           </div>
 
-          <label class="form-check" style="margin-bottom: 18px; grid-column: 1 / -1;">
-            <input type="checkbox" name="is_group" id="is-group-booking">
-            <span>This booking is for a group (Make sure to set the Quantity above)</span>
-          </label>
+          <div class="ticket-form-utility">
+            <label class="form-check">
+              <input type="checkbox" name="is_group" id="is-group-booking">
+              <span>This booking is for a group (Make sure to set the Quantity above)</span>
+            </label>
 
-          <label class="form-field upload-field" style="grid-column: 1 / -1;">
+            <div class="ticket-form-side-note">
+              <strong>Upload guideline</strong>
+              <p>Use a full, readable screenshot showing the transfer sender and confirmation state.</p>
+            </div>
+          </div>
+
+          <label class="form-field upload-field">
             <span>Transfer Screenshot</span>
-            <input type="file" name="payment_screenshot" id="payment-screenshot" accept=".png,.jpg,.jpeg,.webp,.pdf" required>
+            <input type="file" name="payment_screenshot" id="payment-screenshot" accept=".png,.jpg,.jpeg,.webp,.pdf" required aria-describedby="error-payment-screenshot">
             <small>Accepted: PNG, JPG, WEBP, PDF. Max size: 10 MB.</small>
+            <p class="field-error" id="error-payment-screenshot" data-error-for="payment_screenshot" aria-live="polite"></p>
           </label>
 
           <label class="form-field">
@@ -282,7 +350,6 @@
   </div>
 </footer>
 
-<!-- Fullscreen Success Screen -->
 <div class="fullscreen-success" id="fullscreen-success" hidden>
   <div class="success-content">
     <div class="success-logo">
@@ -296,6 +363,11 @@
     </div>
     <h2 class="success-title">Thank you for registering.</h2>
     <p class="success-message">Your registration request has been received successfully. Your payment will be reviewed shortly.</p>
+    <div class="success-steps">
+      <div class="success-step"><span>01</span> Your request is now stored securely.</div>
+      <div class="success-step"><span>02</span> The TEDx team will review payment proof manually.</div>
+      <div class="success-step"><span>03</span> Approved requests receive the final ticket by email.</div>
+    </div>
     <p class="success-footer">We look forward to seeing you at TEDx Obour STEM Youth.</p>
     <button type="button" class="btn btn-ghost" id="new-request-button-fullscreen">Submit Another Request</button>
   </div>

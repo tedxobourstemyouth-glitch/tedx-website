@@ -4,25 +4,497 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TEDx Ticket Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'IBM Plex Sans', sans-serif; background: #111; color: #fff; padding: 20px; text-align: center; margin: 0; }
-    .card { background: #222; border-radius: 12px; padding: 30px 20px; max-width: 400px; margin: 20px auto; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-    h1 { margin-top: 0; color: #E62B1E; font-size: 32px; font-weight: normal; font-family: 'Times New Roman', serif; }
-    .data-row { margin: 15px 0; font-size: 16px; color: #ccc; border-bottom: 1px solid #333; padding-bottom: 15px; }
-    .data-row strong { color: #fff; display: block; font-size: 26px; margin-bottom: 5px; font-family: sans-serif; text-transform: uppercase; }
-    .status-box { padding: 15px; border-radius: 8px; margin: 25px 0; font-size: 20px; font-weight: bold; }
-    .status-ok { background: rgba(40, 167, 69, 0.1); color: #28a745; border: 2px solid #28a745; }
-    .status-used { background: rgba(230, 43, 30, 0.1); color: #E62B1E; border: 2px solid #E62B1E; }
-    .btn { width: 100%; padding: 18px; font-size: 20px; font-weight: bold; border-radius: 8px; border: none; cursor: pointer; transition: 0.2s; }
-    .btn-green { background: #28a745; color: #fff; }
-    .btn-green:hover { background: #218838; }
-    .btn-disabled { background: #555; color: #999; cursor: not-allowed; }
+    :root {
+      --red: #E62B1E;
+      --red-deep: #b8211a;
+      --ink: #070707;
+      --ink-2: #121212;
+      --bone: #fcfaf5;
+      --bone-dim: #cbc6bc;
+      --rule: rgba(245, 241, 234, 0.12);
+      --green: #28a745;
+      --green-soft: rgba(40, 167, 69, 0.15);
+      --red-soft: rgba(230, 43, 30, 0.15);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: 'IBM Plex Sans', sans-serif;
+      color: var(--bone);
+      background:
+        radial-gradient(circle at top left, rgba(230, 43, 30, 0.14), transparent 22%),
+        radial-gradient(circle at bottom right, rgba(230, 43, 30, 0.08), transparent 26%),
+        linear-gradient(180deg, #040404 0%, #0c0c0c 100%);
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(245, 241, 234, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(245, 241, 234, 0.02) 1px, transparent 1px);
+      background-size: 70px 70px;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,0.2), transparent 92%);
+      opacity: 0.78;
+    }
+
+    .scanner-shell {
+      position: relative;
+      width: min(980px, 100%);
+      display: grid;
+      grid-template-columns: minmax(280px, 0.9fr) minmax(320px, 1.1fr);
+      border: 1px solid var(--rule);
+      border-radius: 30px;
+      overflow: hidden;
+      background: rgba(10, 10, 10, 0.92);
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.42);
+      z-index: 1;
+    }
+
+    .scanner-shell::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 30%),
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.1), rgba(230, 43, 30, 0) 32%);
+    }
+
+    .scanner-aside,
+    .scanner-main {
+      padding: 30px;
+    }
+
+    .scanner-aside {
+      position: relative;
+      background:
+        linear-gradient(180deg, rgba(230, 43, 30, 0.16), rgba(230, 43, 30, 0.02)),
+        #0b0b0b;
+      border-right: 1px solid var(--rule);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 32px;
+    }
+    .scanner-aside::after {
+      content: "";
+      position: absolute;
+      right: 24px;
+      bottom: 24px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 241, 234, 0.08);
+      box-shadow:
+        0 0 0 20px rgba(245, 241, 234, 0.03),
+        0 0 0 40px rgba(245, 241, 234, 0.015);
+      opacity: 0.82;
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 26px;
+      height: 1px;
+      background: var(--red);
+    }
+
+    .brand-title {
+      margin: 18px 0 10px;
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(42px, 7vw, 72px);
+      line-height: 0.92;
+      font-weight: 400;
+    }
+
+    .brand-title em { color: var(--red); font-style: italic; }
+    .brand-copy { margin: 0; color: var(--bone-dim); line-height: 1.8; max-width: 28ch; }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.03);
+      width: fit-content;
+    }
+
+    .status-pill .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--red);
+      box-shadow: 0 0 0 6px rgba(230, 43, 30, 0.12);
+      animation: pulse 1.8s infinite;
+    }
+
+    .scanner-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .scanner-panel {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--rule);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .scanner-panel strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .scanner-panel span {
+      display: block;
+      color: var(--bone-dim);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .scanner-main {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .ticket-card {
+      position: relative;
+      border: 1px solid var(--rule);
+      border-radius: 26px;
+      padding: 28px;
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.08), rgba(230, 43, 30, 0) 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02));
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 0 28px 56px -38px rgba(0,0,0,0.88);
+      overflow: hidden;
+    }
+
+    .ticket-card::before {
+      content: "";
+      position: absolute;
+      left: 28px;
+      right: 28px;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(230, 43, 30, 0.78), transparent);
+    }
+
+    .ticket-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid rgba(245, 241, 234, 0.08);
+    }
+
+    .ticket-code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .ticket-state {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.03);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .ticket-state.ok {
+      color: #90e7a7;
+      background: var(--green-soft);
+      border-color: rgba(40, 167, 69, 0.24);
+    }
+
+    .ticket-state.error {
+      color: #ffb0a9;
+      background: var(--red-soft);
+      border-color: rgba(230, 43, 30, 0.24);
+    }
+
+    .ticket-state.waiting {
+      color: var(--bone);
+    }
+
+    .attendee-name {
+      margin: 0;
+      font-size: clamp(34px, 5vw, 52px);
+      line-height: 0.96;
+      font-weight: 500;
+    }
+
+    .attendee-meta {
+      margin-top: 12px;
+      color: var(--bone-dim);
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .info-item {
+      padding: 16px;
+      border-radius: 18px;
+      border: 1px solid var(--rule);
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.02));
+    }
+
+    .info-item span {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+      margin-bottom: 8px;
+    }
+
+    .info-item strong {
+      font-size: 15px;
+      line-height: 1.6;
+      font-weight: 500;
+      word-break: break-word;
+    }
+
+    .message-box {
+      margin-top: 24px;
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid var(--rule);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.025));
+    }
+
+    .message-box.success {
+      background: var(--green-soft);
+      border-color: rgba(40, 167, 69, 0.24);
+      color: #9be8b0;
+    }
+
+    .message-box.error {
+      background: var(--red-soft);
+      border-color: rgba(230, 43, 30, 0.24);
+      color: #ffb8b1;
+    }
+
+    .message-box strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 18px;
+    }
+
+    .message-box p {
+      margin: 0;
+      line-height: 1.75;
+      color: inherit;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 26px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      min-height: 54px;
+      padding: 0 22px;
+      border-radius: 16px;
+      border: 1px solid var(--rule);
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      color: var(--bone);
+      font-weight: 600;
+      transition: 0.2s ease;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      border-color: rgba(245, 241, 234, 0.24);
+    }
+
+    .btn-primary {
+      background: linear-gradient(180deg, #ff3d2b 0%, var(--red) 66%, #ba1c13 100%);
+      border-color: rgba(230, 43, 30, 0.3);
+      color: #fff;
+    }
+
+    .btn-primary:hover:not(:disabled) { background: var(--red-deep); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .footer-note {
+      margin-top: 26px;
+      color: var(--bone-dim);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .loading-shell {
+      display: grid;
+      gap: 16px;
+    }
+    .scanner-reticle {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      border: 1px solid rgba(245, 241, 234, 0.14);
+      position: relative;
+      margin-top: 8px;
+      box-shadow:
+        0 0 0 12px rgba(245, 241, 234, 0.03),
+        inset 0 0 0 8px rgba(230, 43, 30, 0.04);
+    }
+    .scanner-reticle::before,
+    .scanner-reticle::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(245, 241, 234, 0.18);
+    }
+    .scanner-reticle::before { width: 54px; height: 1px; }
+    .scanner-reticle::after { width: 1px; height: 54px; }
+
+    .skeleton {
+      border-radius: 16px;
+      background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.09), rgba(255,255,255,0.04));
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite linear;
+    }
+
+    .skeleton.title { height: 56px; width: 72%; }
+    .skeleton.copy { height: 18px; }
+    .skeleton.block { height: 92px; }
+
+    @keyframes shimmer {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.55; }
+    }
+
+    @media (max-width: 900px) {
+      .scanner-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .scanner-aside {
+        border-right: 0;
+        border-bottom: 1px solid var(--rule);
+      }
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 14px; }
+      .scanner-aside,
+      .scanner-main { padding: 22px; }
+      .ticket-card { padding: 22px; min-height: auto; }
+      .ticket-top { flex-direction: column; align-items: flex-start; }
+      .info-grid { grid-template-columns: 1fr; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
+    }
   </style>
 </head>
 <body>
-  <div class="card" id="content">
-    <h1>SCANNER</h1>
-    <div id="loading" style="color: #ccc;">Loading ticket data...</div>
+  <div class="scanner-shell">
+    <aside class="scanner-aside">
+      <div>
+        <div class="eyebrow">TEDx Check-in</div>
+        <h1 class="brand-title">Scan the <em>ticket.</em></h1>
+        <p class="brand-copy">Review attendee details, confirm validity, and complete entry without leaving the scanner view.</p>
+        <div class="scanner-reticle" aria-hidden="true"></div>
+      </div>
+
+      <div class="scanner-grid">
+        <div class="status-pill"><span class="dot"></span> Live verification</div>
+        <div class="scanner-panel">
+          <strong>Single-use access</strong>
+          <span>Each ticket can only be checked in once. Group tickets are tracked per sub-ticket.</span>
+        </div>
+        <div class="scanner-panel">
+          <strong>Admin protected</strong>
+          <span>This page requires authenticated admin access before any scan can be processed.</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="scanner-main">
+      <section class="ticket-card" id="content">
+        <div class="loading-shell">
+          <div class="ticket-top">
+            <div>
+              <div class="ticket-code">Preparing scanner</div>
+            </div>
+            <div class="ticket-state waiting">Loading</div>
+          </div>
+          <div class="skeleton title"></div>
+          <div class="skeleton copy"></div>
+          <div class="skeleton copy"></div>
+          <div class="info-grid">
+            <div class="skeleton block"></div>
+            <div class="skeleton block"></div>
+          </div>
+          <div class="skeleton block"></div>
+        </div>
+      </section>
+    </main>
   </div>
 
   <script>
@@ -33,62 +505,204 @@
       const content = document.getElementById('content');
 
       if (!ticketId) {
-        content.innerHTML = '<div class="status-box status-used">❌ INVALID QR CODE</div><p>No ticket ID found.</p>';
+        renderState({
+          code: 'Invalid QR',
+          stateClass: 'error',
+          stateText: 'Invalid',
+          title: 'No ticket ID found',
+          meta: 'The scanned QR code does not contain a valid ticket identifier.',
+          messageType: 'error',
+          messageTitle: 'Scan failed',
+          messageBody: 'Please rescan a valid TEDx ticket QR code.',
+          actions: []
+        });
         return;
       }
 
       try {
         const apiUrl = subId ? `/api/admin/checkin/${ticketId}?sub_id=${subId}` : `/api/admin/checkin/${ticketId}`;
-        const res = await fetch(apiUrl);
-        if (res.status === 401) {
-          content.innerHTML = '<div class="status-box status-used">🔒 UNAUTHORIZED</div><p>You must log in to scan tickets.</p>';
+        const response = await fetch(apiUrl);
+
+        if (response.status === 401) {
+          renderState({
+            code: `Ticket ${ticketId}`,
+            stateClass: 'error',
+            stateText: 'Locked',
+            title: 'Authentication required',
+            meta: 'You must log in as an admin before scanning tickets.',
+            messageType: 'error',
+            messageTitle: 'Unauthorized',
+            messageBody: 'Reload the page and complete the admin login prompt to continue.',
+            actions: []
+          });
           return;
         }
-        
-        const data = await res.json();
-        if (!res.ok) {
-          content.innerHTML = `<div class="status-box status-used">❌ ${data.message || 'Error'}</div>`;
+
+        const data = await response.json();
+        if (!response.ok) {
+          renderState({
+            code: `Ticket ${ticketId}`,
+            stateClass: 'error',
+            stateText: 'Error',
+            title: 'Ticket not available',
+            meta: 'The requested ticket could not be loaded from the scanner API.',
+            messageType: 'error',
+            messageTitle: 'Scanner response',
+            messageBody: data.message || 'An unexpected scanner error occurred.',
+            actions: []
+          });
           return;
         }
+
         renderTicket(data);
-      } catch (err) {
-        content.innerHTML = `<div class="status-box status-used">❌ Connection Error</div>`;
+      } catch (error) {
+        renderState({
+          code: `Ticket ${ticketId}`,
+          stateClass: 'error',
+          stateText: 'Offline',
+          title: 'Connection error',
+          meta: 'The scanner could not reach the server to validate this ticket.',
+          messageType: 'error',
+          messageTitle: 'Network issue',
+          messageBody: 'Check the server connection and try again.',
+          actions: []
+        });
       }
     });
 
-    function renderTicket(ticket) {
+    function renderState({ code, stateClass, stateText, title, meta, messageType, messageTitle, messageBody, actions }) {
       const content = document.getElementById('content');
+      content.innerHTML = `
+        <div>
+          <div class="ticket-top">
+            <div class="ticket-code">${code}</div>
+            <div class="ticket-state ${stateClass}">${stateText}</div>
+          </div>
+          <h2 class="attendee-name">${title}</h2>
+          <div class="attendee-meta">${meta}</div>
+          <div class="message-box ${messageType}">
+            <strong>${messageTitle}</strong>
+            <p>${messageBody}</p>
+          </div>
+          ${renderActions(actions)}
+        </div>
+        <div class="footer-note">TEDx Obour STEM Youth scanner keeps check-in logic unchanged while improving scan visibility and confirmation states.</div>
+      `;
+    }
+
+    function renderActions(actions) {
+      if (!actions || !actions.length) return '';
+
+      return `
+        <div class="actions">
+          ${actions.map((action) => `
+            <button
+              class="btn ${action.primary ? 'btn-primary' : ''}"
+              type="button"
+              ${action.disabled ? 'disabled' : ''}
+              onclick="${action.onclick}"
+            >${action.label}</button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function renderTicket(ticket) {
       const subId = new URLSearchParams(window.location.search).get('sub_id');
-      let statusHtml = '', actionHtml = '';
-      let isCheckedIn = ticket.is_sub_ticket ? ticket.checked : ticket.checked_in;
-      let checkinTime = ticket.is_sub_ticket ? ticket.time : ticket.checkin_time;
+      const isCheckedIn = ticket.is_sub_ticket ? ticket.checked : ticket.checked_in;
+      const checkinTime = ticket.is_sub_ticket ? ticket.time : ticket.checkin_time;
+
+      let stateClass = 'waiting';
+      let stateText = 'Review';
+      let messageType = '';
+      let messageTitle = 'Ready for review';
+      let messageBody = 'Inspect the attendee details below before taking action.';
+      let actions = [];
 
       if (ticket.status !== 'approved') {
-        statusHtml = `<div class="status-box status-used">⚠️ NOT APPROVED</div>`;
+        stateClass = 'error';
+        stateText = 'Blocked';
+        messageType = 'error';
+        messageTitle = 'Not approved';
+        messageBody = 'This ticket request has not been approved yet and cannot be checked in.';
       } else if (isCheckedIn) {
-        statusHtml = `<div class="status-box status-used">❌ ALREADY USED<div style="font-size: 14px; margin-top: 10px; font-weight: normal; color: #fff;">Checked in at:<br>${checkinTime}</div></div>`;
-        actionHtml = `<button class="btn btn-disabled" disabled>Ticket is void</button>`;
+        stateClass = 'error';
+        stateText = 'Used';
+        messageType = 'error';
+        messageTitle = 'Ticket already used';
+        messageBody = `This ticket was checked in at ${checkinTime}.`;
+        actions = [{ label: 'Ticket is void', disabled: true, onclick: '' }];
       } else {
-        statusHtml = `<div class="status-box status-ok">✅ VALID TICKET</div>`;
-        actionHtml = `<button class="btn btn-green" onclick="confirmCheckin(${ticket.id}, ${subId})">Confirm Check-in</button>`;
+        stateClass = 'ok';
+        stateText = 'Valid';
+        messageType = 'success';
+        messageTitle = 'Valid ticket';
+        messageBody = 'All checks passed. You can confirm check-in now.';
+        actions = [{
+          label: 'Confirm Check-in',
+          primary: true,
+          onclick: `confirmCheckin(${ticket.id}, ${subId || 'null'})`
+        }];
       }
 
-      let subTicketInfo = '';
-      if (ticket.is_sub_ticket) {
-        subTicketInfo = ` (Ticket ${ticket.sub_id} of ${ticket.quantity})`;
-      }
+      const subTicketInfo = ticket.is_sub_ticket ? `Ticket ${ticket.sub_id} of ${ticket.quantity}` : 'Single ticket';
 
-      content.innerHTML = `<h1>SCANNER</h1><div class="data-row"><strong>${ticket.full_name}</strong>${ticket.governorate || ''}${subTicketInfo}</div><div class="data-row" style="font-size: 14px;">Ticket ID: ${ticket.id}<br>Phone: ${ticket.phone}</div>${statusHtml}${actionHtml}`;
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <div>
+          <div class="ticket-top">
+            <div class="ticket-code">Ticket ID ${ticket.id}</div>
+            <div class="ticket-state ${stateClass}">${stateText}</div>
+          </div>
+
+          <h2 class="attendee-name">${ticket.full_name}</h2>
+          <div class="attendee-meta">${ticket.governorate || 'Governorate not provided'} · ${subTicketInfo}</div>
+
+          <div class="info-grid">
+            <div class="info-item">
+              <span>Phone</span>
+              <strong>${ticket.phone || '-'}</strong>
+            </div>
+            <div class="info-item">
+              <span>Status</span>
+              <strong>${ticket.status || 'pending'}</strong>
+            </div>
+            <div class="info-item">
+              <span>Booking type</span>
+              <strong>${ticket.quantity && Number(ticket.quantity) > 1 ? 'Group request' : 'Solo request'}</strong>
+            </div>
+            <div class="info-item">
+              <span>Check-in</span>
+              <strong>${isCheckedIn ? checkinTime : 'Not checked in yet'}</strong>
+            </div>
+          </div>
+
+          <div class="message-box ${messageType}">
+            <strong>${messageTitle}</strong>
+            <p>${messageBody}</p>
+          </div>
+
+          ${renderActions(actions)}
+        </div>
+        <div class="footer-note">Once confirmed, this action cannot be undone and the ticket will be marked as used immediately.</div>
+      `;
     }
 
     async function confirmCheckin(id, subId) {
       if (!confirm('Are you sure you want to check in this ticket? This cannot be undone.')) return;
+
       try {
         const apiUrl = subId ? `/api/admin/checkin/${id}?sub_id=${subId}` : `/api/admin/checkin/${id}`;
-        const res = await fetch(apiUrl, { method: 'POST' });
-        const data = await res.json();
-        if (res.ok) { renderTicket(data.ticket); } else { alert(data.message || 'Error checking in'); }
-      } catch (err) { alert('Connection Error'); }
+        const response = await fetch(apiUrl, { method: 'POST' });
+        const data = await response.json();
+        if (response.ok) {
+          renderTicket(data.ticket);
+        } else {
+          alert(data.message || 'Error checking in');
+        }
+      } catch (error) {
+        alert('Connection Error');
+      }
     }
   </script>
 </body>
