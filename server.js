@@ -77,6 +77,12 @@ function getNextTicketId(db) {
   return Math.max(...numericIds) + 1;
 }
 
+function normalizeQuantity(value, fallback = 1) {
+  const parsed = parseInt(value, 10);
+  if (!Number.isFinite(parsed) || parsed < 1) return fallback;
+  return Math.min(parsed, 10);
+}
+
 function buildRatingLink(req, ticketId, rating, subId = null) {
   const base = `${req.protocol}://${req.get('host')}`;
   const params = new URLSearchParams({ rating: String(rating) });
@@ -91,6 +97,48 @@ function getStarMarkup(req, ticketId, subId = null) {
          style="display:inline-block;margin:0 4px;font-size:32px;text-decoration:none;color:#E62B1E;"
          aria-label="Rate ${rating} out of 5 stars">★</a>`)
     .join('');
+}
+
+function getSenderAddress() {
+  return process.env.EMAIL_FROM || process.env.EMAIL_USER;
+}
+
+function buildMailOptions({ to, subject, html, text, attachments = [] }) {
+  const fromAddress = getSenderAddress();
+
+  return {
+    from: `"TEDx Obour STEM Youth" <${fromAddress}>`,
+    sender: fromAddress,
+    replyTo: fromAddress,
+    to,
+    subject,
+    text,
+    html,
+    attachments,
+    envelope: {
+      from: fromAddress,
+      to
+    }
+  };
+}
+
+async function sendMailStrict(mailOptions) {
+  const info = await transporter.sendMail(mailOptions);
+  const rejected = Array.isArray(info.rejected) ? info.rejected.filter(Boolean) : [];
+
+  if (rejected.length) {
+    throw new Error(`Recipient rejected by mail server: ${rejected.join(', ')}`);
+  }
+
+  console.log('Email sent:', {
+    to: mailOptions.to,
+    subject: mailOptions.subject,
+    messageId: info.messageId,
+    accepted: info.accepted,
+    rejected: info.rejected
+  });
+
+  return info;
 }
 
 async function sendRatingEmail(ticket, req, subId = null) {
@@ -112,13 +160,22 @@ async function sendRatingEmail(ticket, req, subId = null) {
         </p>
       </div>
     </div>`;
+  const ratingText = [
+    'TEDx Obour STEM Youth',
+    '',
+    `Hello ${ticket.full_name},`,
+    `Thank you for attending TEDx Obour STEM Youth${subId ? ` (Ticket ${subId})` : ''}.`,
+    'Please rate your event experience using one of the links below:',
+    '',
+    ...[1, 2, 3, 4, 5].map((rating) => `${rating} star: ${buildRatingLink(req, ticket.id, rating, subId)}`)
+  ].join('\n');
 
-  await transporter.sendMail({
-    from: `"TEDx Obour STEM" <${process.env.EMAIL_USER}>`,
+  await sendMailStrict(buildMailOptions({
     to: ticket.email,
     subject: `Rate Your TEDx Experience${subjectSuffix}`,
+    text: ratingText,
     html: ratingEmail
-  });
+  }));
 }
 
 function validateSubmission(formData, file) {
@@ -255,7 +312,8 @@ app.post('/submit', (req, res, next) => {
       ratings: []
     };
 
-    const quantity = parseInt(formData.quantity, 10) || 1;
+    const quantity = normalizeQuantity(formData.quantity, 1);
+    newEntry.quantity = quantity;
     if (quantity > 1) {
       for (let i = 1; i <= quantity; i++) {
         newEntry.checkins.push({ sub_id: i, checked: false, time: null });
@@ -272,14 +330,20 @@ app.post('/submit', (req, res, next) => {
         <p>Hello <strong>${formData.full_name}</strong>,</p>
         <p>Your ticket request is under review. Request ID: ${newEntry.id}</p>
       </div>`;
+    const pendingText = [
+      'TEDx Obour STEM Youth',
+      '',
+      `Hello ${formData.full_name},`,
+      `Your ticket request is under review. Request ID: ${newEntry.id}`
+    ].join('\n');
 
     try {
-      await transporter.sendMail({
-        from: `"TEDx Obour STEM" <${process.env.EMAIL_USER}>`,
+      await sendMailStrict(buildMailOptions({
         to: formData.email,
         subject: 'Request Received - TEDx Obour STEM Youth',
+        text: pendingText,
         html: pendingEmail
-      });
+      }));
       console.log('Receipt email sent to:', formData.email);
     } catch (emailErr) {
       console.log('Email not sent but ticket saved. Reason:', emailErr.message);
@@ -344,20 +408,23 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
       throw new Error(`Ticket template not found! Please make sure '${path.basename(templatePath)}' exists in the folder.`);
     }
 
-    if (req.body && req.body.quantity) {
-      const newQty = parseInt(req.body.quantity, 10);
-      if (newQty > 0) {
-        ticket.quantity = newQty;
-        ticket.checkins = [];
-        if (newQty > 1) {
-          for (let i = 1; i <= newQty; i++) {
-            ticket.checkins.push({ sub_id: i, checked: false, time: null });
-          }
-        }
+    const quantity = normalizeQuantity(req.body?.quantity, normalizeQuantity(ticket.quantity, 1));
+    ticket.quantity = quantity;
+    ticket.checked_in = false;
+    ticket.checkin_time = null;
+    ticket.checkins = [];
+    ticket.rating_email_sent = false;
+    ticket.rating_emails_sent = [];
+    ticket.ratings = [];
+    ticket.event_rating = null;
+    ticket.event_rated_at = null;
+
+    if (quantity > 1) {
+      for (let i = 1; i <= quantity; i++) {
+        ticket.checkins.push({ sub_id: i, checked: false, time: null });
       }
     }
 
-    const quantity = parseInt(ticket.quantity, 10) || 1;
     const attachments = [];
 
     if (quantity > 1) {
@@ -365,20 +432,33 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
         const qrUrl = `${req.protocol}://${req.get('host')}/checkin.html?id=${ticket.id}&sub_id=${i}`;
         const finalTicketBuffer = await generateTicketImage(qrUrl, templatePath);
         attachments.push({
-          filename: `Official_Ticket_${ticket.id}_(${i}_of_${quantity}).jpg`,
+          filename: `TEDx_Ticket_${ticket.id}_${i}_of_${quantity}.jpg`,
           content: finalTicketBuffer,
-          cid: `ticket_final_${i}`
+          contentType: 'image/jpeg'
         });
       }
     } else {
       const qrUrl = `${req.protocol}://${req.get('host')}/checkin.html?id=${ticket.id}`;
       const finalTicketBuffer = await generateTicketImage(qrUrl, templatePath);
       attachments.push({
-        filename: `Official_Ticket_${ticket.id}.jpg`,
+        filename: `TEDx_Ticket_${ticket.id}.jpg`,
         content: finalTicketBuffer,
-        cid: 'ticket_final'
+        contentType: 'image/jpeg'
       });
     }
+
+    const ticketSummaryText = quantity > 1
+      ? `${quantity} official tickets are attached to this email, one ticket for each attendee.`
+      : 'Your official ticket is attached to this email.';
+    const ticketListMarkup = quantity > 1
+      ? `
+            <div style="margin: 22px 0 0; text-align: left; background: #faf7f5; border: 1px solid #eee3de; border-radius: 10px; padding: 16px;">
+              <p style="margin: 0 0 10px; color: #1f1f1f; font-size: 14px; font-weight: bold;">Attached ticket files</p>
+              <ul style="margin: 0; padding-left: 18px; color: #444; font-size: 14px; line-height: 1.8;">
+                ${attachments.map((attachment) => `<li>${attachment.filename}</li>`).join('')}
+              </ul>
+            </div>`
+      : '';
 
     const approvedEmail = `
       <!DOCTYPE html>
@@ -407,12 +487,13 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
           <div class="email-content">
             <h2 style="color: #E62B1E; margin-top: 0;">TEDx Obour STEM Youth</h2>
             <p style="color: #333333; font-size: 16px;">Congratulations <strong>${ticket.full_name}</strong>!</p>
-            <p style="color: #333333; font-size: 16px;">Your ticket is APPROVED. Please save your official ticket below to show at the door.</p>
-            <img src="cid:${attachments[0].cid}" alt="Event Ticket" class="ticket-img" />
+            <p style="color: #333333; font-size: 16px;">Your ticket request is APPROVED.</p>
+            <p style="color: #333333; font-size: 16px;">${ticketSummaryText}</p>
+            ${ticketListMarkup}
             <div style="margin-top: 30px;">
               <a href="${BASE_URL}/ticket-view.html?id=${ticket.id}" class="btn">View & Download Ticket Online</a>
             </div>
-            <p style="color: #777777; font-size: 13px; margin-top: 20px;">* Your high-resolution ticket is also attached to this email.</p>
+            <p style="color: #777777; font-size: 13px; margin-top: 20px;">* Please use the attached ticket files at the venue entrance.</p>
           </div>
           <!--[if mso]>
           </td></tr></table>
@@ -420,15 +501,26 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
         </div>
       </body>
       </html>`;
+    const approvedText = [
+      'TEDx Obour STEM Youth',
+      '',
+      `Congratulations ${ticket.full_name}!`,
+      'Your ticket request is approved.',
+      ticketSummaryText,
+      `View online: ${BASE_URL}/ticket-view.html?id=${ticket.id}`,
+      '',
+      'Attached files:',
+      ...attachments.map((attachment) => `- ${attachment.filename}`)
+    ].join('\n');
 
     try {
-      await transporter.sendMail({
-        from: `"TEDx Obour STEM" <${process.env.EMAIL_USER}>`,
+      await sendMailStrict(buildMailOptions({
         to: ticket.email,
         subject: 'Ticket Approved! - TEDx',
+        text: approvedText,
         html: approvedEmail,
         attachments
-      });
+      }));
       console.log(`${quantity} ticket(s) successfully sent to:`, ticket.email);
     } catch (emailErr) {
       console.log('Failed to send email:', emailErr.message);
@@ -467,14 +559,22 @@ app.post('/api/admin/reject/:id', adminAuth, async (req, res) => {
         <p>This might be due to an invalid payment screenshot, incorrect details, or because we have reached full capacity.</p>
         <p>If you believe this is a mistake, please reply to this email to contact our team.</p>
       </div>`;
+    const rejectedText = [
+      'TEDx Obour STEM Youth',
+      '',
+      `Hello ${ticket.full_name},`,
+      `We regret to inform you that your ticket request (ID: ${ticket.id}) could not be approved at this time.`,
+      'This might be due to an invalid payment screenshot, incorrect details, or because we have reached full capacity.',
+      'If you believe this is a mistake, please reply to this email to contact our team.'
+    ].join('\n');
 
     try {
-      await transporter.sendMail({
-        from: `"TEDx Obour STEM" <${process.env.EMAIL_USER}>`,
+      await sendMailStrict(buildMailOptions({
         to: ticket.email,
         subject: 'Update on your ticket request - TEDx',
+        text: rejectedText,
         html: rejectedEmail
-      });
+      }));
       console.log('Rejection email sent to:', ticket.email);
     } catch (emailErr) {
       console.log('Failed to send rejection email:', emailErr.message);

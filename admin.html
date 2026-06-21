@@ -10,14 +10,18 @@
   <style>
     :root {
       --red: #E62B1E;
-      --red-deep: #b8211a;
-      --ink: #090909;
-      --ink-2: #111111;
-      --ink-3: #191919;
-      --bone: #fcfaf5;
-      --bone-dim: #c9c4bb;
-      --rule: rgba(245, 241, 234, 0.12);
-      --rule-strong: rgba(245, 241, 234, 0.22);
+      --red-deep: #ba2319;
+      --red-soft: #ff8c82;
+      --ink: #060606;
+      --ink-2: #0d0d0f;
+      --ink-3: #161619;
+      --panel: rgba(17, 17, 19, 0.82);
+      --panel-strong: rgba(23, 23, 26, 0.96);
+      --bone: #f6f2ea;
+      --bone-soft: #e7ded2;
+      --bone-dim: #b9afa3;
+      --rule: rgba(246, 242, 234, 0.1);
+      --rule-strong: rgba(246, 242, 234, 0.2);
       --green: #28a745;
       --amber: #ffc107;
     }
@@ -27,9 +31,10 @@
       margin: 0;
       font-family: 'IBM Plex Sans', sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(230, 43, 30, 0.14), transparent 24%),
-        radial-gradient(circle at bottom left, rgba(230, 43, 30, 0.08), transparent 22%),
-        linear-gradient(180deg, #050505 0%, #0b0b0b 100%);
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.14), transparent 18%),
+        radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.035), transparent 18%),
+        radial-gradient(circle at bottom left, rgba(230, 43, 30, 0.07), transparent 24%),
+        linear-gradient(180deg, #050505 0%, #09090b 48%, #0d0d10 100%);
       color: var(--bone);
       padding: 24px;
       min-height: 100vh;
@@ -50,6 +55,19 @@
       opacity: 0.75;
     }
 
+    body::after {
+      content: "";
+      position: fixed;
+      inset: auto auto -140px -120px;
+      width: 360px;
+      height: 360px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(230, 43, 30, 0.14) 0%, rgba(230, 43, 30, 0) 72%);
+      pointer-events: none;
+      filter: blur(12px);
+      z-index: 0;
+    }
+
     button, input { font: inherit; }
     button { cursor: pointer; }
 
@@ -67,13 +85,15 @@
       justify-content: space-between;
       gap: 18px;
       margin-bottom: 28px;
-      padding: 24px;
+      padding: 28px;
       border: 1px solid var(--rule);
-      background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
-      border-radius: 24px;
-      backdrop-filter: blur(14px);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.038), rgba(255,255,255,0.014)),
+        linear-gradient(135deg, rgba(230, 43, 30, 0.055), rgba(230, 43, 30, 0));
+      border-radius: 28px;
+      backdrop-filter: blur(18px);
       overflow: hidden;
-      box-shadow: 0 28px 60px -42px rgba(0,0,0,0.88);
+      box-shadow: 0 30px 80px -46px rgba(0,0,0,0.92);
     }
 
     .dashboard-header::before {
@@ -81,9 +101,18 @@
       position: absolute;
       inset: 0;
       background:
-        radial-gradient(circle at top right, rgba(230, 43, 30, 0.12) 0%, rgba(230, 43, 30, 0) 28%),
-        linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 34%);
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.11) 0%, rgba(230, 43, 30, 0) 28%),
+        linear-gradient(135deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0) 34%);
       pointer-events: none;
+    }
+
+    .dashboard-header::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.03), transparent 22%, transparent 78%, rgba(255,255,255,0.03));
+      pointer-events: none;
+      opacity: 0.5;
     }
 
     .title-block {
@@ -102,12 +131,19 @@
     .dashboard-header h1 {
       margin: 0;
       font-size: clamp(28px, 4vw, 46px);
-      line-height: 1;
+      line-height: 0.96;
       font-weight: 500;
+      letter-spacing: -0.03em;
     }
 
     .dashboard-header h1 span { color: var(--red); }
-    .dashboard-subcopy { margin: 0; color: var(--bone-dim); max-width: 540px; line-height: 1.7; }
+    .dashboard-subcopy {
+      margin: 0;
+      color: var(--bone-dim);
+      max-width: 560px;
+      line-height: 1.75;
+      font-size: 15px;
+    }
     .live-badge {
       display: inline-flex;
       align-items: center;
@@ -115,8 +151,8 @@
       width: fit-content;
       padding: 9px 14px;
       border-radius: 999px;
-      border: 1px solid rgba(245, 241, 234, 0.12);
-      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(246, 242, 234, 0.12);
+      background: rgba(255,255,255,0.045);
       font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.14em;
@@ -139,6 +175,10 @@
       align-items: center;
       justify-content: flex-end;
       gap: 12px;
+      padding: 8px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(246, 242, 234, 0.06);
     }
 
     .btn,
@@ -152,11 +192,12 @@
 
     .btn,
     .icon-btn {
-      background: var(--ink-2);
+      background: rgba(255,255,255,0.03);
       color: var(--bone);
       border-color: var(--rule);
-      border-radius: 14px;
+      border-radius: 16px;
       min-height: 48px;
+      backdrop-filter: blur(10px);
     }
 
     .btn {
@@ -168,15 +209,19 @@
     .icon-btn:hover {
       border-color: var(--rule-strong);
       transform: translateY(-1px);
+      background: rgba(255,255,255,0.055);
     }
 
     .btn-primary {
-      background: linear-gradient(180deg, #ff3120 0%, var(--red) 100%);
-      border-color: rgba(230, 43, 30, 0.4);
+      background: linear-gradient(180deg, #ff4b38 0%, var(--red) 100%);
+      border-color: rgba(230, 43, 30, 0.42);
       color: #fff;
+      box-shadow: 0 18px 34px -22px rgba(230, 43, 30, 0.82);
     }
 
-    .btn-primary:hover { background: var(--red-deep); }
+    .btn-primary:hover {
+      background: linear-gradient(180deg, #ff5b47 0%, var(--red-deep) 100%);
+    }
 
     .icon-btn {
       width: 48px;
@@ -193,11 +238,12 @@
       justify-content: space-between;
       gap: 16px;
       margin-bottom: 24px;
-      padding: 16px 18px;
-      border-radius: 22px;
+      padding: 18px;
+      border-radius: 24px;
       border: 1px solid var(--rule);
-      background: linear-gradient(180deg, rgba(255,255,255,0.022), rgba(255,255,255,0.012));
-      box-shadow: 0 18px 34px -32px rgba(0,0,0,0.9);
+      background: linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0.012));
+      box-shadow: 0 22px 42px -34px rgba(0,0,0,0.92);
+      backdrop-filter: blur(14px);
     }
 
     .filters {
@@ -206,7 +252,7 @@
       gap: 8px;
       padding: 8px;
       border: 1px solid var(--rule);
-      background: var(--ink-2);
+      background: rgba(255,255,255,0.025);
       border-radius: 18px;
     }
 
@@ -220,9 +266,10 @@
 
     .filter-btn.active,
     .filter-btn:hover {
-      background: rgba(230, 43, 30, 0.16);
+      background: linear-gradient(180deg, rgba(230, 43, 30, 0.2), rgba(230, 43, 30, 0.12));
       color: var(--bone);
       border-color: rgba(230, 43, 30, 0.2);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     .search-shell {
@@ -236,9 +283,17 @@
       min-height: 56px;
       border-radius: 18px;
       border: 1px solid var(--rule);
-      background: rgba(17, 17, 17, 0.94);
+      background: rgba(255,255,255,0.03);
       color: var(--bone);
       padding: 0 18px 0 52px;
+      outline: none;
+      transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .search-shell input:focus {
+      border-color: rgba(230, 43, 30, 0.32);
+      background: rgba(255,255,255,0.045);
+      box-shadow: 0 0 0 4px rgba(230, 43, 30, 0.08);
     }
 
     .search-shell svg {
@@ -262,14 +317,15 @@
 
     .stat-card {
       position: relative;
-      padding: 18px 20px;
-      border-radius: 20px;
+      padding: 20px 22px;
+      border-radius: 22px;
       border: 1px solid var(--rule);
       background:
-        radial-gradient(circle at top right, rgba(230, 43, 30, 0.08), rgba(230, 43, 30, 0) 32%),
-        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.1), rgba(230, 43, 30, 0) 32%),
+        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
       overflow: hidden;
-      box-shadow: 0 20px 40px -34px rgba(0,0,0,0.95);
+      box-shadow: 0 24px 44px -34px rgba(0,0,0,0.95);
+      backdrop-filter: blur(12px);
     }
 
     .stat-card::before {
@@ -292,9 +348,10 @@
 
     .stat-value {
       margin-top: 10px;
-      font-size: 34px;
+      font-size: 36px;
       line-height: 1;
       font-weight: 600;
+      letter-spacing: -0.04em;
     }
 
     #data-grid {
@@ -303,25 +360,35 @@
       gap: 18px;
     }
 
+    body.busy .settings-action,
+    body.busy .action-btn,
+    body.busy .mini-action-btn,
+    body.busy .btn,
+    body.busy .icon-btn {
+      pointer-events: none;
+      opacity: 0.72;
+    }
+
     .ticket-card {
       position: relative;
       border: 1px solid var(--rule);
-      border-radius: 24px;
+      border-radius: 26px;
       background:
-        radial-gradient(circle at top right, rgba(230, 43, 30, 0.08), rgba(230, 43, 30, 0) 28%),
-        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.014));
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.085), rgba(230, 43, 30, 0) 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.032), rgba(255,255,255,0.012));
       overflow: hidden;
       display: flex;
       flex-direction: column;
       min-height: 100%;
-      box-shadow: 0 22px 44px -36px rgba(0,0,0,0.96);
+      box-shadow: 0 26px 54px -38px rgba(0,0,0,0.96);
       transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      backdrop-filter: blur(12px);
     }
 
     .ticket-card:hover {
       transform: translateY(-2px);
       border-color: var(--rule-strong);
-      box-shadow: 0 26px 56px -34px rgba(0,0,0,0.92);
+      box-shadow: 0 32px 62px -36px rgba(0,0,0,0.92);
     }
 
     .ticket-card::before {
@@ -341,7 +408,7 @@
       gap: 16px;
       padding: 22px;
       align-items: flex-start;
-      background: linear-gradient(180deg, rgba(255,255,255,0.025), rgba(255,255,255,0));
+      background: linear-gradient(180deg, rgba(255,255,255,0.038), rgba(255,255,255,0));
     }
     .card-head-main {
       display: flex;
@@ -355,14 +422,18 @@
       align-items: center;
       gap: 10px;
       flex: 0 0 auto;
+      padding: 6px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.028);
+      border: 1px solid rgba(246, 242, 234, 0.06);
     }
     .mini-action-btn {
-      min-height: 38px;
-      padding: 0 14px;
+      min-height: 36px;
+      padding: 0 16px;
       border-radius: 999px;
       border: 1px solid rgba(230, 43, 30, 0.24);
-      background: rgba(230, 43, 30, 0.12);
-      color: #ffb2ab;
+      background: rgba(230, 43, 30, 0.1);
+      color: #ffc2bc;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.14em;
@@ -375,10 +446,11 @@
     }
 
     .card-name {
-      font-size: 22px;
+      font-size: 23px;
       line-height: 1.15;
-      font-weight: 500;
+      font-weight: 600;
       margin: 0 0 6px;
+      color: var(--bone-soft);
     }
 
     .card-email {
@@ -396,7 +468,7 @@
       padding: 6px 10px;
       border-radius: 999px;
       border: 1px solid var(--rule);
-      background: rgba(255,255,255,0.03);
+      background: rgba(255,255,255,0.04);
       color: var(--bone-dim);
       font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
@@ -412,6 +484,7 @@
       letter-spacing: 0.12em;
       text-transform: uppercase;
       white-space: nowrap;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
     .status-pending { background: rgba(255, 193, 7, 0.18); color: #ffe08a; border: 1px solid rgba(255, 193, 7, 0.24); }
@@ -431,7 +504,7 @@
       padding: 14px;
       border: 1px solid var(--rule);
       border-radius: 16px;
-      background: rgba(255,255,255,0.02);
+      background: rgba(255,255,255,0.028);
       min-width: 0;
     }
 
@@ -447,37 +520,71 @@
       font-size: 14px;
       line-height: 1.55;
       word-break: break-word;
+      color: var(--bone-soft);
     }
 
     .checkin-banner {
       margin: 0 22px 18px;
       padding: 14px 16px;
       border-radius: 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.025));
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
       border: 1px solid var(--rule);
       color: var(--bone);
     }
 
-    .screenshot-link {
-      display: block;
+    .receipt-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
       margin: 0 22px 18px;
+      padding: 14px 16px;
       border-radius: 18px;
-      overflow: hidden;
       border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.028);
     }
 
-    .screenshot-link img {
-      display: block;
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      transition: transform 0.28s ease, filter 0.28s ease;
-      filter: saturate(0.96) contrast(1.02);
+    .receipt-meta {
+      display: grid;
+      gap: 4px;
+      min-width: 0;
     }
 
-    .screenshot-link:hover img {
-      transform: scale(1.02);
-      filter: saturate(1.02) contrast(1.05);
+    .receipt-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .receipt-name {
+      font-size: 13px;
+      color: var(--bone);
+      word-break: break-word;
+    }
+
+    .receipt-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 40px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(230, 43, 30, 0.24);
+      background: rgba(230, 43, 30, 0.1);
+      color: #ffd5d1;
+      text-decoration: none;
+      white-space: nowrap;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .receipt-link:hover {
+      border-color: rgba(230, 43, 30, 0.4);
+      background: rgba(230, 43, 30, 0.18);
     }
 
     .card-footer {
@@ -485,25 +592,28 @@
       gap: 10px;
       padding: 0 22px 22px;
       margin-top: auto;
+      border-top: 1px solid rgba(246, 242, 234, 0.06);
     }
 
     .action-btn {
       flex: 1;
-      min-height: 48px;
-      border-radius: 14px;
+      min-height: 50px;
+      border-radius: 16px;
       font-weight: 600;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+      letter-spacing: 0.02em;
     }
 
     .action-btn.approve {
-      background: rgba(40, 167, 69, 0.14);
-      color: #8de7a4;
-      border-color: rgba(40, 167, 69, 0.24);
+      background: linear-gradient(180deg, rgba(40, 167, 69, 0.18), rgba(40, 167, 69, 0.1));
+      color: #a6efb8;
+      border-color: rgba(40, 167, 69, 0.28);
     }
 
     .action-btn.reject {
-      background: rgba(230, 43, 30, 0.16);
-      color: #ffb2ab;
-      border-color: rgba(230, 43, 30, 0.24);
+      background: linear-gradient(180deg, rgba(230, 43, 30, 0.18), rgba(230, 43, 30, 0.1));
+      color: #ffc0ba;
+      border-color: rgba(230, 43, 30, 0.28);
     }
 
     .action-btn:hover:not(:disabled) { transform: translateY(-1px); }
@@ -530,9 +640,9 @@
       min-width: 280px;
       max-width: 420px;
       padding: 16px 18px;
-      border-radius: 16px;
+      border-radius: 18px;
       border: 1px solid var(--rule);
-      background: rgba(10, 10, 10, 0.96);
+      background: rgba(12, 12, 14, 0.96);
       color: var(--bone);
       transform: translateY(24px);
       opacity: 0;
@@ -556,16 +666,17 @@
       width: min(420px, 100%);
       height: 100vh;
       background:
-        radial-gradient(circle at top right, rgba(230, 43, 30, 0.12), rgba(230, 43, 30, 0) 28%),
-        rgba(9, 9, 9, 0.985);
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.1), rgba(230, 43, 30, 0) 28%),
+        linear-gradient(180deg, rgba(20, 20, 22, 0.98), rgba(10, 10, 11, 0.985));
       border-left: 1px solid var(--rule);
-      padding: 24px;
+      padding: 28px 24px;
       display: grid;
       grid-template-rows: auto auto 1fr;
       gap: 18px;
       transform: translateX(100%);
       transition: 0.25s ease;
       z-index: 40;
+      box-shadow: -24px 0 54px -34px rgba(0,0,0,0.94);
     }
 
     .settings-panel.open { transform: translateX(0); }
@@ -578,8 +689,9 @@
 
     .settings-head h2 {
       margin: 0;
-      font-size: 24px;
-      font-weight: 500;
+      font-size: 28px;
+      font-weight: 600;
+      letter-spacing: -0.03em;
     }
 
     .settings-copy {
@@ -590,29 +702,30 @@
 
     .settings-list {
       display: grid;
-      gap: 14px;
+      gap: 16px;
       align-content: start;
     }
 
     .settings-action {
       text-align: left;
       width: 100%;
-      padding: 18px;
-      border-radius: 18px;
-      background: rgba(255,255,255,0.03);
+      padding: 20px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.035);
       border-color: var(--rule);
       color: var(--bone);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
     }
 
     .settings-action:hover {
       border-color: var(--rule-strong);
-      background: rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.055);
     }
 
     .settings-action strong {
       display: block;
       margin-bottom: 8px;
-      font-size: 16px;
+      font-size: 17px;
     }
 
     .settings-action span {
@@ -650,14 +763,16 @@
 
     .modal {
       width: min(480px, 100%);
-      border-radius: 24px;
+      border-radius: 26px;
       border: 1px solid var(--rule);
       background:
-        radial-gradient(circle at top right, rgba(230, 43, 30, 0.09), rgba(230, 43, 30, 0) 30%),
-        #101010;
-      padding: 24px;
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.08), rgba(230, 43, 30, 0) 30%),
+        rgba(16, 16, 18, 0.98);
+      padding: 26px;
       transform: translateY(16px);
       transition: 0.2s ease;
+      box-shadow: 0 32px 72px -40px rgba(0,0,0,0.96);
+      backdrop-filter: blur(18px);
     }
 
     .modal-overlay.show .modal { transform: translateY(0); }
@@ -679,14 +794,19 @@
       .dashboard-header,
       .ticket-card,
       .stat-card { border-radius: 20px; }
+      .dashboard-header { padding: 22px; }
       .header-actions { width: 100%; justify-content: stretch; }
       .header-actions .btn { flex: 1; }
+      .header-actions .icon-btn { width: 52px; }
       .toolbar { flex-direction: column; }
       .search-shell { min-width: 0; }
       .stats-row { grid-template-columns: 1fr; }
       #data-grid { grid-template-columns: 1fr; }
       .card-body { grid-template-columns: 1fr; }
       .card-footer { flex-direction: column; }
+      .receipt-row,
+      .card-head-main { flex-direction: column; align-items: stretch; }
+      .card-top-actions { justify-content: space-between; border-radius: 18px; }
       .modal-actions { flex-direction: column-reverse; }
       .modal-actions .btn { width: 100%; }
     }
@@ -797,6 +917,8 @@
     let allData = [];
     let currentFilter = 'all';
     let pendingAction = null;
+    let searchTimer = null;
+    let isLoadingData = false;
 
     const dataGrid = document.getElementById('data-grid');
     const searchInput = document.getElementById('searchInput');
@@ -856,6 +978,7 @@
         return;
       }
 
+      const fragment = document.createDocumentFragment();
       filteredData.forEach((row) => {
         const card = document.createElement('article');
         card.className = 'ticket-card';
@@ -903,7 +1026,15 @@
           </div>
 
           ${checkinStatus ? `<div class="checkin-banner"><strong>Check-in:</strong> ${checkinStatus}</div>` : ''}
-          ${fileName ? `<a href="/uploads/${fileName}" target="_blank" class="screenshot-link" rel="noreferrer"><img src="/uploads/${fileName}" alt="Transfer receipt"></a>` : ''}
+          ${fileName ? `
+            <div class="receipt-row">
+              <div class="receipt-meta">
+                <span class="receipt-label">Transfer Receipt</span>
+                <span class="receipt-name">${fileName}</span>
+              </div>
+              <a href="/uploads/${fileName}" target="_blank" class="receipt-link" rel="noreferrer">Open</a>
+            </div>
+          ` : ''}
 
           <div class="card-footer">
             <button class="action-btn approve" type="button" data-approve="${row.id}" data-quantity="${quantity}" ${isFinished ? 'disabled' : ''}>Approve</button>
@@ -911,8 +1042,10 @@
           </div>
         `;
 
-        dataGrid.appendChild(card);
+        fragment.appendChild(card);
       });
+
+      dataGrid.appendChild(fragment);
     }
 
     async function parseResponse(response) {
@@ -925,6 +1058,10 @@
     }
 
     async function loadData(showFeedback = false) {
+      if (isLoadingData) return;
+      isLoadingData = true;
+      document.body.classList.add('busy');
+
       if (!allData.length) {
         dataGrid.innerHTML = '<div id="loading-state">Loading ticket data...</div>';
       }
@@ -940,6 +1077,9 @@
       } catch (error) {
         dataGrid.innerHTML = `<div id="no-results">${error.message}</div>`;
         showToast(error.message, 'error');
+      } finally {
+        isLoadingData = false;
+        document.body.classList.remove('busy');
       }
     }
 
@@ -1071,7 +1211,10 @@
         showToast(data.message || successFallback);
         await loadData();
       } catch (error) {
-        showToast(error.message, 'error');
+        const helpfulMessage = error.message.includes('Cannot POST')
+          ? 'This action is not available on the deployed server yet. Update the live backend first.'
+          : error.message;
+        showToast(helpfulMessage, 'error');
       }
     }
 
@@ -1079,7 +1222,10 @@
     document.getElementById('settingsToggle').addEventListener('click', openSettings);
     document.getElementById('closeSettings').addEventListener('click', closeSettings);
     settingsOverlay.addEventListener('click', closeSettings);
-    searchInput.addEventListener('input', renderGrid);
+    searchInput.addEventListener('input', () => {
+      window.clearTimeout(searchTimer);
+      searchTimer = window.setTimeout(renderGrid, 160);
+    });
 
     document.querySelectorAll('.filter-btn').forEach((button) => {
       button.addEventListener('click', () => {

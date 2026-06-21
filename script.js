@@ -127,6 +127,7 @@
     const summaryPayment = document.getElementById('summary-payment');
     const summaryTrack = document.getElementById('summary-track');
     const summaryStatus = document.getElementById('summary-status');
+    const quantityPriceNote = document.getElementById('quantity-price-note');
 
     const updateTicketSummary = () => {
       if (!summaryQuantity || !summaryPayment || !summaryTrack || !summaryStatus) return;
@@ -137,6 +138,9 @@
       const track = quantity > 1 && hasPromo ? 'Promo Group'
         : hasPromo ? 'Promo Regular'
         : 'Regular';
+      const pricePerTicket = quantity > 1 && hasPromo ? 250 : hasPromo ? 300 : 350;
+      const totalPrice = quantity * pricePerTicket;
+      const pricingText = `${pricePerTicket} EGP each • ${totalPrice} EGP total`;
       const requiredFilled = Object.keys(requiredValidation).every((fieldName) => {
         const field = getField(fieldName);
         if (!field) return false;
@@ -145,7 +149,10 @@
 
       summaryQuantity.textContent = `${quantity} ${quantity === 1 ? 'ticket' : 'tickets'}`;
       summaryPayment.textContent = paymentMethod;
-      summaryTrack.textContent = track;
+      summaryTrack.textContent = `${track} • ${pricingText}`;
+      if (quantityPriceNote) {
+        quantityPriceNote.textContent = `${pricingText}${track === 'Promo Group' ? ' • Promo code applied' : track === 'Promo Regular' ? ' • Promo code applied' : ''}`;
+      }
       summaryStatus.textContent = requiredFilled
         ? 'Ready to submit'
         : 'Ready when required fields are complete';

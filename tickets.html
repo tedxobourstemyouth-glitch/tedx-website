@@ -46,7 +46,7 @@
       <div class="ticket-copy reveal in">
         <div class="eyebrow">Ticketing</div>
         <h1 class="ticket-title">Complete your<br><span class="em">ticket request.</span></h1>
-        <p class="ticket-lead">Fill in the attendee details, upload the transfer screenshot, and submit the request for review. This flow supports both solo and group bookings.</p>
+        <p class="ticket-lead">Choose your ticket, add payment proof, and submit.</p>
 
         <div class="ticket-actions">
           <a href="#ticket-form" class="btn btn-primary">Start Request <span class="arr">↓</span></a>
@@ -68,7 +68,7 @@
           <div class="eyebrow reveal in">Ticket Pricing</div>
           <h2 class="display ticket-tier-title reveal in">Choose your<br><span class="em">access.</span></h2>
         </div>
-        <p class="reveal in">All tickets include full access to the 8 movements, lunch, and the demo floor. Promo codes can be applied in the request form below.</p>
+        <p class="reveal in">Full event access, lunch, and demo floor included.</p>
       </div>
       <div class="ticket-tier-grid">
         <div class="ticket-tier-card reveal in">
@@ -77,7 +77,7 @@
             <div class="ticket-tier-kicker">Standard</div>
             <div class="ticket-tier-name">Regular<br>Ticket</div>
             <div class="ticket-tier-price">350 <small>EGP</small></div>
-            <p>Full day access to all talks, demo floor, and lunch.</p>
+            <p>Full event access.</p>
           </div>
           <div class="ticket-tier-link">General admission</div>
         </div>
@@ -88,7 +88,7 @@
             <div class="ticket-tier-kicker">With Code</div>
             <div class="ticket-tier-name">Promo<br>Regular</div>
             <div class="ticket-tier-price">300 <small>EGP</small></div>
-            <p>Discounted standard ticket for attendees applying a valid promo code.</p>
+            <p>Promo code required.</p>
           </div>
           <div class="ticket-tier-link">Code required</div>
         </div>
@@ -99,7 +99,7 @@
             <div class="ticket-tier-kicker">Group + Code</div>
             <div class="ticket-tier-name">Promo<br>Group</div>
             <div class="ticket-tier-price">250 <small>EGP</small> <span>/ person</span></div>
-            <p>Maximum discount applied for group packages using a valid promo code.</p>
+            <p>Group + promo only.</p>
           </div>
           <div class="ticket-tier-link">Group booking</div>
         </div>
@@ -112,7 +112,7 @@
     <div class="container ticket-form-layout">
       <div class="ticket-form-copy">
         <div class="eyebrow reveal in">Booking Flow</div>
-        <p class="reveal in">A quick four-step flow to complete your request clearly and correctly.</p>
+        <p class="reveal in">Four quick steps.</p>
         <div class="ticket-process reveal in">
           <div class="ticket-process-item">
             <span>01</span>
@@ -145,8 +145,8 @@
               <strong id="summary-payment">Not selected</strong>
             </div>
             <div class="ticket-summary-item">
-              <span>Pricing Track</span>
-              <strong id="summary-track">Regular</strong>
+              <span>Pricing</span>
+              <strong id="summary-track">350 EGP total</strong>
             </div>
             <div class="ticket-summary-item">
               <span>Submission</span>
@@ -161,7 +161,7 @@
           <div class="ticket-form-head-copy">
             <div class="ticket-form-kicker">Secure Submission</div>
             <h3>Attendee & payment details</h3>
-            <p>Fill the required details, choose the payment method, and upload the proof.</p>
+            <p>Enter details and upload proof.</p>
             <div class="ticket-form-head-tags">
               <span class="ticket-form-tag">Required fields only</span>
               <span class="ticket-form-tag">Manual review</span>
@@ -175,7 +175,7 @@
             <div class="ticket-form-section-num">01</div>
             <div>
               <h4>Attendee information</h4>
-              <p>Basic details used for communication and ticket issuing.</p>
+              <p>Used for contact and ticket issue.</p>
             </div>
           </div>
 
@@ -204,11 +204,6 @@
             </label>
 
             <label class="form-field">
-              <span>Quantity</span>
-              <input type="number" name="quantity" min="1" max="10" value="1">
-            </label>
-
-            <label class="form-field">
               <span>School Name</span>
               <input type="text" name="school_name" placeholder="Your school name">
             </label>
@@ -229,13 +224,19 @@
               <span>Promo Code (Optional)</span>
               <input type="text" name="promo_code" placeholder="Enter your code for discount">
             </label>
+
+            <label class="form-field">
+              <span>Quantity</span>
+              <input type="number" name="quantity" min="1" max="10" value="1">
+              <small id="quantity-price-note">350 EGP each • 350 EGP total</small>
+            </label>
           </div>
 
           <div class="ticket-form-section-head compact">
             <div class="ticket-form-section-num">02</div>
             <div>
               <h4>Payment details</h4>
-              <p>Select how you paid and attach the payment proof below.</p>
+              <p>Select payment and attach proof.</p>
             </div>
           </div>
 
@@ -264,12 +265,12 @@
           <div class="ticket-form-utility">
             <label class="form-check">
               <input type="checkbox" name="is_group" id="is-group-booking">
-              <span>This booking is for a group (Make sure to set the Quantity above)</span>
+              <span>Group booking</span>
             </label>
 
             <div class="ticket-form-side-note">
-              <strong>Upload guideline</strong>
-              <p>Use a full, readable screenshot showing the transfer sender and confirmation state.</p>
+              <strong>Upload guide</strong>
+              <p>Upload a clear full screenshot.</p>
             </div>
           </div>
 
@@ -300,14 +301,14 @@
       <div class="ticket-info-card reveal in">
         <div class="eyebrow">Before You Submit</div>
         <ul class="ticket-list">
-          <li>Make sure the mobile number is active and reachable.</li>
-          <li>Upload a clear screenshot of the full transfer confirmation.</li>
-          <li>If the request is for a group, include every attendee in the members box.</li>
+          <li>Use an active mobile number.</li>
+          <li>Upload a clear payment screenshot.</li>
+          <li>Add members if it is a group request.</li>
         </ul>
       </div>
       <div class="ticket-info-card reveal in">
         <div class="eyebrow">Need Help?</div>
-        <p class="ticket-help">For ticket questions, payment issues, or group requests, contact the chapter directly.</p>
+        <p class="ticket-help">Contact the chapter directly.</p>
         <div class="ticket-contact-links">
           <a href="mailto:tedxobourstemyouth@gmail.com"><svg viewBox="0 0 24 24"><path d="M3 7h18v10H3z"/><path d="M3 8l9 7 9-7"/></svg> tedxobourstemyouth@gmail.com</a>
           <a href="https://www.instagram.com/tedxobourstemyouth?utm_source=ig_web_button_share_sheet&amp;igsh=ZDNlZDc0MzIxNw==" target="_blank" rel="noreferrer"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg> Instagram updates</a>
@@ -362,11 +363,11 @@
       </svg>
     </div>
     <h2 class="success-title">Thank you for registering.</h2>
-    <p class="success-message">Your registration request has been received successfully. Your payment will be reviewed shortly.</p>
+    <p class="success-message">Your request has been received. Payment review will start shortly.</p>
     <div class="success-steps">
-      <div class="success-step"><span>01</span> Your request is now stored securely.</div>
-      <div class="success-step"><span>02</span> The TEDx team will review payment proof manually.</div>
-      <div class="success-step"><span>03</span> Approved requests receive the final ticket by email.</div>
+      <div class="success-step"><span>01</span> Request received.</div>
+      <div class="success-step"><span>02</span> Payment will be reviewed.</div>
+      <div class="success-step"><span>03</span> Approved tickets are sent by email.</div>
     </div>
     <p class="success-footer">We look forward to seeing you at TEDx Obour STEM Youth.</p>
     <button type="button" class="btn btn-ghost" id="new-request-button-fullscreen">Submit Another Request</button>
