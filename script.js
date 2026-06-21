@@ -128,17 +128,24 @@
     const summaryTrack = document.getElementById('summary-track');
     const summaryStatus = document.getElementById('summary-status');
     const quantityPriceNote = document.getElementById('quantity-price-note');
+    const goldPromoCode = 'TEDXGOLD26';
 
     const updateTicketSummary = () => {
       if (!summaryQuantity || !summaryPayment || !summaryTrack || !summaryStatus) return;
 
       const quantity = Math.max(parseInt(quantityField?.value || '1', 10) || 1, 1);
       const paymentMethod = paymentMethodSelect?.value || 'Not selected';
-      const hasPromo = Boolean((promoCodeField?.value || '').trim());
-      const track = quantity > 1 && hasPromo ? 'Promo Group'
-        : hasPromo ? 'Promo Regular'
-        : 'Regular';
-      const pricePerTicket = quantity > 1 && hasPromo ? 250 : hasPromo ? 300 : 350;
+      const promoCode = (promoCodeField?.value || '').trim().toUpperCase();
+      const hasPromo = Boolean(promoCode);
+      const isGoldPromo = promoCode === goldPromoCode;
+      const track = isGoldPromo
+        ? 'TEDX Gold'
+        : quantity > 1 && hasPromo
+          ? 'Promo Group'
+          : hasPromo
+            ? 'Promo Regular'
+            : 'Regular';
+      const pricePerTicket = isGoldPromo ? 250 : quantity > 1 && hasPromo ? 250 : hasPromo ? 300 : 350;
       const totalPrice = quantity * pricePerTicket;
       const pricingText = `${pricePerTicket} EGP each • ${totalPrice} EGP total`;
       const requiredFilled = Object.keys(requiredValidation).every((fieldName) => {
@@ -151,7 +158,7 @@
       summaryPayment.textContent = paymentMethod;
       summaryTrack.textContent = `${track} • ${pricingText}`;
       if (quantityPriceNote) {
-        quantityPriceNote.textContent = `${pricingText}${track === 'Promo Group' ? ' • Promo code applied' : track === 'Promo Regular' ? ' • Promo code applied' : ''}`;
+        quantityPriceNote.textContent = `${pricingText}${hasPromo ? ` • Promo code applied${isGoldPromo ? ` (${goldPromoCode})` : ''}` : ''}`;
       }
       summaryStatus.textContent = requiredFilled
         ? 'Ready to submit'

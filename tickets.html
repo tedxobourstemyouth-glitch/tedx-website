@@ -171,120 +171,151 @@
         </div>
 
         <form class="ticket-form" id="ticket-request-form" enctype="multipart/form-data" novalidate>
-          <div class="ticket-form-section-head">
-            <div class="ticket-form-section-num">01</div>
-            <div>
-              <h4>Attendee information</h4>
-              <p>Used for contact and ticket issue.</p>
+          <div class="ticket-form-stage">
+            <div class="ticket-form-section-head">
+              <div class="ticket-form-section-num">01</div>
+              <div>
+                <h4>Attendee information</h4>
+                <p>Basic details for contact and ticket issue.</p>
+              </div>
+            </div>
+
+            <div class="form-grid attendee-grid">
+              <label class="form-field field-half">
+                <span>Full Name</span>
+                <input type="text" name="full_name" placeholder="Your full name" required aria-describedby="error-full-name">
+                <p class="field-error" id="error-full-name" data-error-for="full_name" aria-live="polite"></p>
+              </label>
+
+              <label class="form-field field-half">
+                <span>Email Address</span>
+                <input type="email" name="email" placeholder="name@example.com" required aria-describedby="error-email">
+                <p class="field-error" id="error-email" data-error-for="email" aria-live="polite"></p>
+              </label>
+
+              <label class="form-field field-half">
+                <span>Mobile Number</span>
+                <input type="tel" name="phone" placeholder="+20 ..." required aria-describedby="error-phone">
+                <p class="field-error" id="error-phone" data-error-for="phone" aria-live="polite"></p>
+              </label>
+
+              <label class="form-field field-half">
+                <span>Governorate</span>
+                <input type="text" name="governorate" placeholder="Your governorate (e.g. Cairo, Giza)">
+              </label>
+
+              <label class="form-field field-half">
+                <span>School Name</span>
+                <input type="text" name="school_name" placeholder="Your school name">
+              </label>
+
+              <label class="form-field field-half">
+                <span>Transfer Phone / Account No.</span>
+                <input type="text" name="transfer_source" placeholder="The number or account you paid from" required aria-describedby="error-transfer-source">
+                <p class="field-error" id="error-transfer-source" data-error-for="transfer_source" aria-live="polite"></p>
+              </label>
             </div>
           </div>
 
-          <div class="form-grid">
-            <label class="form-field">
-              <span>Full Name</span>
-              <input type="text" name="full_name" placeholder="Your full name" required aria-describedby="error-full-name">
-              <p class="field-error" id="error-full-name" data-error-for="full_name" aria-live="polite"></p>
-            </label>
+          <div class="ticket-form-stage accent-stage">
+            <div class="ticket-form-section-head compact">
+              <div class="ticket-form-section-num">02</div>
+              <div>
+                <h4>Ticket setup</h4>
+                <p>Choose pricing details before payment.</p>
+              </div>
+            </div>
 
-            <label class="form-field">
-              <span>Email Address</span>
-              <input type="email" name="email" placeholder="name@example.com" required aria-describedby="error-email">
-              <p class="field-error" id="error-email" data-error-for="email" aria-live="polite"></p>
-            </label>
+            <div class="form-grid pricing-grid">
+              <label class="form-field field-half">
+                <span>Payment Date</span>
+                <input type="date" name="payment_date" required aria-describedby="error-payment-date">
+                <p class="field-error" id="error-payment-date" data-error-for="payment_date" aria-live="polite"></p>
+              </label>
 
-            <label class="form-field">
-              <span>Mobile Number</span>
-              <input type="tel" name="phone" placeholder="+20 ..." required aria-describedby="error-phone">
-              <p class="field-error" id="error-phone" data-error-for="phone" aria-live="polite"></p>
-            </label>
+              <label class="form-field field-half promo-field">
+                <span>Promo Code (Optional)</span>
+                <input type="text" name="promo_code" placeholder="Enter your code for discount">
+              </label>
 
-            <label class="form-field">
-              <span>Governorate</span>
-              <input type="text" name="governorate" placeholder="Your governorate (e.g. Cairo, Giza)">
-            </label>
+              <label class="form-field field-half quantity-field">
+                <span>Quantity</span>
+                <input type="number" name="quantity" min="1" max="10" value="1">
+                <small id="quantity-price-note">350 EGP each • 350 EGP total</small>
+              </label>
 
-            <label class="form-field">
-              <span>School Name</span>
-              <input type="text" name="school_name" placeholder="Your school name">
-            </label>
-
-            <label class="form-field">
-              <span>Transfer Phone / Account No.</span>
-              <input type="text" name="transfer_source" placeholder="The number or account you paid from" required aria-describedby="error-transfer-source">
-              <p class="field-error" id="error-transfer-source" data-error-for="transfer_source" aria-live="polite"></p>
-            </label>
-
-            <label class="form-field">
-              <span>Payment Date</span>
-              <input type="date" name="payment_date" required aria-describedby="error-payment-date">
-              <p class="field-error" id="error-payment-date" data-error-for="payment_date" aria-live="polite"></p>
-            </label>
-
-            <label class="form-field">
-              <span>Promo Code (Optional)</span>
-              <input type="text" name="promo_code" placeholder="Enter your code for discount">
-            </label>
-
-            <label class="form-field">
-              <span>Quantity</span>
-              <input type="number" name="quantity" min="1" max="10" value="1">
-              <small id="quantity-price-note">350 EGP each • 350 EGP total</small>
-            </label>
-          </div>
-
-          <div class="ticket-form-section-head compact">
-            <div class="ticket-form-section-num">02</div>
-            <div>
-              <h4>Payment details</h4>
-              <p>Select payment and attach proof.</p>
+              <div class="pricing-note-card">
+                <div class="pricing-note-kicker">Live pricing</div>
+                <p>Regular: 350 EGP. Standard promo: 300 EGP. `TEDXGOLD26`: 250 EGP.</p>
+              </div>
             </div>
           </div>
 
-          <div class="form-grid form-grid-compact">
-            <label class="form-field inline-field">
-              <span>Payment Method</span>
-              <select name="payment_method" id="payment-method-select">
-                <option value="" disabled selected>Select method...</option>
-                <option value="Mobile Wallet">Mobile Wallet</option>
-                <option value="InstaPay">InstaPay</option>
-              </select>
-            </label>
-
-            <label class="form-field inline-field" id="wallet-provider-field" style="display: none;">
-              <span>Wallet Provider</span>
-              <select name="wallet_provider" id="wallet-provider-select">
-                <option value="" disabled selected>Select provider...</option>
-                <option value="Vodafone Cash">Vodafone Cash</option>
-                <option value="Orange Cash">Orange Cash</option>
-                <option value="Etisalat Cash">Etisalat Cash</option>
-                <option value="WE Pay">WE Pay</option>
-              </select>
-            </label>
-          </div>
-
-          <div class="ticket-form-utility">
-            <label class="form-check">
-              <input type="checkbox" name="is_group" id="is-group-booking">
-              <span>Group booking</span>
-            </label>
-
-            <div class="ticket-form-side-note">
-              <strong>Upload guide</strong>
-              <p>Upload a clear full screenshot.</p>
+          <div class="ticket-form-stage">
+            <div class="ticket-form-section-head compact">
+              <div class="ticket-form-section-num">03</div>
+              <div>
+                <h4>Payment details</h4>
+                <p>Select payment and upload proof.</p>
+              </div>
             </div>
+
+            <div class="form-grid form-grid-compact payment-grid">
+              <label class="form-field inline-field field-half">
+                <span>Payment Method</span>
+                <select name="payment_method" id="payment-method-select">
+                  <option value="" disabled selected>Select method...</option>
+                  <option value="Mobile Wallet">Mobile Wallet</option>
+                  <option value="InstaPay">InstaPay</option>
+                </select>
+              </label>
+
+              <label class="form-field inline-field field-half" id="wallet-provider-field" style="display: none;">
+                <span>Wallet Provider</span>
+                <select name="wallet_provider" id="wallet-provider-select">
+                  <option value="" disabled selected>Select provider...</option>
+                  <option value="Vodafone Cash">Vodafone Cash</option>
+                  <option value="Orange Cash">Orange Cash</option>
+                  <option value="Etisalat Cash">Etisalat Cash</option>
+                  <option value="WE Pay">WE Pay</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="ticket-form-utility">
+              <label class="form-check">
+                <input type="checkbox" name="is_group" id="is-group-booking">
+                <span>Group booking</span>
+              </label>
+
+              <div class="ticket-form-side-note">
+                <strong>Upload guide</strong>
+                <p>Use a clear full screenshot that shows sender and success state.</p>
+              </div>
+            </div>
+
+            <label class="form-field upload-field">
+              <span>Transfer Screenshot</span>
+              <input type="file" name="payment_screenshot" id="payment-screenshot" accept=".png,.jpg,.jpeg,.webp,.pdf" required aria-describedby="error-payment-screenshot">
+              <small>Accepted: PNG, JPG, WEBP, PDF. Max size: 10 MB.</small>
+              <p class="field-error" id="error-payment-screenshot" data-error-for="payment_screenshot" aria-live="polite"></p>
+            </label>
           </div>
 
-          <label class="form-field upload-field">
-            <span>Transfer Screenshot</span>
-            <input type="file" name="payment_screenshot" id="payment-screenshot" accept=".png,.jpg,.jpeg,.webp,.pdf" required aria-describedby="error-payment-screenshot">
-            <small>Accepted: PNG, JPG, WEBP, PDF. Max size: 10 MB.</small>
-            <p class="field-error" id="error-payment-screenshot" data-error-for="payment_screenshot" aria-live="polite"></p>
-          </label>
+          <div class="ticket-form-stage final-stage">
+            <div class="ticket-form-section-head compact">
+              <div class="ticket-form-section-num">04</div>
+              <div>
+                <h4>Final note</h4>
+                <p>Add any short note for the ticket team, then submit.</p>
+              </div>
+            </div>
 
-          <label class="form-field">
-            <span>Notes for the Team</span>
-            <textarea name="notes" rows="4" placeholder="Anything the ticket team should know?"></textarea>
-          </label>
+            <label class="form-field">
+              <span>Notes for the Team</span>
+              <textarea name="notes" rows="4" placeholder="Anything the ticket team should know?"></textarea>
+            </label>
+          </div>
 
           <div class="form-actions">
             <button type="submit" class="btn btn-primary form-submit">Submit Request <span class="arr">↗</span></button>
