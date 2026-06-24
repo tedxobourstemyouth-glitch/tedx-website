@@ -1287,6 +1287,94 @@
   .payment-grid{
     margin-bottom:0;
   }
+  .payment-accounts{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+    margin:2px 0 18px;
+  }
+  .tier-payment-accounts{
+    margin:0 0 28px;
+  }
+  .payment-accounts-bottom{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+    margin:0 0 16px;
+  }
+  .payment-account-card{
+    position:relative;
+    display:grid;
+    gap:10px;
+    padding:20px;
+    border-radius:22px;
+    border:1px solid rgba(245,241,234,.1);
+    background:
+      radial-gradient(circle at top right, rgba(230,43,30,.12), rgba(230,43,30,0) 38%),
+      linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.014)),
+      rgba(12,12,14,.76);
+    overflow:hidden;
+    box-shadow:0 18px 34px -26px rgba(0,0,0,.48);
+  }
+  .payment-account-card::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:18px;
+    right:18px;
+    height:1px;
+    background:linear-gradient(90deg, rgba(230,43,30,0), rgba(230,43,30,.82), rgba(230,43,30,0));
+    opacity:.9;
+  }
+  .payment-account-kicker{
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--red-soft);
+  }
+  .payment-account-card strong{
+    display:block;
+    color:var(--bone);
+    font-size:26px;
+    line-height:1.08;
+    letter-spacing:-.03em;
+    font-weight:600;
+    text-shadow:0 0 18px rgba(255,255,255,.04);
+  }
+  .payment-account-card p{
+    margin:0;
+    color:var(--bone-dim);
+    font-size:13px;
+    line-height:1.6;
+    text-transform:uppercase;
+    letter-spacing:.12em;
+  }
+  .compact-payment-card{
+    gap:8px;
+    padding:18px 18px 16px;
+    border-radius:18px;
+  }
+  .compact-payment-card .payment-account-kicker{
+    font-size:12px;
+    letter-spacing:.2em;
+    color:var(--bone);
+  }
+  .compact-payment-card strong{
+    font-size:28px;
+  }
+  .compact-payment-card p{
+    color:var(--red-soft);
+    font-size:12px;
+    font-weight:600;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+  }
+  .payment-account-card p span{
+    color:var(--bone);
+    font-weight:600;
+    letter-spacing:.01em;
+  }
   .form-field{
     display:grid;
     gap:11px;
@@ -1588,13 +1676,17 @@
   .fullscreen-success .btn-ghost { width: 100%; }
 
 
-  .ticket-tier-section{background:var(--ink-2)}
+  .ticket-tier-section{
+    background:var(--ink-2);
+    padding-top:68px;
+    padding-bottom:68px;
+  }
   .tickets-head{
     display:flex;
     align-items:flex-end;
     justify-content:space-between;
     gap:44px;
-    margin-bottom:58px;
+    margin-bottom:24px;
     flex-wrap:wrap;
   }
   .ticket-tier-title{
@@ -1602,7 +1694,13 @@
     line-height:1;
     letter-spacing:-.02em;
   }
-  .tickets-head p{max-width:440px;color:var(--bone-dim);line-height:1.8}
+  .tickets-head p{
+    max-width:440px;
+    color:var(--bone-dim);
+    line-height:1.7;
+    font-size:14px;
+    margin:0;
+  }
   .ticket-tier-grid{
     display:grid;
     grid-template-columns:repeat(3,1fr);
@@ -1804,6 +1902,12 @@
       padding:18px;
       border-radius:22px;
     }
+    .payment-accounts{
+      grid-template-columns:1fr;
+    }
+    .tier-payment-accounts{
+      margin:0 0 22px;
+    }
   }
   @media (max-width:640px){
     h1, h3, h4, h5, h6, p, .value, .lead, .desc, .hero-tag, .board-copy {
@@ -1988,6 +2092,10 @@
     .organizer.pres .name{font-size:22px}
     .section-num{top:18px;right:22px}
     .ticket-hero{padding:112px 22px 56px}
+    .ticket-tier-section{
+      padding-top:44px;
+      padding-bottom:44px;
+    }
     .ticket-title{font-size:48px}
     .ticket-lead{font-size:18px}
     .ticket-preview-wrapper{
@@ -1999,24 +2107,52 @@
     .ticket-tier-card,
     .ticket-info-card, 
     .ticket-form-shell{padding:20px}
-    .ticket-tier-title{font-size:clamp(24px,7vw,34px) !important}
+    .ticket-tier-title{font-size:clamp(20px,6vw,28px) !important}
     .tickets-head{
-      gap:18px;
-      margin-bottom:30px;
+      gap:10px;
+      margin-bottom:12px;
     }
     .tickets-head p{
-      font-size:14px;
-      line-height:1.7;
+      font-size:12px;
+      line-height:1.6;
     }
-    .ticket-tier-name{font-size:34px}
+    .ticket-tier-name{font-size:28px}
     .ticket-tier-card{
       min-height:auto;
-      gap:20px;
+      gap:14px;
+      padding:16px;
     }
     .ticket-tier-card p{
       max-width:none;
-      font-size:14px;
-      line-height:1.65;
+      font-size:12px;
+      line-height:1.55;
+    }
+    .ticket-tier-topline,
+    .ticket-tier-kicker,
+    .ticket-tier-link{
+      font-size:9px;
+    }
+    .ticket-tier-price{
+      font-size:30px;
+    }
+    .tier-payment-accounts{
+      margin:0 0 14px;
+    }
+    .compact-payment-card{
+      padding:12px 14px;
+      gap:4px;
+    }
+    .compact-payment-card .payment-account-kicker{
+      font-size:10px;
+      letter-spacing:.14em;
+    }
+    .compact-payment-card strong{
+      font-size:18px;
+      line-height:1.15;
+    }
+    .compact-payment-card p{
+      font-size:11px;
+      letter-spacing:.03em;
     }
     .ticket-form-head{
       gap:12px;
@@ -2024,18 +2160,18 @@
       margin-bottom:16px;
     }
     .ticket-form{
-      gap:14px;
+      gap:12px;
     }
     .ticket-form-stage{
-      gap:14px;
-      padding:16px;
-      border-radius:18px;
+      gap:12px;
+      padding:14px;
+      border-radius:16px;
     }
     .ticket-form-head-copy{
       gap:10px;
     }
-    .ticket-form-head h3{font-size:28px}
-    .ticket-form-head p{font-size:14px;line-height:1.7}
+    .ticket-form-head h3{font-size:24px}
+    .ticket-form-head p{font-size:13px;line-height:1.6}
     .ticket-form-head-tags{
       gap:8px;
     }
@@ -2055,11 +2191,11 @@
       padding:0 0 14px;
       border-radius:0;
     }
-    .ticket-form-section-head h4{font-size:24px}
-    .ticket-form-section-num{width:36px;height:36px;font-size:10px;border-radius:12px}
+    .ticket-form-section-head h4{font-size:20px}
+    .ticket-form-section-num{width:34px;height:34px;font-size:9px;border-radius:10px}
     .form-grid{gap:14px;}
     .form-grid-compact{
-      margin-bottom:16px;
+      margin-bottom:12px;
     }
     .form-field{
       gap:9px;
@@ -2067,17 +2203,42 @@
     .form-field input,
     .form-field select,
     .form-field textarea{
-      min-height:56px;
-      padding:16px 16px;
-      font-size:16px;
+      min-height:50px;
+      padding:14px 14px;
+      font-size:15px;
+    }
+    .payment-accounts-bottom{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:10px;
+      margin:0 0 14px;
+    }
+    .payment-accounts-bottom .compact-payment-card{
+      padding:15px 14px 13px;
+      border-radius:16px;
+      border-color:rgba(230,43,30,.18);
+      background:
+        radial-gradient(circle at top right, rgba(230,43,30,.08), rgba(230,43,30,0) 42%),
+        linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.012));
+    }
+    .payment-accounts-bottom .compact-payment-card .payment-account-kicker{
+      font-size:10px;
+      color:var(--red);
+    }
+    .payment-accounts-bottom .compact-payment-card strong{
+      font-size:20px;
+    }
+    .payment-accounts-bottom .compact-payment-card p{
+      font-size:10px;
+      color:var(--bone);
     }
     .ticket-form-utility{
-      gap:12px;
-      margin:4px 0 18px;
+      gap:10px;
+      margin:2px 0 14px;
     }
     .form-check{
       align-items:flex-start;
-      padding:14px 16px;
+      padding:12px 14px;
       min-height:auto;
     }
     .form-check span{
@@ -2085,27 +2246,28 @@
       line-height:1.65;
     }
     .ticket-form-side-note{
-      padding:16px;
+      padding:14px;
       border-radius:16px;
     }
     .ticket-form-side-note p{
-      font-size:12px;
-      line-height:1.65;
+      font-size:11px;
+      line-height:1.55;
     }
     .upload-field input{
-      padding:14px;
+      padding:12px;
     }
     .form-actions{
-      margin-top:20px;
-      gap:12px;
+      margin-top:14px;
+      gap:10px;
     }
     .form-submit{
-      padding:18px 20px;
-      font-size:14px;
-      border-radius:16px;
+      padding:16px 18px;
+      font-size:13px;
+      border-radius:14px;
+      min-height:54px;
     }
-    .ticket-summary-card{padding:18px}
-    .ticket-summary-card h3{font-size:26px}
+    .ticket-summary-card{padding:16px}
+    .ticket-summary-card h3{font-size:22px}
     .ticket-success h3{font-size:34px}
     .ticket-info-card{
       min-height:auto;
@@ -2185,6 +2347,10 @@
     .ticket-hero{
       padding:102px 18px 48px;
     }
+    .ticket-tier-section{
+      padding-top:36px;
+      padding-bottom:36px;
+    }
     .ticket-title{
       font-size:40px;
       line-height:.94;
@@ -2195,17 +2361,24 @@
     .ticket-tier-card,
     .ticket-info-card,
     .ticket-form-shell{
-      padding:18px;
+      padding:16px;
       border-radius:18px;
     }
     .ticket-tier-name{
-      font-size:28px;
-    }
-    .ticket-form-head h3{
       font-size:24px;
     }
+    .ticket-form-head h3{
+      font-size:22px;
+    }
     .ticket-form-section-head h4{
-      font-size:21px;
+      font-size:18px;
+    }
+    .compact-payment-card strong{
+      font-size:18px;
+    }
+    .payment-accounts-bottom{
+      gap:8px;
+      margin:0 0 12px;
     }
     .ticket-process-item p{
       font-size:21px;
