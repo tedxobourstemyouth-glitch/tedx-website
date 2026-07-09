@@ -43,6 +43,87 @@
     });
   }
 
+  // --- Event Countdown ---
+  const countdownRoots = document.querySelectorAll('[data-countdown]');
+  countdownRoots.forEach((countdownRoot) => {
+    const daysNode = countdownRoot.querySelector('[data-countdown-days]');
+    const hoursNode = countdownRoot.querySelector('[data-countdown-hours]');
+    const minutesNode = countdownRoot.querySelector('[data-countdown-minutes]');
+    const secondsNode = countdownRoot.querySelector('[data-countdown-seconds]');
+    const countdownTarget = new Date(countdownRoot.getAttribute('data-countdown'));
+    const countdownUnits = {
+      days: daysNode,
+      hours: hoursNode,
+      minutes: minutesNode,
+      seconds: secondsNode
+    };
+    const previousValues = {};
+
+    const updateUnit = (key, value) => {
+      const node = countdownUnits[key];
+      if (!node) return;
+
+      const formattedValue = String(value).padStart(2, '0');
+      if (previousValues[key] !== formattedValue) {
+        node.textContent = formattedValue;
+        previousValues[key] = formattedValue;
+        const unitCard = node.closest('.hero-countdown-unit');
+        if (unitCard) {
+          unitCard.classList.remove('is-changing');
+          window.requestAnimationFrame(() => {
+            unitCard.classList.add('is-changing');
+            window.setTimeout(() => unitCard.classList.remove('is-changing'), 420);
+          });
+        }
+      }
+    };
+
+    const renderCountdown = () => {
+      const remainingMs = countdownTarget.getTime() - Date.now();
+      if (remainingMs <= 0) {
+        updateUnit('days', 0);
+        updateUnit('hours', 0);
+        updateUnit('minutes', 0);
+        updateUnit('seconds', 0);
+        return;
+      }
+
+      const totalSeconds = Math.floor(remainingMs / 1000);
+      const days = Math.floor(totalSeconds / (60 * 60 * 24));
+      const hours = Math.floor((totalSeconds % (60 * 60 * 24)) / (60 * 60));
+      const minutes = Math.floor((totalSeconds % (60 * 60)) / 60);
+      const seconds = totalSeconds % 60;
+
+      updateUnit('days', days);
+      updateUnit('hours', hours);
+      updateUnit('minutes', minutes);
+      updateUnit('seconds', seconds);
+    };
+
+    if (window.innerWidth > 1100) {
+      let countdownTicking = false;
+      countdownRoot.addEventListener('mousemove', (event) => {
+        if (countdownTicking) return;
+        countdownTicking = true;
+        window.requestAnimationFrame(() => {
+          const bounds = countdownRoot.getBoundingClientRect();
+          const x = ((event.clientX - bounds.left) / bounds.width) - 0.5;
+          const y = ((event.clientY - bounds.top) / bounds.height) - 0.5;
+          countdownRoot.style.setProperty('--countdown-parallax-x', `${x * 14}px`);
+          countdownRoot.style.setProperty('--countdown-parallax-y', `${y * 14}px`);
+          countdownTicking = false;
+        });
+      });
+      countdownRoot.addEventListener('mouseleave', () => {
+        countdownRoot.style.setProperty('--countdown-parallax-x', '0px');
+        countdownRoot.style.setProperty('--countdown-parallax-y', '0px');
+      });
+    }
+
+    renderCountdown();
+    window.setInterval(renderCountdown, secondsNode ? 1000 : 30000);
+  });
+
   // --- Interactive Mouse Parallax (Hero Section) ---
   const heroCopy = document.getElementById('hero-copy-parallax');
   const heroPhoto = document.getElementById('hero-photo-parallax');
@@ -128,8 +209,6 @@
     const summaryTrack = document.getElementById('summary-track');
     const summaryStatus = document.getElementById('summary-status');
     const quantityPriceNote = document.getElementById('quantity-price-note');
-    const goldPromoCode = 'TEDXGOLD26';
-
     const updateTicketSummary = () => {
       if (!summaryQuantity || !summaryPayment || !summaryTrack || !summaryStatus) return;
 
@@ -137,15 +216,13 @@
       const paymentMethod = paymentMethodSelect?.value || 'Not selected';
       const promoCode = (promoCodeField?.value || '').trim().toUpperCase();
       const hasPromo = Boolean(promoCode);
-      const isGoldPromo = promoCode === goldPromoCode;
+      const isGoldPromo = hasPromo && quantity >= 5;
       const track = isGoldPromo
         ? 'TEDX Gold'
-        : quantity > 1 && hasPromo
-          ? 'Promo Group'
-          : hasPromo
-            ? 'Promo Regular'
-            : 'Regular';
-      const pricePerTicket = isGoldPromo ? 250 : quantity > 1 && hasPromo ? 250 : hasPromo ? 300 : 350;
+        : hasPromo
+          ? 'Promo Regular'
+          : 'Regular';
+      const pricePerTicket = isGoldPromo ? 250 : hasPromo ? 300 : 350;
       const totalPrice = quantity * pricePerTicket;
       const pricingText = `${pricePerTicket} EGP each • ${totalPrice} EGP total`;
       const requiredFilled = Object.keys(requiredValidation).every((fieldName) => {
@@ -158,7 +235,12 @@
       summaryPayment.textContent = paymentMethod;
       summaryTrack.textContent = `${track} • ${pricingText}`;
       if (quantityPriceNote) {
-        quantityPriceNote.textContent = `${pricingText}${hasPromo ? ` • Promo code applied${isGoldPromo ? ` (${goldPromoCode})` : ''}` : ''}`;
+        const promoNote = isGoldPromo
+          ? ' • Group of 5 offer applied'
+          : hasPromo
+            ? ' • Promo code applied'
+            : '';
+        quantityPriceNote.textContent = `${pricingText}${promoNote}`;
       }
       summaryStatus.textContent = requiredFilled
         ? 'Ready to submit'
