@@ -134,22 +134,23 @@
   .nav-toggle span {
     display: block;
     position: absolute;
-    left: 11px;
+    left: 50%;
+    top: 50%;
     width: 22px;
     height: 2px;
     background: var(--bone);
     border-radius: 999px;
-    transition: transform .28s ease, opacity .22s ease, top .28s ease, background .22s ease;
+    transition: transform .28s ease, opacity .22s ease, background .22s ease;
     pointer-events: none;
     transform-origin: center;
   }
-  .nav-toggle span:nth-child(1) { top: 15px; }
-  .nav-toggle span:nth-child(2) { top: 22px; }
-  .nav-toggle span:nth-child(3) { top: 29px; }
+  .nav-toggle span:nth-child(1) { transform: translate(-50%, -7px); }
+  .nav-toggle span:nth-child(2) { transform: translate(-50%, 0); }
+  .nav-toggle span:nth-child(3) { transform: translate(-50%, 7px); }
   .nav-toggle:hover { border-color: rgba(245,241,234,.22); }
-  body.nav-open .nav-toggle span:nth-child(1) { top: 22px; transform: rotate(45deg); }
-  body.nav-open .nav-toggle span:nth-child(2) { opacity: 0; transform: scaleX(.4); }
-  body.nav-open .nav-toggle span:nth-child(3) { top: 22px; transform: rotate(-45deg); }
+  body.nav-open .nav-toggle span:nth-child(1) { transform: translate(-50%, 0) rotate(45deg); }
+  body.nav-open .nav-toggle span:nth-child(2) { opacity: 0; transform: translate(-50%, 0) scaleX(.4); }
+  body.nav-open .nav-toggle span:nth-child(3) { transform: translate(-50%, 0) rotate(-45deg); }
   @media (max-width: 1100px) {
     .nav-toggle { display: flex; }
     .nav-links { display: flex; position: fixed; inset: 0; background: rgba(8,8,8,0.98); backdrop-filter: blur(12px); flex-direction: column; justify-content: center; align-items: center; gap: 32px; font-size: 22px; opacity: 0; visibility: hidden; transition: 0.4s ease; z-index: 100; }
@@ -2544,19 +2545,19 @@
       text-align:center;
     }
     .nav-toggle{
-      width:42px;
-      height:42px;
+      width:44px;
+      height:44px;
       border-radius:12px;
     }
     .nav-toggle span{
-      left:10px;
-      width:20px;
+      width:21px;
     }
-    .nav-toggle span:nth-child(1){top:14px}
-    .nav-toggle span:nth-child(2){top:20px}
-    .nav-toggle span:nth-child(3){top:26px}
-    body.nav-open .nav-toggle span:nth-child(1),
-    body.nav-open .nav-toggle span:nth-child(3){top:20px}
+    .nav-toggle span:nth-child(1){transform:translate(-50%, -7px)}
+    .nav-toggle span:nth-child(2){transform:translate(-50%, 0)}
+    .nav-toggle span:nth-child(3){transform:translate(-50%, 7px)}
+    body.nav-open .nav-toggle span:nth-child(1){transform:translate(-50%, 0) rotate(45deg)}
+    body.nav-open .nav-toggle span:nth-child(2){transform:translate(-50%, 0) scaleX(.4)}
+    body.nav-open .nav-toggle span:nth-child(3){transform:translate(-50%, 0) rotate(-45deg)}
     .meta-block{min-height:auto}
     .btn{min-width:0;width:100%}
     .hero h1{
