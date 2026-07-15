@@ -461,19 +461,51 @@
     .card-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       margin-top: 12px;
+      align-items: start;
     }
     .meta-pill {
-      padding: 6px 10px;
-      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 7px 12px;
+      border-radius: 16px;
       border: 1px solid var(--rule);
-      background: rgba(255,255,255,0.04);
-      color: var(--bone-dim);
+      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.028));
+      color: var(--bone-soft);
       font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
+      line-height: 1.45;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+    .meta-pill.submitted-pill {
+      display: grid;
+      justify-content: flex-start;
+      text-align: left;
+      color: var(--bone-dim);
+      width: 100%;
+      max-width: 220px;
+      padding: 10px 12px;
+      gap: 4px;
+      white-space: normal;
+    }
+    .meta-pill-title {
+      color: var(--bone-dim);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+    .meta-pill-value {
+      color: var(--bone-soft);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      line-height: 1.45;
+      text-transform: none;
+      word-break: break-word;
     }
 
     .status-badge {
@@ -806,6 +838,8 @@
       .card-footer { flex-direction: column; }
       .receipt-row,
       .card-head-main { flex-direction: column; align-items: stretch; }
+      .card-meta { align-items: stretch; }
+      .meta-pill.submitted-pill { max-width: 100%; }
       .card-top-actions { justify-content: space-between; border-radius: 18px; }
       .modal-actions { flex-direction: column-reverse; }
       .modal-actions .btn { width: 100%; }
@@ -969,6 +1003,18 @@
       });
     }
 
+    function formatPaymentDate(value) {
+      if (!value) return 'Payment date missing';
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return value;
+      return parsed.toLocaleDateString('en-US', {
+        timeZone: 'Africa/Cairo',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+
     function renderGrid() {
       const filteredData = getFilteredData();
       dataGrid.innerHTML = '';
@@ -987,6 +1033,8 @@
         const quantity = parseInt(row.quantity, 10) || 1;
         const isFinished = status === 'approved' || status === 'rejected';
         const fileName = row.screenshotPath ? row.screenshotPath.split('\\').pop().split('/').pop() : '';
+        const paymentDateLabel = formatPaymentDate(row.payment_date);
+        const submittedLabel = row.date || 'No submission date';
 
         let checkinStatus = '';
         if (status === 'approved') {
@@ -1006,7 +1054,10 @@
                 <div class="card-email">${row.email || '-'}</div>
                 <div class="card-meta">
                   <span class="meta-pill">ID ${row.id}</span>
-                  <span class="meta-pill">${row.date || 'No date'}</span>
+                  <span class="meta-pill submitted-pill">
+                    <span class="meta-pill-title">Submitted</span>
+                    <span class="meta-pill-value">${submittedLabel}</span>
+                  </span>
                 </div>
               </div>
               <div class="card-top-actions">
@@ -1023,6 +1074,7 @@
             <div class="info-item"><span class="info-label">School</span><span class="info-value">${row.school_name || '-'}</span></div>
             <div class="info-item"><span class="info-label">Payment</span><span class="info-value">${row.payment_method || '-'}${row.wallet_provider ? ` (${row.wallet_provider})` : ''}</span></div>
             <div class="info-item"><span class="info-label">Promo</span><span class="info-value">${row.promo_code || '-'}</span></div>
+            <div class="info-item"><span class="info-label">Payment Date</span><span class="info-value">${paymentDateLabel}</span></div>
           </div>
 
           ${checkinStatus ? `<div class="checkin-banner"><strong>Check-in:</strong> ${checkinStatus}</div>` : ''}
