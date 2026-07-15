@@ -83,6 +83,31 @@ function normalizeQuantity(value, fallback = 1) {
   return Math.min(parsed, 10);
 }
 
+function normalizePromoCode(value) {
+  return String(value || '').trim();
+}
+
+function isApprovedPromoCode(value) {
+  const promoCode = normalizePromoCode(value);
+  return /^[A-Za-z]+\d{2}$/.test(promoCode);
+}
+
+function getPricingDetails(promoCode, quantityValue) {
+  const quantity = normalizeQuantity(quantityValue, 1);
+  const hasValidPromo = isApprovedPromoCode(promoCode);
+  const isGroupPromo = hasValidPromo && quantity >= 5;
+  const pricePerTicket = isGroupPromo ? 250 : hasValidPromo ? 300 : 350;
+
+  return {
+    quantity,
+    hasValidPromo,
+    isGroupPromo,
+    pricePerTicket,
+    totalPrice: quantity * pricePerTicket,
+    track: isGroupPromo ? 'TEDX Gold' : hasValidPromo ? 'Promo Regular' : 'Regular'
+  };
+}
+
 function buildRatingLink(req, ticketId, rating, subId = null) {
   const base = `${req.protocol}://${req.get('host')}`;
   const params = new URLSearchParams({ rating: String(rating) });
@@ -312,8 +337,14 @@ app.post('/submit', (req, res, next) => {
       ratings: []
     };
 
-    const quantity = normalizeQuantity(formData.quantity, 1);
+    const pricing = getPricingDetails(formData.promo_code, formData.quantity);
+    const quantity = pricing.quantity;
     newEntry.quantity = quantity;
+    newEntry.promo_code = normalizePromoCode(formData.promo_code);
+    newEntry.promo_valid = pricing.hasValidPromo;
+    newEntry.ticket_track = pricing.track;
+    newEntry.price_per_ticket = pricing.pricePerTicket;
+    newEntry.total_price = pricing.totalPrice;
     if (quantity > 1) {
       for (let i = 1; i <= quantity; i++) {
         newEntry.checkins.push({ sub_id: i, checked: false, time: null });

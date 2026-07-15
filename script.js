@@ -1,4 +1,7 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
+  const normalizePromoCode = (value) => String(value || '').trim();
+  const isApprovedPromoCode = (value) => /^[A-Za-z]+\d{2}$/.test(normalizePromoCode(value));
+
   // --- Preloader ---
   const preloader = document.getElementById('preloader');
   if (preloader) {
@@ -214,15 +217,15 @@
 
       const quantity = Math.max(parseInt(quantityField?.value || '1', 10) || 1, 1);
       const paymentMethod = paymentMethodSelect?.value || 'Not selected';
-      const promoCode = (promoCodeField?.value || '').trim().toUpperCase();
-      const hasPromo = Boolean(promoCode);
-      const isGoldPromo = hasPromo && quantity >= 5;
+      const promoCode = normalizePromoCode(promoCodeField?.value || '');
+      const hasValidPromo = isApprovedPromoCode(promoCode);
+      const isGoldPromo = hasValidPromo && quantity >= 5;
       const track = isGoldPromo
         ? 'TEDX Gold'
-        : hasPromo
+        : hasValidPromo
           ? 'Promo Regular'
           : 'Regular';
-      const pricePerTicket = isGoldPromo ? 250 : hasPromo ? 300 : 350;
+      const pricePerTicket = isGoldPromo ? 250 : hasValidPromo ? 300 : 350;
       const totalPrice = quantity * pricePerTicket;
       const pricingText = `${pricePerTicket} EGP each • ${totalPrice} EGP total`;
       const requiredFilled = Object.keys(requiredValidation).every((fieldName) => {
@@ -237,7 +240,7 @@
       if (quantityPriceNote) {
         const promoNote = isGoldPromo
           ? ' • Group of 5 offer applied'
-          : hasPromo
+          : hasValidPromo
             ? ' • Promo code applied'
             : '';
         quantityPriceNote.textContent = `${pricingText}${promoNote}`;

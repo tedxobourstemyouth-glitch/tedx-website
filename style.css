@@ -2121,33 +2121,8 @@
       linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.022)),
       rgba(14,14,16,.9);
   }
-  .quantity-field small{
-    margin-top:-2px;
-  }
-  .pricing-note-card{
-    display:grid;
-    gap:10px;
-    align-content:start;
-    min-height:100%;
-    padding:18px 18px 16px;
-    border-radius:20px;
-    border:1px solid rgba(230,43,30,.14);
-    background:
-      radial-gradient(circle at top right, rgba(230,43,30,.1), rgba(230,43,30,0) 42%),
-      linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.012));
-  }
-  .pricing-note-kicker{
-    font-family:var(--mono);
-    font-size:10px;
-    letter-spacing:.16em;
-    text-transform:uppercase;
-    color:var(--red);
-  }
-  .pricing-note-card p{
-    margin:0;
-    color:var(--bone-soft);
-    font-size:14px;
-    line-height:1.7;
+  #quantity-price-note{
+    display:none !important;
   }
   .form-actions{
     margin-top:24px;
