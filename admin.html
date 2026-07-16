@@ -357,8 +357,8 @@
 
     #data-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-      gap: 18px;
+      grid-template-columns: repeat(auto-fill, minmax(430px, 1fr));
+      gap: 22px;
     }
 
     body.busy .settings-action,
@@ -373,7 +373,7 @@
     .ticket-card {
       position: relative;
       border: 1px solid var(--rule);
-      border-radius: 26px;
+      border-radius: 28px;
       background:
         radial-gradient(circle at top right, rgba(230, 43, 30, 0.045), rgba(230, 43, 30, 0) 28%),
         linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0.012));
@@ -406,31 +406,37 @@
     .card-head {
       display: flex;
       justify-content: space-between;
-      gap: 16px;
+      gap: 18px;
       padding: 24px 24px 18px;
       align-items: flex-start;
-      background: linear-gradient(180deg, rgba(255,255,255,0.038), rgba(255,255,255,0));
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.035), rgba(230, 43, 30, 0) 34%),
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0));
     }
     .card-head-main {
-      display: flex;
-      justify-content: space-between;
-      gap: 14px;
-      align-items: flex-start;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: start;
       width: 100%;
+    }
+    .card-title-block {
+      min-width: 0;
     }
     .card-top-actions {
       display: flex;
       align-items: center;
       gap: 10px;
       flex: 0 0 auto;
-      padding: 6px;
+      padding: 7px;
       border-radius: 999px;
       background: rgba(255,255,255,0.028);
       border: 1px solid rgba(246, 242, 234, 0.06);
       align-self: start;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
     }
     .mini-action-btn {
-      min-height: 36px;
+      min-height: 38px;
       padding: 0 16px;
       border-radius: 999px;
       border: 1px solid rgba(230, 43, 30, 0.24);
@@ -448,73 +454,67 @@
     }
 
     .card-name {
-      font-size: 23px;
-      line-height: 1.15;
+      font-size: 20px;
+      line-height: 1.08;
       font-weight: 600;
-      margin: 0 0 6px;
+      margin: 0 0 8px;
       color: var(--bone-soft);
+      max-width: none;
+      letter-spacing: -0.03em;
     }
 
     .card-email {
       color: var(--bone-dim);
       font-size: 14px;
-      word-break: break-word;
+      line-height: 1.5;
+      overflow-wrap: anywhere;
+      margin-bottom: 16px;
+      max-width: 34ch;
     }
     .card-meta {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 12px;
-      align-items: start;
+      gap: 18px;
+      align-items: center;
     }
     .meta-pill {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 34px;
-      padding: 7px 12px;
-      border-radius: 16px;
-      border: 1px solid var(--rule);
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.028));
+      display: grid;
+      gap: 3px;
       color: var(--bone-soft);
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      line-height: 1.45;
-      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+      text-align: left;
+      min-width: 0;
     }
     .meta-pill.submitted-pill {
-      display: grid;
-      justify-content: flex-start;
-      text-align: left;
-      color: var(--bone-dim);
-      width: 100%;
       max-width: 220px;
-      padding: 10px 12px;
-      gap: 4px;
-      white-space: normal;
     }
     .meta-pill-title {
       color: var(--bone-dim);
+      font-family: 'IBM Plex Mono', monospace;
       font-size: 9px;
       letter-spacing: 0.18em;
       text-transform: uppercase;
     }
     .meta-pill-value {
       color: var(--bone-soft);
-      font-size: 12px;
-      letter-spacing: 0.06em;
-      line-height: 1.45;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0;
+      line-height: 1.35;
       text-transform: none;
       word-break: break-word;
     }
+    .meta-pill.submitted-pill .meta-pill-value {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+      line-height: 1.5;
+    }
 
     .status-badge {
-      padding: 7px 12px;
+      padding: 9px 13px;
       border-radius: 999px;
       font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
+      font-size: 10px;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       white-space: nowrap;
@@ -534,8 +534,10 @@
 
     .info-item {
       display: grid;
-      gap: 7px;
-      padding: 15px 16px;
+      align-content: start;
+      gap: 6px;
+      min-height: 86px;
+      padding: 15px 15px;
       border: 1px solid var(--rule);
       border-radius: 18px;
       background:
@@ -556,15 +558,16 @@
     }
 
     .info-value {
-      font-size: 14px;
+      font-size: 15px;
       line-height: 1.55;
-      word-break: break-word;
+      word-break: normal;
+      overflow-wrap: anywhere;
       color: var(--bone-soft);
     }
 
     .checkin-banner {
-      margin: 0 24px 20px;
-      padding: 15px 16px;
+      margin: 0 24px 18px;
+      padding: 14px 16px;
       border-radius: 18px;
       background:
         radial-gradient(circle at top right, rgba(40, 167, 69, 0.08), rgba(40, 167, 69, 0) 46%),
@@ -578,8 +581,8 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin: 0 24px 20px;
-      padding: 16px;
+      margin: 0 24px 18px;
+      padding: 14px 16px;
       border-radius: 20px;
       border: 1px solid var(--rule);
       background:
@@ -633,7 +636,7 @@
     .card-footer {
       display: flex;
       gap: 10px;
-      padding: 16px 24px 24px;
+      padding: 14px 24px 24px;
       margin-top: auto;
       border-top: 1px solid rgba(246, 242, 234, 0.06);
     }
@@ -821,6 +824,33 @@
     .modal-overlay.show .modal { transform: translateY(0); }
     .modal h3 { margin: 0 0 12px; font-size: 24px; }
     .modal p { margin: 0; color: var(--bone-dim); line-height: 1.7; }
+    .modal-field {
+      margin-top: 18px;
+      display: grid;
+      gap: 8px;
+    }
+    .modal-field[hidden] { display: none; }
+    .modal-field label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+    .modal-field input {
+      width: 100%;
+      min-height: 50px;
+      border-radius: 16px;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.03);
+      color: var(--bone);
+      padding: 0 16px;
+      outline: none;
+    }
+    .modal-field input:focus {
+      border-color: rgba(230, 43, 30, 0.32);
+      box-shadow: 0 0 0 4px rgba(230, 43, 30, 0.08);
+    }
     .modal-actions {
       display: flex;
       justify-content: flex-end;
@@ -829,7 +859,10 @@
     }
 
     @media (max-width: 900px) {
+      #data-grid { grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)); }
       .stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card-meta { gap: 14px 18px; }
+      .meta-pill.submitted-pill { max-width: none; }
     }
 
     @media (max-width: 640px) {
@@ -849,10 +882,13 @@
       .info-item.wide { grid-column: auto; }
       .card-footer { flex-direction: column; }
       .receipt-row,
-      .card-head-main { flex-direction: column; align-items: stretch; }
-      .card-meta { align-items: stretch; }
+      .card-head-main { align-items: stretch; }
+      .card-head-main { grid-template-columns: 1fr; }
+      .card-meta { align-items: flex-start; gap: 12px 16px; }
       .meta-pill.submitted-pill { max-width: 100%; }
       .card-top-actions { justify-content: space-between; border-radius: 18px; }
+      .card-name { font-size: 18px; }
+      .card-email { font-size: 13px; }
       .modal-actions { flex-direction: column-reverse; }
       .modal-actions .btn { width: 100%; }
     }
@@ -954,6 +990,10 @@
     <div class="modal">
       <h3 id="modalTitle">Confirm action</h3>
       <p id="modalMessage">This action cannot be undone.</p>
+      <div class="modal-field" id="modalQuantityField" hidden>
+        <label for="modalQuantityInput">Ticket Quantity</label>
+        <input type="number" id="modalQuantityInput" min="1" max="50" value="1">
+      </div>
       <div class="modal-actions">
         <button class="btn" id="modalCancel" type="button">Cancel</button>
         <button class="btn btn-primary" id="modalConfirm" type="button">Continue</button>
@@ -978,6 +1018,8 @@
     const modalTitle = document.getElementById('modalTitle');
     const modalMessage = document.getElementById('modalMessage');
     const modalConfirm = document.getElementById('modalConfirm');
+    const modalQuantityField = document.getElementById('modalQuantityField');
+    const modalQuantityInput = document.getElementById('modalQuantityInput');
     const toast = document.getElementById('toast');
 
     function showToast(message, type = 'success') {
@@ -1046,6 +1088,21 @@
       return `${normalizedHours}:${minutes} ${suffix}`;
     }
 
+    function formatSubmittedDate(value) {
+      if (!value) return 'No submission date';
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return value;
+      return parsed.toLocaleString('en-GB', {
+        timeZone: 'Africa/Cairo',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      }).replace(',', ' ·');
+    }
+
     function renderGrid() {
       const filteredData = getFilteredData();
       dataGrid.innerHTML = '';
@@ -1066,7 +1123,7 @@
         const fileName = row.screenshotPath ? row.screenshotPath.split('\\').pop().split('/').pop() : '';
         const paymentDateLabel = formatPaymentDate(row.payment_date);
         const paymentTimeLabel = formatPaymentTime(row.payment_time);
-        const submittedLabel = row.date || 'No submission date';
+        const submittedLabel = formatSubmittedDate(row.date);
 
         let checkinStatus = '';
         if (status === 'approved') {
@@ -1081,12 +1138,18 @@
         card.innerHTML = `
           <div class="card-head">
             <div class="card-head-main">
-              <div>
+              <div class="card-title-block">
                 <h2 class="card-name">${row.full_name || 'Unnamed attendee'}</h2>
                 <div class="card-email">${row.email || '-'}</div>
                 <div class="card-meta">
-                  <span class="meta-pill">ID ${row.id}</span>
-                  <span class="meta-pill">${quantity} ticket${quantity > 1 ? 's' : ''}</span>
+                  <span class="meta-pill">
+                    <span class="meta-pill-title">ID</span>
+                    <span class="meta-pill-value">${row.id}</span>
+                  </span>
+                  <span class="meta-pill">
+                    <span class="meta-pill-title">Tickets</span>
+                    <span class="meta-pill-value">${quantity}</span>
+                  </span>
                   <span class="meta-pill submitted-pill">
                     <span class="meta-pill-title">Submitted</span>
                     <span class="meta-pill-value">${submittedLabel}</span>
@@ -1207,16 +1270,38 @@
     }
 
     async function approveTicket(id, requestedQty) {
-      let finalQty = requestedQty;
-
       if (requestedQty > 1) {
-        const userInput = prompt(`This is a group request for ${requestedQty} tickets.\nYou can change the number of tickets to generate if they paid for a different amount:`, requestedQty);
-        if (userInput === null) return;
-        finalQty = parseInt(userInput, 10);
-        if (Number.isNaN(finalQty) || finalQty < 1) {
-          showToast('Invalid quantity entered.', 'error');
-          return;
-        }
+        openConfirm({
+          title: 'Approve group request',
+          message: `This request currently has ${requestedQty} tickets. You can change the number of tickets to send before approval.`,
+          confirmLabel: 'Approve & Send',
+          quantityValue: requestedQty,
+          onConfirm: async () => {
+            const finalQty = parseInt(modalQuantityInput.value, 10);
+            if (Number.isNaN(finalQty) || finalQty < 1) {
+              showToast('Invalid quantity entered.', 'error');
+              modalQuantityInput.focus();
+              return false;
+            }
+
+            try {
+              const response = await fetch(`/api/admin/approve/${id}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ quantity: finalQty })
+              });
+              const data = await parseResponse(response);
+              if (!response.ok) throw new Error(data.message || 'Error approving ticket.');
+              showToast(data.message || 'Ticket approved successfully.');
+              await loadData();
+              return true;
+            } catch (error) {
+              showToast(error.message, 'error');
+              return false;
+            }
+          }
+        });
+        return;
       } else if (!confirm('Are you sure you want to approve this ticket and send the QR code?')) {
         return;
       }
@@ -1225,7 +1310,7 @@
         const response = await fetch(`/api/admin/approve/${id}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ quantity: finalQty })
+          body: JSON.stringify({ quantity: requestedQty })
         });
         const data = await parseResponse(response);
         if (!response.ok) throw new Error(data.message || 'Error approving ticket.');
@@ -1276,18 +1361,27 @@
       settingsOverlay.classList.remove('show');
     }
 
-    function openConfirm({ title, message, confirmLabel, onConfirm, confirmClass = 'btn btn-primary' }) {
+    function openConfirm({ title, message, confirmLabel, onConfirm, confirmClass = 'btn btn-primary', quantityValue = null }) {
       pendingAction = onConfirm;
       modalTitle.textContent = title;
       modalMessage.textContent = message;
       modalConfirm.textContent = confirmLabel;
       modalConfirm.className = confirmClass;
+      if (quantityValue !== null) {
+        modalQuantityField.hidden = false;
+        modalQuantityInput.value = quantityValue;
+      } else {
+        modalQuantityField.hidden = true;
+        modalQuantityInput.value = '1';
+      }
       confirmModal.classList.add('show');
       confirmModal.setAttribute('aria-hidden', 'false');
     }
 
     function closeConfirm() {
       pendingAction = null;
+      modalQuantityField.hidden = true;
+      modalQuantityInput.value = '1';
       confirmModal.classList.remove('show');
       confirmModal.setAttribute('aria-hidden', 'true');
     }
@@ -1390,7 +1484,9 @@
       if (event.target === confirmModal) closeConfirm();
     });
     modalConfirm.addEventListener('click', async () => {
-      if (pendingAction) await pendingAction();
+      if (!pendingAction) return;
+      const result = await pendingAction();
+      if (result !== false) closeConfirm();
     });
 
     loadData();
