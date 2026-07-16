@@ -19,7 +19,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
 </head>
-<body class="tickets-page">
+<body class="tickets-page" data-page="tickets">
 
 <nav class="nav scrolled" id="nav">
   <a class="wordmark" href="index.html#top" aria-label="TEDx Obour STEM Youth home">
@@ -32,7 +32,11 @@
     <a href="index.html#speakers" class="nav-link">Speakers</a>
     <a href="index.html#organizers" class="nav-link">Team</a>
   </div>
-  <div style="display:flex; align-items:center; gap:20px;">
+  <div style="display:flex; align-items:center; gap:12px;">
+    <div class="lang-toggle" aria-label="Language switcher">
+      <button class="lang-btn active" type="button" data-lang="en">EN</button>
+      <button class="lang-btn" type="button" data-lang="ar">AR</button>
+    </div>
     <a class="nav-cta" href="index.html">Back Home ↗</a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Toggle Menu">
       <span></span><span></span><span></span>
@@ -209,6 +213,11 @@
                 <span>Payment Date</span>
                 <input type="date" name="payment_date" required aria-describedby="error-payment-date">
                 <p class="field-error" id="error-payment-date" data-error-for="payment_date" aria-live="polite"></p>
+              </label>
+
+              <label class="form-field field-half">
+                <span>Payment Time</span>
+                <input type="time" name="payment_time">
               </label>
 
               <label class="form-field field-half promo-field">

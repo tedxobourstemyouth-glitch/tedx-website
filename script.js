@@ -1,6 +1,306 @@
 ﻿document.addEventListener('DOMContentLoaded', () => {
   const normalizePromoCode = (value) => String(value || '').trim();
   const isApprovedPromoCode = (value) => /^[A-Za-z]+\d{2}$/.test(normalizePromoCode(value));
+  const languageStorageKey = 'tedx-language';
+  const page = document.body?.dataset.page || 'home';
+  let currentLang = localStorage.getItem(languageStorageKey) || 'en';
+
+  if (!['en', 'ar'].includes(currentLang)) {
+    currentLang = 'en';
+  }
+
+  const setText = (selector, value) => {
+    if (value === undefined) return;
+    document.querySelectorAll(selector).forEach((node) => {
+      node.textContent = value;
+    });
+  };
+
+  const setHtml = (selector, value) => {
+    if (value === undefined) return;
+    document.querySelectorAll(selector).forEach((node) => {
+      node.innerHTML = value;
+    });
+  };
+
+  const setAttr = (selector, attribute, value) => {
+    if (value === undefined) return;
+    document.querySelectorAll(selector).forEach((node) => {
+      node.setAttribute(attribute, value);
+    });
+  };
+
+  const getRequiredValidation = (lang) => ({
+    full_name: lang === 'ar' ? 'الاسم الكامل مطلوب.' : 'Full Name is required.',
+    email: lang === 'ar' ? 'البريد الإلكتروني مطلوب.' : 'Email Address is required.',
+    phone: lang === 'ar' ? 'رقم الموبايل مطلوب.' : 'Mobile Number is required.',
+    payment_date: lang === 'ar' ? 'تاريخ الدفع مطلوب.' : 'Payment Date is required.',
+    transfer_source: lang === 'ar' ? 'رقم التحويل أو رقم الحساب مطلوب.' : 'Transfer Phone / Account No. is required.',
+    payment_screenshot: lang === 'ar' ? 'صورة التحويل مطلوبة.' : 'Transfer Screenshot is required.'
+  });
+
+  const uiText = {
+    en: {
+      submit: 'Submit Request <span class="arr">↗</span>',
+      submitting: 'Submitting...',
+      localServerDown: 'Local server is down. Please open Terminal and run "node server.js" first!',
+      errorPrefix: 'Error: ',
+      tryAgain: 'Please try again.',
+      unknownError: 'An unknown error occurred. Please try again.',
+      failedToFetch: 'Server connection failed!\n\nPlease ensure:\n1. The server is running via Terminal command: node server.js\n2. No Antivirus is blocking the connection.'
+    },
+    ar: {
+      submit: 'إرسال الطلب <span class="arr">↗</span>',
+      submitting: 'جاري الإرسال...',
+      localServerDown: 'السيرفر المحلي متوقف. افتح التيرمنال وشغّل: node server.js',
+      errorPrefix: 'خطأ: ',
+      tryAgain: 'حاول مرة أخرى.',
+      unknownError: 'حدث خطأ غير معروف. حاول مرة أخرى.',
+      failedToFetch: 'فشل الاتصال بالسيرفر.\n\nتأكد من:\n1. تشغيل السيرفر من التيرمنال بالأمر: node server.js\n2. عدم وجود برنامج حماية يمنع الاتصال.'
+    }
+  };
+
+  const applyLanguage = (lang) => {
+    currentLang = lang;
+    localStorage.setItem(languageStorageKey, lang);
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.body.classList.toggle('lang-ar', lang === 'ar');
+
+    document.querySelectorAll('.lang-btn').forEach((button) => {
+      button.classList.toggle('active', button.dataset.lang === lang);
+    });
+
+    if (page === 'home') {
+      if (lang === 'ar') {
+        setText('.nav-links .nav-link:nth-child(1)', 'عن الفعالية');
+        setText('.nav-links .nav-link:nth-child(2)', 'الثيم');
+        setText('.nav-links .nav-link:nth-child(3)', 'المتحدثون');
+        setText('.nav-links .nav-link:nth-child(4)', 'الفريق');
+        setHtml('.nav-cta', 'احجز التذاكر <span class="arr">↗</span>');
+        setHtml('.hero-eyebrow', '<span class="dot"></span> النسخة الثانية · <span>السادس من أكتوبر</span>');
+        setHtml('.hero-copy h1', 'غيّر<br><span class="em">زاويتك.</span><br><span class="stroke">واكشف</span><br>المجهول.');
+        setText('.hero-tag', 'نسخة TEDx Obour STEM Youth الثانية تستكشف المنظور كأداة. حين تغيّر موضعك، تظهر لك حقائق لم تكن تراها من قبل.');
+        setText('#about .countdown-single-line', 'انتظروا التحول.');
+        setText('.hero-countdown-unit:nth-child(1) span', 'يوم');
+        setText('.hero-countdown-unit:nth-child(2) span', 'ساعة');
+        setText('.hero-countdown-unit:nth-child(3) span', 'دقيقة');
+        setText('.hero-countdown-unit:nth-child(4) span', 'ثانية');
+        setText('#about .eyebrow', 'عن الفصل');
+        setHtml('#about .display', 'مدرسة <span class="em">تصنع</span><br>TED الخاص بها.');
+        setText('#about .lead', 'TEDx Obour STEM Youth هو فصل طلابي في نسخته الثانية، صُمم ليحوّل الفضول إلى مسرح حي للأفكار.');
+        setText('#about .body', 'الفعالية تُبنى بالكامل بأيدي الطلاب: من اختيار الأفكار، والإنتاج، وتجهيز المتحدثين، والهوية البصرية، وحتى تجربة الحضور داخل القاعة.');
+        setText('#about .stat:nth-child(1) .lab', 'منظم طلابي');
+        setText('#about .stat:nth-child(2) .lab', 'مقعد في القاعة');
+        setText('#theme .section-num', '§ 02 / الثيم');
+        setText('#theme .eyebrow', 'ثيم هذا العام · النسخة الثانية');
+        setHtml('.theme-main-copy .desc', 'فعالية عن المنظور كأداة. الفكرة المركزية: <em>مكان وقوفك يحدد ما تراه</em>، والتحرك بوعي يكشف حقائق كانت مخفية. كل حديث يطرح سؤالًا أساسيًا: ماذا يتغير عندما تغيّر موضعك؟');
+        setText('.theme-tags .tag:nth-child(1)', 'المنظور');
+        setText('.theme-tags .tag:nth-child(2)', 'النماذج الذهنية');
+        setText('.theme-tags .tag:nth-child(3)', 'الملاحظة');
+        setText('.theme-tags .tag:nth-child(4)', 'زوايا مختلفة');
+        setText('.theme-tags .tag:nth-child(5)', 'حقائق مخفية');
+        setText('.theme-focus-kicker', 'الفكرة الأساسية');
+        setText('.theme-focus-card p', 'غيّر موضعك. غيّر ما تراه.');
+        setText('#speakers .section-num', '§ 03 / المتحدثون');
+        setText('#speakers .eyebrow', 'زوايا الرؤية');
+        setHtml('#speakers .display', 'أصوات<br><span class="em">Parallax.</span>');
+        setText('.speaker-section-copy', 'الأصوات التي تشكّل هذه النسخة.');
+        setText('.speaker-stage-word', 'قائمة المتحدثين');
+        document.querySelectorAll('.speaker .field').forEach((node) => { node.textContent = 'متحدث'; });
+        setText('.m-question', 'ما الحقيقة التي لا تراها؟');
+        setAttr('.m-question', 'data-text', 'ما الحقيقة التي لا تراها؟');
+        setText('.m-answer', 'تلك التي ترفض أن تتحرك نحوها.');
+        setText('.why .section-num', '§ 04 / لماذا تحضر');
+        setText('.why .eyebrow', 'لماذا يجب أن تكون في القاعة');
+        setHtml('.why .display', 'أربع أسباب<br>و<span class="em">شعور واحد</span>.');
+        setText('#organizers .section-num', '§ 05 / الإدارة');
+        setText('.board-mark', 'الفريق القيادي وراء النسخة الثانية');
+        setHtml('#organizers .display', '<span class="board-line">مجلس</span><span class="board-line em">الإدارة.</span>');
+        setText('.board-copy', 'ثلاثة قادة يقودون الفصل من أول التخطيط حتى لحظة الضوء.');
+        document.querySelectorAll('.role-badge, .role-blank').forEach((node) => {
+          if (node.textContent.includes('President')) node.textContent = 'الرئيس';
+          if (node.textContent.includes('Vice President')) node.textContent = 'نائب الرئيس';
+        });
+      } else {
+        setText('.nav-links .nav-link:nth-child(1)', 'About');
+        setText('.nav-links .nav-link:nth-child(2)', 'Theme');
+        setText('.nav-links .nav-link:nth-child(3)', 'Speakers');
+        setText('.nav-links .nav-link:nth-child(4)', 'Team');
+        setHtml('.nav-cta', 'Buy Tickets <span class="arr">↗</span>');
+        setHtml('.hero-eyebrow', '<span class="dot"></span> Edition 02 · <span>6th of October</span>');
+        setHtml('.hero-copy h1', 'Shift your<br><span class="em">perspective.</span><br><span class="stroke">Reveal the</span><br>Unseen.');
+        setText('.hero-tag', 'The second TEDx Obour STEM Youth edition explores perspective as a tool. Moving deliberately reveals truths that were invisible before.');
+        setText('#about .countdown-single-line', 'Await the shift.');
+        setText('.hero-countdown-unit:nth-child(1) span', 'Days');
+        setText('.hero-countdown-unit:nth-child(2) span', 'Hours');
+        setText('.hero-countdown-unit:nth-child(3) span', 'Min');
+        setText('.hero-countdown-unit:nth-child(4) span', 'Sec');
+        setText('#about .eyebrow', 'About the Chapter');
+        setHtml('#about .display', 'A school <span class="em">runs</span><br>its own TED.');
+        setText('#about .lead', 'TEDx Obour STEM Youth is a second-edition, student-led chapter built to turn curiosity into a live public stage.');
+        setText('#about .body', 'The event is shaped by students from the first idea to the final cue: curation, production, speaker preparation, visual identity, and the experience inside the room.');
+        setText('#about .stat:nth-child(1) .lab', 'Student Organizers');
+        setText('#about .stat:nth-child(2) .lab', 'Seats In The Room');
+        setText('#theme .section-num', '§ 02 / THEME');
+        setText('#theme .eyebrow', "This Year's Theme · Edition 02");
+        setHtml('.theme-main-copy .desc', 'An event about perspective as a tool. The central argument: <em>where you stand determines what you see</em>, and moving deliberately reveals truths that were invisible before. Every talk asks one fundamental question: what changes when you shift position?');
+        setText('.theme-tags .tag:nth-child(1)', 'Perspective');
+        setText('.theme-tags .tag:nth-child(2)', 'Mental Models');
+        setText('.theme-tags .tag:nth-child(3)', 'Observation');
+        setText('.theme-tags .tag:nth-child(4)', 'Shifted Views');
+        setText('.theme-tags .tag:nth-child(5)', 'Hidden Truths');
+        setText('.theme-focus-kicker', 'Core Thought');
+        setText('.theme-focus-card p', 'Change your position. Change what you see.');
+        setText('#speakers .section-num', '§ 03 / SPEAKERS');
+        setText('#speakers .eyebrow', 'The Vantage Points');
+        setHtml('#speakers .display', 'Voices of<br><span class="em">Parallax.</span>');
+        setText('.speaker-section-copy', 'The voices behind this edition.');
+        setText('.speaker-stage-word', 'Live Lineup');
+        document.querySelectorAll('.speaker .field').forEach((node) => { node.textContent = 'Speaker'; });
+        setText('.m-question', 'WHAT TRUTH ARE YOU MISSING?');
+        setAttr('.m-question', 'data-text', 'WHAT TRUTH ARE YOU MISSING?');
+        setText('.m-answer', 'THE ONE YOU REFUSE TO WALK TOWARD.');
+        setText('.why .section-num', '§ 04 / WHY');
+        setText('.why .eyebrow', 'Why Be In The Room');
+        setHtml('.why .display', 'Four reasons<br>and <span class="em">one feeling</span>.');
+        setText('#organizers .section-num', '§ 05 / BOARD');
+        setText('.board-mark', 'Leadership team behind the second edition');
+        setHtml('#organizers .display', '<span class="board-line">Management</span><span class="board-line em">Board.</span>');
+        setText('.board-copy', 'Three leads holding the standard of the chapter from planning table to spotlight.');
+        document.querySelectorAll('.role-badge, .role-blank').forEach((node) => {
+          if (node.textContent.includes('الرئيس')) node.textContent = 'President';
+          if (node.textContent.includes('نائب الرئيس')) node.textContent = 'Vice President';
+        });
+      }
+    }
+
+    if (page === 'tickets') {
+      if (lang === 'ar') {
+        setText('.nav-links .nav-link:nth-child(1)', 'عن الفعالية');
+        setText('.nav-links .nav-link:nth-child(2)', 'الثيم');
+        setText('.nav-links .nav-link:nth-child(3)', 'المتحدثون');
+        setText('.nav-links .nav-link:nth-child(4)', 'الفريق');
+        setHtml('.nav-cta', 'العودة للرئيسية <span class="arr">↗</span>');
+        setText('.ticket-copy .eyebrow', 'التذاكر');
+        setHtml('.ticket-title', 'أكمل<br><span class="em">طلب التذكرة.</span>');
+        setText('.ticket-lead', 'اختر التذكرة، أضف إثبات الدفع، ثم أرسل الطلب.');
+        setHtml('.ticket-actions .btn', 'ابدأ الطلب <span class="arr">↓</span>');
+        setText('.ticket-form-copy .eyebrow', 'خطوات الحجز');
+        setText('.ticket-form-copy > p', 'أربع خطوات سريعة.');
+        setText('.ticket-form-kicker', 'إرسال آمن');
+        setText('.ticket-form-head-copy h3', 'بيانات الحضور والدفع');
+        setText('.ticket-form-head-copy p', 'أدخل البيانات وارفع إثبات الدفع.');
+        setText('.ticket-form-tag:nth-child(1)', 'الحقول المطلوبة فقط');
+        setText('.ticket-form-tag:nth-child(2)', 'مراجعة يدوية');
+        setText('.ticket-form-badge', 'يتم التحقق قبل الإرسال');
+        setText('.attendee-grid .form-field:nth-child(1) > span', 'الاسم الكامل');
+        setAttr('[name="full_name"]', 'placeholder', 'اكتب اسمك الكامل');
+        setText('.attendee-grid .form-field:nth-child(2) > span', 'البريد الإلكتروني');
+        setText('.attendee-grid .form-field:nth-child(3) > span', 'رقم الموبايل');
+        setText('.attendee-grid .form-field:nth-child(4) > span', 'المحافظة');
+        setAttr('[name="governorate"]', 'placeholder', 'محافظتك');
+        setText('.attendee-grid .form-field:nth-child(5) > span', 'اسم المدرسة');
+        setAttr('[name="school_name"]', 'placeholder', 'اسم المدرسة');
+        setText('.attendee-grid .form-field:nth-child(6) > span', 'رقم التحويل / رقم الحساب');
+        setAttr('[name="transfer_source"]', 'placeholder', 'الرقم أو الحساب الذي تم الدفع منه');
+        setText('.pricing-grid .form-field:nth-child(1) > span', 'تاريخ الدفع');
+        setText('.pricing-grid .form-field:nth-child(2) > span', 'وقت الدفع');
+        setText('.pricing-grid .form-field:nth-child(3) > span', 'برومو كود (اختياري)');
+        setAttr('[name="promo_code"]', 'placeholder', 'اكتب الكود لو موجود');
+        setText('.pricing-grid .form-field:nth-child(4) > span', 'العدد');
+        setText('.ticket-form-stage:nth-child(3) h4', 'بيانات الدفع');
+        setText('.payment-account-card:nth-child(1) .payment-account-kicker', 'محفظة إلكترونية');
+        setText('.payment-account-card:nth-child(2) .payment-account-kicker', 'إنستا باي');
+        setText('.payment-grid .form-field:nth-child(1) > span', 'طريقة الدفع');
+        setText('#payment-method-select option:nth-child(1)', 'اختر الطريقة...');
+        setText('#payment-method-select option:nth-child(2)', 'محفظة إلكترونية');
+        setText('#payment-method-select option:nth-child(3)', 'إنستا باي');
+        setText('#wallet-provider-field > span', 'مزود المحفظة');
+        setText('#wallet-provider-select option:nth-child(1)', 'اختر المزود...');
+        setText('.form-check span', 'حجز جروب');
+        setText('.ticket-form-side-note strong', 'دليل الرفع');
+        setText('.ticket-form-side-note p', 'ارفع سكرين شوت واضح بالكامل يظهر المرسل وحالة نجاح التحويل.');
+        setText('.upload-field > span', 'سكرين شوت التحويل');
+        setText('.final-stage h4', 'ملاحظة أخيرة');
+        setText('.final-stage .form-field > span', 'ملاحظات لفريق التنظيم');
+        setAttr('[name="notes"]', 'placeholder', 'أي شيء يحتاج فريق التذاكر معرفته؟');
+        setHtml('.form-submit', 'إرسال الطلب <span class="arr">↗</span>');
+        setText('.ticket-info-card:nth-child(1) .eyebrow', 'قبل الإرسال');
+        setText('.ticket-info-card:nth-child(2) .eyebrow', 'تحتاج مساعدة؟');
+        setText('.ticket-help', 'تواصل مع الفريق مباشرة.');
+        setText('.success-title', 'شكرًا لتسجيلك.');
+        setText('.success-message', 'تم استلام طلبك. ستبدأ مراجعة الدفع خلال وقت قصير.');
+        setText('.success-footer', 'نتطلع لرؤيتك في TEDx Obour STEM Youth.');
+        setText('#new-request-button-fullscreen', 'إرسال طلب جديد');
+      } else {
+        setText('.nav-links .nav-link:nth-child(1)', 'About');
+        setText('.nav-links .nav-link:nth-child(2)', 'Theme');
+        setText('.nav-links .nav-link:nth-child(3)', 'Speakers');
+        setText('.nav-links .nav-link:nth-child(4)', 'Team');
+        setHtml('.nav-cta', 'Back Home <span class="arr">↗</span>');
+        setText('.ticket-copy .eyebrow', 'Ticketing');
+        setHtml('.ticket-title', 'Complete your<br><span class="em">ticket request.</span>');
+        setText('.ticket-lead', 'Choose your ticket, add payment proof, and submit.');
+        setHtml('.ticket-actions .btn', 'Start Request <span class="arr">↓</span>');
+        setText('.ticket-form-copy .eyebrow', 'Booking Flow');
+        setText('.ticket-form-copy > p', 'Four quick steps.');
+        setText('.ticket-form-kicker', 'Secure Submission');
+        setText('.ticket-form-head-copy h3', 'Attendee & payment details');
+        setText('.ticket-form-head-copy p', 'Enter details and upload proof.');
+        setText('.ticket-form-tag:nth-child(1)', 'Required fields only');
+        setText('.ticket-form-tag:nth-child(2)', 'Manual review');
+        setText('.ticket-form-badge', 'Validated before submit');
+        setText('.attendee-grid .form-field:nth-child(1) > span', 'Full Name');
+        setAttr('[name="full_name"]', 'placeholder', 'Your full name');
+        setText('.attendee-grid .form-field:nth-child(2) > span', 'Email Address');
+        setText('.attendee-grid .form-field:nth-child(3) > span', 'Mobile Number');
+        setText('.attendee-grid .form-field:nth-child(4) > span', 'Governorate');
+        setAttr('[name="governorate"]', 'placeholder', 'Your governorate (e.g. Cairo, Giza)');
+        setText('.attendee-grid .form-field:nth-child(5) > span', 'School Name');
+        setAttr('[name="school_name"]', 'placeholder', 'Your school name');
+        setText('.attendee-grid .form-field:nth-child(6) > span', 'Transfer Phone / Account No.');
+        setAttr('[name="transfer_source"]', 'placeholder', 'The number or account you paid from');
+        setText('.pricing-grid .form-field:nth-child(1) > span', 'Payment Date');
+        setText('.pricing-grid .form-field:nth-child(2) > span', 'Payment Time');
+        setText('.pricing-grid .form-field:nth-child(3) > span', 'Promo Code (Optional)');
+        setAttr('[name="promo_code"]', 'placeholder', 'Enter your code for discount');
+        setText('.pricing-grid .form-field:nth-child(4) > span', 'Quantity');
+        setText('.ticket-form-stage:nth-child(3) h4', 'Payment details');
+        setText('.payment-account-card:nth-child(1) .payment-account-kicker', 'Mobile Wallet');
+        setText('.payment-account-card:nth-child(2) .payment-account-kicker', 'InstaPay');
+        setText('.payment-grid .form-field:nth-child(1) > span', 'Payment Method');
+        setText('#payment-method-select option:nth-child(1)', 'Select method...');
+        setText('#payment-method-select option:nth-child(2)', 'Mobile Wallet');
+        setText('#payment-method-select option:nth-child(3)', 'InstaPay');
+        setText('#wallet-provider-field > span', 'Wallet Provider');
+        setText('#wallet-provider-select option:nth-child(1)', 'Select provider...');
+        setText('.form-check span', 'Group booking');
+        setText('.ticket-form-side-note strong', 'Upload guide');
+        setText('.ticket-form-side-note p', 'Use a clear full screenshot that shows sender and success state.');
+        setText('.upload-field > span', 'Transfer Screenshot');
+        setText('.final-stage h4', 'Final note');
+        setText('.final-stage .form-field > span', 'Notes for the Team');
+        setAttr('[name="notes"]', 'placeholder', 'Anything the ticket team should know?');
+        setHtml('.form-submit', 'Submit Request <span class="arr">↗</span>');
+        setText('.ticket-info-card:nth-child(1) .eyebrow', 'Before You Submit');
+        setText('.ticket-info-card:nth-child(2) .eyebrow', 'Need Help?');
+        setText('.ticket-help', 'Contact the chapter directly.');
+        setText('.success-title', 'Thank you for registering.');
+        setText('.success-message', 'Your request has been received. Payment review will start shortly.');
+        setText('.success-footer', 'We look forward to seeing you at TEDx Obour STEM Youth.');
+        setText('#new-request-button-fullscreen', 'Submit Another Request');
+      }
+    }
+  };
+
+  document.querySelectorAll('.lang-btn').forEach((button) => {
+    button.addEventListener('click', () => {
+      applyLanguage(button.dataset.lang || 'en');
+    });
+  });
+
+  applyLanguage(currentLang);
 
   // --- Preloader ---
   const preloader = document.getElementById('preloader');
@@ -169,14 +469,7 @@
   const newRequestBtnFullscreen = document.getElementById('new-request-button-fullscreen'); // The button on the new overlay
 
   if (ticketForm && fullscreenSuccess) {
-    const requiredValidation = {
-      full_name: 'Full Name is required.',
-      email: 'Email Address is required.',
-      phone: 'Mobile Number is required.',
-      payment_date: 'Payment Date is required.',
-      transfer_source: 'Transfer Phone / Account No. is required.',
-      payment_screenshot: 'Transfer Screenshot is required.'
-    };
+    const getActiveRequiredValidation = () => getRequiredValidation(currentLang);
 
     const getField = (fieldName) => ticketForm.querySelector(`[name="${fieldName}"]`);
     const getErrorNode = (fieldName) => ticketForm.querySelector(`[data-error-for="${fieldName}"]`);
@@ -188,11 +481,11 @@
     };
     const clearFieldError = (fieldName) => setFieldError(fieldName, '');
     const clearAllFieldErrors = () => {
-      Object.keys(requiredValidation).forEach(clearFieldError);
+      Object.keys(getActiveRequiredValidation()).forEach(clearFieldError);
     };
     const validateRequiredFields = () => {
       const errors = {};
-      Object.entries(requiredValidation).forEach(([fieldName, message]) => {
+      Object.entries(getActiveRequiredValidation()).forEach(([fieldName, message]) => {
         const field = getField(fieldName);
         if (!field) return;
         const value = field.type === 'file' ? field.files.length : field.value.trim();
@@ -228,7 +521,7 @@
       const pricePerTicket = isGoldPromo ? 250 : hasValidPromo ? 300 : 350;
       const totalPrice = quantity * pricePerTicket;
       const pricingText = `${pricePerTicket} EGP each • ${totalPrice} EGP total`;
-      const requiredFilled = Object.keys(requiredValidation).every((fieldName) => {
+      const requiredFilled = Object.keys(getActiveRequiredValidation()).every((fieldName) => {
         const field = getField(fieldName);
         if (!field) return false;
         return field.type === 'file' ? field.files.length > 0 : Boolean(field.value.trim());
@@ -246,8 +539,8 @@
         quantityPriceNote.textContent = `${pricingText}${promoNote}`;
       }
       summaryStatus.textContent = requiredFilled
-        ? 'Ready to submit'
-        : 'Ready when required fields are complete';
+        ? currentLang === 'ar' ? 'جاهز للإرسال' : 'Ready to submit'
+        : currentLang === 'ar' ? 'جاهز عند اكتمال الحقول المطلوبة' : 'Ready when required fields are complete';
     };
 
     if (paymentMethodSelect) {
@@ -267,7 +560,7 @@
     // --- Form Submission Handling ---
     const submitBtn = ticketForm.querySelector('.form-submit');
 
-    Object.keys(requiredValidation).forEach((fieldName) => {
+    Object.keys(getActiveRequiredValidation()).forEach((fieldName) => {
       const field = getField(fieldName);
       if (!field) return;
       const eventName = field.type === 'file' || field.tagName === 'SELECT' ? 'change' : 'input';
@@ -301,7 +594,7 @@
       const formData = new FormData(ticketForm);
 
       // Show loading state then success message
-      submitBtn.innerHTML = 'Submitting...';
+        submitBtn.innerHTML = uiText[currentLang].submitting;
       submitBtn.disabled = true;
 
       try {
@@ -322,7 +615,7 @@
         try {
           responseData = JSON.parse(responseText);
         } catch (e) {
-          throw new Error('Local server is down. Please open Terminal and run "node server.js" first!');
+          throw new Error(uiText[currentLang].localServerDown);
         }
 
         if (response.ok) {
@@ -335,19 +628,19 @@
             const firstInvalidField = getField(Object.keys(responseData.fieldErrors)[0]);
             if (firstInvalidField) firstInvalidField.focus();
           }
-          alert('Error: ' + (responseData.message || 'Please try again.'));
+          alert(uiText[currentLang].errorPrefix + (responseData.message || uiText[currentLang].tryAgain));
         }
       } catch (error) {
         console.error('Error:', error);
-        let userMessage = 'An unknown error occurred. Please try again.';
+        let userMessage = uiText[currentLang].unknownError;
         if (error.message.includes('Failed to fetch')) {
-            userMessage = 'Server connection failed! 😫\n\nPlease ensure:\n1. The server is running via Terminal command: node server.js\n2. No Antivirus is blocking the connection.';
+            userMessage = uiText[currentLang].failedToFetch;
         } else {
             userMessage = error.message;
         }
         alert(userMessage);
       } finally {
-        submitBtn.innerHTML = 'Submit Request <span class="arr">↗</span>';
+        submitBtn.innerHTML = uiText[currentLang].submit;
         // Fix freeze issue: Re-enable the button if an error occurs
         if (fullscreenSuccess.hidden) {
           submitBtn.disabled = false;

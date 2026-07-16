@@ -31,9 +31,9 @@
       margin: 0;
       font-family: 'IBM Plex Sans', sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(230, 43, 30, 0.14), transparent 18%),
-        radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.035), transparent 18%),
-        radial-gradient(circle at bottom left, rgba(230, 43, 30, 0.07), transparent 24%),
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.08), transparent 18%),
+        radial-gradient(circle at 15% 18%, rgba(255, 255, 255, 0.02), transparent 18%),
+        radial-gradient(circle at bottom left, rgba(230, 43, 30, 0.04), transparent 24%),
         linear-gradient(180deg, #050505 0%, #09090b 48%, #0d0d10 100%);
       color: var(--bone);
       padding: 24px;
@@ -88,12 +88,12 @@
       padding: 28px;
       border: 1px solid var(--rule);
       background:
-        linear-gradient(180deg, rgba(255,255,255,0.038), rgba(255,255,255,0.014)),
-        linear-gradient(135deg, rgba(230, 43, 30, 0.055), rgba(230, 43, 30, 0));
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012)),
+        linear-gradient(135deg, rgba(230, 43, 30, 0.03), rgba(230, 43, 30, 0));
       border-radius: 28px;
       backdrop-filter: blur(18px);
       overflow: hidden;
-      box-shadow: 0 30px 80px -46px rgba(0,0,0,0.92);
+      box-shadow: 0 22px 54px -40px rgba(0,0,0,0.82);
     }
 
     .dashboard-header::before {
@@ -242,7 +242,7 @@
       border-radius: 24px;
       border: 1px solid var(--rule);
       background: linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0.012));
-      box-shadow: 0 22px 42px -34px rgba(0,0,0,0.92);
+      box-shadow: 0 18px 34px -30px rgba(0,0,0,0.76);
       backdrop-filter: blur(14px);
     }
 
@@ -310,7 +310,7 @@
 
     .stats-row {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 16px;
       margin-bottom: 24px;
     }
@@ -321,11 +321,12 @@
       border-radius: 22px;
       border: 1px solid var(--rule);
       background:
-        radial-gradient(circle at top right, rgba(230, 43, 30, 0.1), rgba(230, 43, 30, 0) 32%),
-        linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.05), rgba(230, 43, 30, 0) 32%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.012));
       overflow: hidden;
-      box-shadow: 0 24px 44px -34px rgba(0,0,0,0.95);
+      box-shadow: 0 18px 34px -28px rgba(0,0,0,0.76);
       backdrop-filter: blur(12px);
+      isolation: isolate;
     }
 
     .stat-card::before {
@@ -374,13 +375,13 @@
       border: 1px solid var(--rule);
       border-radius: 26px;
       background:
-        radial-gradient(circle at top right, rgba(230, 43, 30, 0.085), rgba(230, 43, 30, 0) 28%),
-        linear-gradient(180deg, rgba(255,255,255,0.032), rgba(255,255,255,0.012));
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.045), rgba(230, 43, 30, 0) 28%),
+        linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0.012));
       overflow: hidden;
       display: flex;
       flex-direction: column;
       min-height: 100%;
-      box-shadow: 0 26px 54px -38px rgba(0,0,0,0.96);
+      box-shadow: 0 18px 34px -30px rgba(0,0,0,0.78);
       transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
       backdrop-filter: blur(12px);
     }
@@ -388,7 +389,7 @@
     .ticket-card:hover {
       transform: translateY(-2px);
       border-color: var(--rule-strong);
-      box-shadow: 0 32px 62px -36px rgba(0,0,0,0.92);
+      box-shadow: 0 22px 40px -30px rgba(0,0,0,0.82);
     }
 
     .ticket-card::before {
@@ -406,7 +407,7 @@
       display: flex;
       justify-content: space-between;
       gap: 16px;
-      padding: 22px;
+      padding: 24px 24px 18px;
       align-items: flex-start;
       background: linear-gradient(180deg, rgba(255,255,255,0.038), rgba(255,255,255,0));
     }
@@ -426,6 +427,7 @@
       border-radius: 999px;
       background: rgba(255,255,255,0.028);
       border: 1px solid rgba(246, 242, 234, 0.06);
+      align-self: start;
     }
     .mini-action-btn {
       min-height: 36px;
@@ -525,19 +527,24 @@
 
     .card-body {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
-      padding: 0 22px 18px;
+      padding: 0 24px 20px;
     }
 
     .info-item {
       display: grid;
-      gap: 5px;
-      padding: 14px;
+      gap: 7px;
+      padding: 15px 16px;
       border: 1px solid var(--rule);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.028);
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.028), rgba(255,255,255,0.015));
       min-width: 0;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.018);
+    }
+    .info-item.wide {
+      grid-column: 1 / -1;
     }
 
     .info-label {
@@ -556,11 +563,13 @@
     }
 
     .checkin-banner {
-      margin: 0 22px 18px;
-      padding: 14px 16px;
-      border-radius: 16px;
-      background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
-      border: 1px solid var(--rule);
+      margin: 0 24px 20px;
+      padding: 15px 16px;
+      border-radius: 18px;
+      background:
+        radial-gradient(circle at top right, rgba(40, 167, 69, 0.08), rgba(40, 167, 69, 0) 46%),
+        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+      border: 1px solid rgba(40, 167, 69, 0.18);
       color: var(--bone);
     }
 
@@ -569,11 +578,13 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      margin: 0 22px 18px;
-      padding: 14px 16px;
-      border-radius: 18px;
+      margin: 0 24px 20px;
+      padding: 16px;
+      border-radius: 20px;
       border: 1px solid var(--rule);
-      background: rgba(255,255,255,0.028);
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.04), rgba(230, 43, 30, 0) 42%),
+        rgba(255,255,255,0.028);
     }
 
     .receipt-meta {
@@ -622,7 +633,7 @@
     .card-footer {
       display: flex;
       gap: 10px;
-      padding: 0 22px 22px;
+      padding: 16px 24px 24px;
       margin-top: auto;
       border-top: 1px solid rgba(246, 242, 234, 0.06);
     }
@@ -835,6 +846,7 @@
       .stats-row { grid-template-columns: 1fr; }
       #data-grid { grid-template-columns: 1fr; }
       .card-body { grid-template-columns: 1fr; }
+      .info-item.wide { grid-column: auto; }
       .card-footer { flex-direction: column; }
       .receipt-row,
       .card-head-main { flex-direction: column; align-items: stretch; }
@@ -890,6 +902,10 @@
       <article class="stat-card">
         <div class="stat-label">Approved</div>
         <div class="stat-value" id="statApproved">0</div>
+      </article>
+      <article class="stat-card">
+        <div class="stat-label">Total Tickets</div>
+        <div class="stat-value" id="statTickets">0</div>
       </article>
       <article class="stat-card">
         <div class="stat-label">Rejected</div>
@@ -974,15 +990,17 @@
     }
 
     function updateStats() {
-      const counts = { all: allData.length, pending: 0, approved: 0, rejected: 0 };
+      const counts = { all: allData.length, pending: 0, approved: 0, rejected: 0, tickets: 0 };
       allData.forEach((row) => {
         const status = row.status || 'pending';
+        counts.tickets += parseInt(row.quantity, 10) || 1;
         if (counts[status] !== undefined) counts[status] += 1;
       });
 
       document.getElementById('statAll').textContent = counts.all;
       document.getElementById('statPending').textContent = counts.pending;
       document.getElementById('statApproved').textContent = counts.approved;
+      document.getElementById('statTickets').textContent = counts.tickets;
       document.getElementById('statRejected').textContent = counts.rejected;
     }
 
@@ -1015,6 +1033,19 @@
       });
     }
 
+    function formatPaymentTime(value) {
+      if (!value) return '-';
+      const trimmed = String(value).trim();
+      const match = trimmed.match(/^(\d{1,2}):(\d{2})$/);
+      if (!match) return trimmed;
+
+      const hours = Number(match[1]);
+      const minutes = match[2];
+      const suffix = hours >= 12 ? 'PM' : 'AM';
+      const normalizedHours = hours % 12 || 12;
+      return `${normalizedHours}:${minutes} ${suffix}`;
+    }
+
     function renderGrid() {
       const filteredData = getFilteredData();
       dataGrid.innerHTML = '';
@@ -1034,6 +1065,7 @@
         const isFinished = status === 'approved' || status === 'rejected';
         const fileName = row.screenshotPath ? row.screenshotPath.split('\\').pop().split('/').pop() : '';
         const paymentDateLabel = formatPaymentDate(row.payment_date);
+        const paymentTimeLabel = formatPaymentTime(row.payment_time);
         const submittedLabel = row.date || 'No submission date';
 
         let checkinStatus = '';
@@ -1054,6 +1086,7 @@
                 <div class="card-email">${row.email || '-'}</div>
                 <div class="card-meta">
                   <span class="meta-pill">ID ${row.id}</span>
+                  <span class="meta-pill">${quantity} ticket${quantity > 1 ? 's' : ''}</span>
                   <span class="meta-pill submitted-pill">
                     <span class="meta-pill-title">Submitted</span>
                     <span class="meta-pill-value">${submittedLabel}</span>
@@ -1070,11 +1103,13 @@
           <div class="card-body">
             <div class="info-item"><span class="info-label">Phone</span><span class="info-value">${row.phone || '-'}</span></div>
             <div class="info-item"><span class="info-label">Governorate</span><span class="info-value">${row.governorate || '-'}</span></div>
-            <div class="info-item"><span class="info-label">Quantity</span><span class="info-value">${quantity}</span></div>
             <div class="info-item"><span class="info-label">School</span><span class="info-value">${row.school_name || '-'}</span></div>
-            <div class="info-item"><span class="info-label">Payment</span><span class="info-value">${row.payment_method || '-'}${row.wallet_provider ? ` (${row.wallet_provider})` : ''}</span></div>
+            <div class="info-item"><span class="info-label">Transfer Source</span><span class="info-value">${row.transfer_source || '-'}</span></div>
             <div class="info-item"><span class="info-label">Promo</span><span class="info-value">${row.promo_code || '-'}</span></div>
+            <div class="info-item"><span class="info-label">Quantity</span><span class="info-value">${quantity}</span></div>
             <div class="info-item"><span class="info-label">Payment Date</span><span class="info-value">${paymentDateLabel}</span></div>
+            <div class="info-item"><span class="info-label">Payment Time</span><span class="info-value">${paymentTimeLabel}</span></div>
+            <div class="info-item"><span class="info-label">Payment</span><span class="info-value">${row.payment_method || '-'}${row.wallet_provider ? ` (${row.wallet_provider})` : ''}</span></div>
           </div>
 
           ${checkinStatus ? `<div class="checkin-banner"><strong>Check-in:</strong> ${checkinStatus}</div>` : ''}
@@ -1136,7 +1171,7 @@
     }
 
     function exportToCSV() {
-      const headers = ['ID', 'Date', 'Status', 'Full Name', 'Email', 'Phone', 'Governorate', 'Quantity', 'School', 'Promo Code', 'Transfer Source', 'Payment Method', 'Wallet Provider'];
+      const headers = ['ID', 'Date', 'Status', 'Full Name', 'Email', 'Phone', 'Governorate', 'Quantity', 'School', 'Promo Code', 'Transfer Source', 'Payment Date', 'Payment Time', 'Payment Method', 'Wallet Provider'];
       let csvContent = headers.join(',') + '\n';
 
       allData.forEach((row) => {
@@ -1152,6 +1187,8 @@
           `"${row.school_name || ''}"`,
           `"${row.promo_code || ''}"`,
           `"${row.transfer_source || ''}"`,
+          `"${row.payment_date || ''}"`,
+          `"${row.payment_time || ''}"`,
           `"${row.payment_method || ''}"`,
           `"${row.wallet_provider || ''}"`
         ];

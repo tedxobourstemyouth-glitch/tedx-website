@@ -23,7 +23,7 @@
 <noscript><style>.reveal{opacity:1!important;transform:none!important}</style></noscript>
 <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body data-page="home">
 
 <!-- PRELOADER -->
 <div id="preloader">
@@ -45,7 +45,11 @@
     <a href="#speakers" class="nav-link">Speakers</a>
     <a href="#organizers" class="nav-link">Team</a>
   </div>
-  <div style="display:flex; align-items:center; gap:20px;">
+  <div style="display:flex; align-items:center; gap:12px;">
+    <div class="lang-toggle" aria-label="Language switcher">
+      <button class="lang-btn active" type="button" data-lang="en">EN</button>
+      <button class="lang-btn" type="button" data-lang="ar">AR</button>
+    </div>
     <a class="nav-cta" href="tickets.html">Buy Tickets ↗</a>
     <button class="nav-toggle" id="nav-toggle" aria-label="Toggle Menu">
       <span></span><span></span><span></span>
