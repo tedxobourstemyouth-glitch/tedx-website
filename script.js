@@ -117,7 +117,7 @@
         setText('#organizers .section-num', '§ 05 / الإدارة');
         setText('.board-mark', 'الفريق القيادي وراء النسخة الثانية');
         setHtml('#organizers .display', '<span class="board-line">مجلس</span><span class="board-line em">الإدارة.</span>');
-        setText('.board-copy', 'ثلاثة قادة يقودون الفصل من أول التخطيط حتى لحظة الضوء.');
+        setText('.board-copy', 'ثلاثة قادة يشكلون النسخة الثانية من أول التخطيط حتى لحظة الضوء.');
         document.querySelectorAll('.role-badge, .role-blank').forEach((node) => {
           if (node.textContent.includes('President')) node.textContent = 'الرئيس';
           if (node.textContent.includes('Vice President')) node.textContent = 'نائب الرئيس';
@@ -167,7 +167,7 @@
         setText('#organizers .section-num', '§ 05 / BOARD');
         setText('.board-mark', 'Leadership team behind the second edition');
         setHtml('#organizers .display', '<span class="board-line">Management</span><span class="board-line em">Board.</span>');
-        setText('.board-copy', 'Three leads holding the standard of the chapter from planning table to spotlight.');
+        setText('.board-copy', 'Three leads shaping the second edition from planning table to spotlight.');
         document.querySelectorAll('.role-badge, .role-blank').forEach((node) => {
           if (node.textContent.includes('الرئيس')) node.textContent = 'President';
           if (node.textContent.includes('نائب الرئيس')) node.textContent = 'Vice President';
