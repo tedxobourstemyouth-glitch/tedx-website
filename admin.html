@@ -1598,6 +1598,19 @@
       return 'Cash';
     }
 
+    function normalizeMoneyChannel(value) {
+      const raw = String(value || '').trim().toLowerCase();
+      if (!raw) return 'Cash';
+      if (raw === 'insta_pay' || raw === 'insta-pay') return 'InstaPay';
+      if (raw === 'vodafone_cash' || raw === 'vodafone-cash') return 'Vodafone Cash';
+      if (raw === 'instapay' || raw.includes('insta')) return 'InstaPay';
+      if (raw === 'vodafone cash' || raw.includes('vodafone') || raw.includes('wallet') || raw.includes('فودافون') || raw.includes('محفظ')) {
+        return 'Vodafone Cash';
+      }
+      if (raw === 'cash' || raw.includes('كاش')) return 'Cash';
+      return 'Cash';
+    }
+
     function normalizeMoneyState(payload) {
       moneyEntries = Array.isArray(payload?.entries) ? payload.entries : [];
       moneyChannelTotals = {
@@ -1609,9 +1622,7 @@
 
     function getChannelTotalsFromEntries() {
       return moneyEntries.reduce((totals, entry) => {
-        const channel = entry?.channel === 'InstaPay' || entry?.channel === 'Vodafone Cash' || entry?.channel === 'Cash'
-          ? entry.channel
-          : 'Cash';
+        const channel = normalizeMoneyChannel(entry?.channel);
         const signedAmount = entry?.type === 'minus' ? -Number(entry.amount || 0) : Number(entry.amount || 0);
         totals[channel] = (totals[channel] || 0) + signedAmount;
         return totals;
@@ -1743,7 +1754,7 @@
           <div class="money-entry-meta">
             <div class="money-entry-title">${entry.note}</div>
             <div class="money-entry-subtitle">${formatMoneyEntryDate(entry.createdAt)}</div>
-            <div class="money-entry-channel">${entry.channel || 'Cash'}</div>
+            <div class="money-entry-channel">${normalizeMoneyChannel(entry.channel)}</div>
           </div>
           <div class="money-entry-amount ${entry.type}">${entry.type === 'minus' ? '-' : '+'}${entry.amount} EGP</div>
           <button class="money-entry-delete" type="button" data-money-delete="${entry.id}">Delete</button>
@@ -1840,7 +1851,8 @@
           row.email || '',
           row.phone || '',
           row.school_name || '',
-          row.governorate || ''
+          row.governorate || '',
+          row.notes || ''
         ].join(' ').toLowerCase();
 
         const matchesSearch = searchable.includes(query);
@@ -1959,6 +1971,7 @@
             <div class="info-item"><span class="info-label">Payment Date</span><span class="info-value">${paymentDateLabel}</span></div>
             <div class="info-item"><span class="info-label">Payment Time</span><span class="info-value">${paymentTimeLabel}</span></div>
             <div class="info-item"><span class="info-label">Payment</span><span class="info-value">${row.payment_method || '-'}${row.wallet_provider ? ` (${row.wallet_provider})` : ''}</span></div>
+            <div class="info-item wide"><span class="info-label">Notes</span><span class="info-value">${row.notes || '-'}</span></div>
           </div>
 
           ${checkinStatus ? `<div class="checkin-banner"><strong>Check-in:</strong> ${checkinStatus}</div>` : ''}
@@ -2020,7 +2033,7 @@
     }
 
     function exportToCSV() {
-      const headers = ['ID', 'Date', 'Status', 'Full Name', 'Email', 'Phone', 'Governorate', 'Quantity', 'School', 'Promo Code', 'Transfer Source', 'Payment Date', 'Payment Time', 'Payment Method', 'Wallet Provider'];
+      const headers = ['ID', 'Date', 'Status', 'Full Name', 'Email', 'Phone', 'Governorate', 'Quantity', 'School', 'Promo Code', 'Transfer Source', 'Payment Date', 'Payment Time', 'Payment Method', 'Wallet Provider', 'Notes'];
       let csvContent = headers.join(',') + '\n';
 
       allData.forEach((row) => {
@@ -2039,7 +2052,8 @@
           `"${row.payment_date || ''}"`,
           `"${row.payment_time || ''}"`,
           `"${row.payment_method || ''}"`,
-          `"${row.wallet_provider || ''}"`
+          `"${row.wallet_provider || ''}"`,
+          `"${row.notes || ''}"`
         ];
         csvContent += rowData.join(',') + '\n';
       });

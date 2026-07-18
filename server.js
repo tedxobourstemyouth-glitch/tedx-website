@@ -60,13 +60,35 @@ function writeMoneyStore(store) {
   fs.writeFileSync(moneyPath, JSON.stringify({ entries }, null, 2));
 }
 
+function normalizeMoneyChannel(value) {
+  const raw = String(value || '').trim();
+  const compact = raw.toLowerCase();
+
+  if (!compact) return 'Cash';
+  if (compact === 'instapay' || compact === 'insta_pay' || compact === 'insta-pay') return 'InstaPay';
+  if (compact === 'vodafone_cash' || compact === 'vodafone-cash') return 'Vodafone Cash';
+  if (compact === 'instapay' || compact.includes('insta')) return 'InstaPay';
+  if (
+    compact === 'vodafone cash' ||
+    compact.includes('vodafone') ||
+    compact.includes('wallet') ||
+    compact.includes('فودافون') ||
+    compact.includes('محفظ')
+  ) {
+    return 'Vodafone Cash';
+  }
+  if (compact === 'cash' || compact.includes('كاش')) return 'Cash';
+
+  return 'Cash';
+}
+
 function normalizeMoneyEntry(entry) {
   return {
     id: String(entry.id || `money_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`),
     note: String(entry.note || 'Money entry').trim() || 'Money entry',
     amount: Math.max(1, Math.round(Number(entry.amount) || 0)),
     type: entry.type === 'minus' ? 'minus' : 'plus',
-    channel: ['InstaPay', 'Vodafone Cash', 'Cash'].includes(entry.channel) ? entry.channel : 'Cash',
+    channel: normalizeMoneyChannel(entry.channel),
     createdAt: entry.createdAt || new Date().toISOString()
   };
 }
@@ -690,7 +712,7 @@ app.post('/api/admin/money', adminAuth, (req, res) => {
     return res.status(400).json({ message: 'Money entry amount must be greater than zero.' });
   }
 
-  const normalizedChannel = ['InstaPay', 'Vodafone Cash', 'Cash'].includes(channel) ? channel : 'Cash';
+  const normalizedChannel = normalizeMoneyChannel(channel);
   const store = readMoneyStore();
   const entry = normalizeMoneyEntry({
     note,

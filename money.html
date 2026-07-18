@@ -459,7 +459,7 @@
       <div class="money-form">
         <label class="field">
           <span class="label">Entry Note</span>
-          <input id="moneyEntryNote" type="text" placeholder="Example: Cash from Omar">
+          <input id="moneyEntryNote" type="text" placeholder="Example: InstaPay from Omar">
         </label>
         <label class="field">
           <span class="label">Amount</span>
@@ -470,7 +470,6 @@
           <select id="moneyEntryChannel">
             <option value="InstaPay">InstaPay</option>
             <option value="Vodafone Cash">Vodafone Cash</option>
-            <option value="Cash">Cash</option>
           </select>
         </label>
         <label class="field">
@@ -539,6 +538,19 @@
       return 'Cash';
     }
 
+    function normalizeMoneyChannel(value) {
+      const raw = String(value || '').trim().toLowerCase();
+      if (!raw) return 'Cash';
+      if (raw === 'insta_pay' || raw === 'insta-pay') return 'InstaPay';
+      if (raw === 'vodafone_cash' || raw === 'vodafone-cash') return 'Vodafone Cash';
+      if (raw === 'instapay' || raw.includes('insta')) return 'InstaPay';
+      if (raw === 'vodafone cash' || raw.includes('vodafone') || raw.includes('wallet') || raw.includes('فودافون') || raw.includes('محفظ')) {
+        return 'Vodafone Cash';
+      }
+      if (raw === 'cash' || raw.includes('كاش')) return 'Cash';
+      return 'Cash';
+    }
+
     function normalizeMoneyState(payload) {
       moneyEntries = Array.isArray(payload?.entries) ? payload.entries : [];
       moneyChannelTotals = {
@@ -550,9 +562,7 @@
 
     function getChannelTotalsFromEntries() {
       return moneyEntries.reduce((totals, entry) => {
-        const channel = entry?.channel === 'InstaPay' || entry?.channel === 'Vodafone Cash' || entry?.channel === 'Cash'
-          ? entry.channel
-          : 'Cash';
+        const channel = normalizeMoneyChannel(entry?.channel);
         const signedAmount = entry?.type === 'minus' ? -Number(entry.amount || 0) : Number(entry.amount || 0);
         totals[channel] = (totals[channel] || 0) + signedAmount;
         return totals;
@@ -674,7 +684,7 @@
           <div class="entry-meta">
             <div class="entry-title">${entry.note}</div>
             <div class="entry-subtitle">${formatMoneyEntryDate(entry.createdAt)}</div>
-            <div class="entry-channel">${entry.channel || 'Cash'}</div>
+            <div class="entry-channel">${normalizeMoneyChannel(entry.channel)}</div>
           </div>
           <div class="entry-amount ${entry.type}">${entry.type === 'minus' ? '-' : '+'}${entry.amount} EGP</div>
           <button class="btn danger-btn" type="button" data-money-delete="${entry.id}">Delete</button>
@@ -743,6 +753,15 @@
       } catch (error) {
         showToast(error.message, 'error');
       }
+    });
+
+    [moneyEntryNote, moneyEntryAmount].forEach((field) => {
+      field.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') {
+          event.preventDefault();
+          addMoneyEntry();
+        }
+      });
     });
 
     moneyEntryList.addEventListener('click', async (event) => {
