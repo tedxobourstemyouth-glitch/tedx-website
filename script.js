@@ -30,6 +30,34 @@
     });
   };
 
+  const setTransferSourceField = (labelText, hintText, placeholderText) => {
+    const field = document.querySelector('.attendee-grid .form-field:nth-child(6)');
+    if (!field) return;
+
+    field.classList.add('transfer-source-field');
+
+    const title = field.querySelector('span');
+    if (title) {
+      title.textContent = labelText;
+    }
+
+    let hint = field.querySelector('.field-hint');
+    if (!hint) {
+      hint = document.createElement('span');
+      hint.className = 'field-hint';
+      if (title) {
+        title.appendChild(hint);
+      } else {
+        const input = field.querySelector('input[name="transfer_source"]');
+        if (input) field.insertBefore(hint, input);
+        else field.appendChild(hint);
+      }
+    }
+
+    hint.textContent = `(${hintText})`;
+    setAttr('[name="transfer_source"]', 'placeholder', placeholderText);
+  };
+
   const getRequiredValidation = (lang) => ({
     full_name: lang === 'ar' ? 'الاسم الكامل مطلوب.' : 'Full Name is required.',
     email: lang === 'ar' ? 'البريد الإلكتروني مطلوب.' : 'Email Address is required.',
@@ -202,8 +230,11 @@
         setAttr('[name="governorate"]', 'placeholder', 'محافظتك');
         setText('.attendee-grid .form-field:nth-child(5) > span', 'اسم المدرسة');
         setAttr('[name="school_name"]', 'placeholder', 'اسم المدرسة');
-        setText('.attendee-grid .form-field:nth-child(6) > span', 'رقم التحويل / رقم الحساب');
-        setAttr('[name="transfer_source"]', 'placeholder', 'الرقم أو الحساب الذي تم الدفع منه');
+        setTransferSourceField(
+          'Payment Sender',
+          'الرقم المستخدم في التحويل',
+          'Number used to send the payment'
+        );
         setText('.pricing-grid .form-field:nth-child(1) > span', 'تاريخ الدفع');
         setText('.pricing-grid .form-field:nth-child(2) > span', 'وقت الدفع');
         setText('.pricing-grid .form-field:nth-child(3) > span', 'برومو كود (اختياري)');
@@ -259,8 +290,11 @@
         setAttr('[name="governorate"]', 'placeholder', 'Your governorate (e.g. Cairo, Giza)');
         setText('.attendee-grid .form-field:nth-child(5) > span', 'School Name');
         setAttr('[name="school_name"]', 'placeholder', 'Your school name');
-        setText('.attendee-grid .form-field:nth-child(6) > span', 'Transfer Phone / Account No.');
-        setAttr('[name="transfer_source"]', 'placeholder', 'The number or account you paid from');
+        setTransferSourceField(
+          'Payment Sender',
+          'الرقم المستخدم في التحويل',
+          'Number used to send the payment'
+        );
         setText('.pricing-grid .form-field:nth-child(1) > span', 'Payment Date');
         setText('.pricing-grid .form-field:nth-child(2) > span', 'Payment Time');
         setText('.pricing-grid .form-field:nth-child(3) > span', 'Promo Code (Optional)');

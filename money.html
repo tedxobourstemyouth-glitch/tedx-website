@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TEDx Obour STEM Youth - Money Control</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --panel: #111114;
+      --panel-2: #17171b;
+      --rule: rgba(246, 242, 234, 0.11);
+      --bone: #f6f2ea;
+      --bone-soft: #ece5d8;
+      --bone-dim: rgba(246, 242, 234, 0.64);
+      --red: #e62b1e;
+      --green: #2ab56f;
+      --amber: #d7a93b;
+      --shadow: 0 28px 80px -44px rgba(0, 0, 0, 0.92);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.12), rgba(230, 43, 30, 0) 24%),
+        linear-gradient(180deg, #0c0c0f, #070709);
+      color: var(--bone);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      padding: 28px;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 18% 16%, rgba(230, 43, 30, 0.08), rgba(230, 43, 30, 0) 24%),
+        radial-gradient(circle at 86% 84%, rgba(230, 43, 30, 0.06), rgba(230, 43, 30, 0) 24%);
+      opacity: 0.9;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      width: min(1120px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 22px;
+    }
+
+    .hero,
+    .summary-grid > article,
+    .money-shell,
+    .history-list article {
+      border: 1px solid var(--rule);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.016)),
+        rgba(13, 13, 16, 0.92);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      border-radius: 30px;
+      padding: 26px 28px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .eyebrow,
+    .label {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .hero h1 {
+      margin: 10px 0 12px;
+      font-size: clamp(38px, 6vw, 62px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .hero p {
+      margin: 0;
+      max-width: 56ch;
+      color: var(--bone-dim);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .btn,
+    .ghost-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: 1px solid var(--rule);
+      text-decoration: none;
+      color: var(--bone);
+      background: rgba(255,255,255,0.04);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .btn:hover,
+    .ghost-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      border-color: rgba(230, 43, 30, 0.32);
+      background: linear-gradient(180deg, rgba(230, 43, 30, 0.24), rgba(230, 43, 30, 0.12));
+      color: #ffd3ce;
+    }
+
+    .danger-btn {
+      border-color: rgba(230, 43, 30, 0.25);
+      background: rgba(230, 43, 30, 0.08);
+      color: #ffc4be;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: 1.25fr repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .summary-grid > article {
+      border-radius: 24px;
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .summary-grid > article::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 18px;
+      right: 18px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(230, 43, 30, 0.9), rgba(230, 43, 30, 0.06));
+    }
+
+    .total-card strong {
+      display: block;
+      margin-top: 12px;
+      font-size: clamp(36px, 5vw, 52px);
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+    }
+
+    .total-card p,
+    .summary-grid small {
+      margin: 10px 0 0;
+      color: var(--bone-dim);
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    .channel-card strong {
+      display: block;
+      margin-top: 14px;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+    }
+
+    .money-shell {
+      border-radius: 30px;
+      padding: 24px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .balance-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 15px;
+      border-radius: 999px;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.035);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 6px rgba(42, 181, 111, 0.12);
+    }
+
+    .dot.warn {
+      background: var(--amber);
+      box-shadow: 0 0 0 6px rgba(215, 169, 59, 0.14);
+    }
+
+    .money-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(120px, 150px) minmax(180px, 200px) minmax(140px, 160px) auto;
+      gap: 12px;
+      align-items: end;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      min-height: 54px;
+      border-radius: 18px;
+      border: 1px solid var(--rule);
+      background: rgba(255,255,255,0.035);
+      color: var(--bone);
+      padding: 0 16px;
+      font: inherit;
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: rgba(230, 43, 30, 0.34);
+      box-shadow: 0 0 0 4px rgba(230, 43, 30, 0.08);
+      background: rgba(255,255,255,0.05);
+    }
+
+    .save-btn {
+      min-height: 54px;
+      padding: 0 22px;
+    }
+
+    .history-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .history-list article {
+      border-radius: 22px;
+      padding: 18px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .entry-meta {
+      min-width: 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .entry-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--bone-soft);
+      overflow-wrap: anywhere;
+    }
+
+    .entry-subtitle {
+      color: var(--bone-dim);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .entry-channel {
+      display: inline-flex;
+      width: fit-content;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(246, 242, 234, 0.12);
+      background: rgba(255,255,255,0.03);
+      color: var(--bone-soft);
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .entry-amount {
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 16px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .entry-amount.plus { color: #9de2b0; }
+    .entry-amount.minus { color: #ffb2aa; }
+
+    .empty {
+      padding: 24px;
+      border: 1px dashed var(--rule);
+      border-radius: 22px;
+      color: var(--bone-dim);
+      text-align: center;
+      background: rgba(255,255,255,0.02);
+    }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 24px;
+      transform: translateX(-50%) translateY(18px);
+      padding: 12px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--rule);
+      background: rgba(12, 12, 15, 0.96);
+      color: var(--bone);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.2s ease;
+      z-index: 60;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    @media (max-width: 980px) {
+      .summary-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .total-card {
+        grid-column: 1 / -1;
+      }
+
+      .money-form {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .money-form .field:first-child,
+      .save-btn {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 16px; }
+
+      .hero,
+      .money-shell {
+        padding: 20px 16px;
+        border-radius: 24px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-actions {
+        justify-content: stretch;
+      }
+
+      .hero-actions > * {
+        width: 100%;
+      }
+
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .money-form {
+        grid-template-columns: 1fr;
+      }
+
+      .history-list article {
+        grid-template-columns: 1fr;
+      }
+
+      .entry-amount,
+      .history-list .danger-btn {
+        justify-self: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Money Control</div>
+        <h1>Collected Money</h1>
+        <p>Track every received amount, manage deductions, and keep InstaPay and Vodafone Cash totals organized in one place.</p>
+      </div>
+      <div class="hero-actions">
+        <a class="ghost-btn" href="admin.html">Back To Dashboard</a>
+        <button class="btn danger-btn" id="clearMoneyEntriesBtn" type="button">Clear History</button>
+      </div>
+    </section>
+
+    <section class="summary-grid">
+      <article class="total-card">
+        <div class="label">Current Total</div>
+        <strong><span id="moneyManagerTotal">0</span> EGP</strong>
+        <p id="moneyManagerHint">Track every added or deducted amount from here.</p>
+      </article>
+      <article class="channel-card">
+        <div class="label">InstaPay</div>
+        <strong id="moneyChannelInstapay">0 EGP</strong>
+        <small>All InstaPay entries</small>
+      </article>
+      <article class="channel-card">
+        <div class="label">Vodafone Cash</div>
+        <strong id="moneyChannelVodafone">0 EGP</strong>
+        <small>All wallet cash entries</small>
+      </article>
+    </section>
+
+    <section class="money-shell">
+      <div class="status-row">
+        <div class="balance-badge">
+          <span class="dot" id="moneyBalanceDot"></span>
+          <span id="moneyBalanceLabel">Healthy balance</span>
+        </div>
+      </div>
+
+      <div class="money-form">
+        <label class="field">
+          <span class="label">Entry Note</span>
+          <input id="moneyEntryNote" type="text" placeholder="Example: Cash from Omar">
+        </label>
+        <label class="field">
+          <span class="label">Amount</span>
+          <input id="moneyEntryAmount" type="number" min="1" step="1" placeholder="250">
+        </label>
+        <label class="field">
+          <span class="label">Channel</span>
+          <select id="moneyEntryChannel">
+            <option value="InstaPay">InstaPay</option>
+            <option value="Vodafone Cash">Vodafone Cash</option>
+            <option value="Cash">Cash</option>
+          </select>
+        </label>
+        <label class="field">
+          <span class="label">Action</span>
+          <select id="moneyEntryType">
+            <option value="plus">Add</option>
+            <option value="minus">Subtract</option>
+          </select>
+        </label>
+        <button class="btn btn-primary save-btn" id="addMoneyEntryBtn" type="button">Save Entry</button>
+      </div>
+
+      <div class="history-list" id="moneyEntryList"></div>
+    </section>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    let moneyEntries = [];
+    let moneyChannelTotals = { InstaPay: 0, 'Vodafone Cash': 0, Cash: 0 };
+    const legacyMoneyEntriesStorageKey = 'tedx_money_entries';
+
+    const moneyEntryNote = document.getElementById('moneyEntryNote');
+    const moneyEntryAmount = document.getElementById('moneyEntryAmount');
+    const moneyEntryChannel = document.getElementById('moneyEntryChannel');
+    const moneyEntryType = document.getElementById('moneyEntryType');
+    const addMoneyEntryButton = document.getElementById('addMoneyEntryBtn');
+    const moneyEntryList = document.getElementById('moneyEntryList');
+    const moneyManagerTotal = document.getElementById('moneyManagerTotal');
+    const moneyBalanceDot = document.getElementById('moneyBalanceDot');
+    const moneyBalanceLabel = document.getElementById('moneyBalanceLabel');
+    const moneyManagerHint = document.getElementById('moneyManagerHint');
+    const moneyChannelInstapay = document.getElementById('moneyChannelInstapay');
+    const moneyChannelVodafone = document.getElementById('moneyChannelVodafone');
+    const clearMoneyEntriesButton = document.getElementById('clearMoneyEntriesBtn');
+    const toast = document.getElementById('toast');
+
+    function showToast(message, type = 'success') {
+      toast.textContent = message;
+      toast.className = `toast ${type} show`;
+      window.clearTimeout(showToast.timeoutId);
+      showToast.timeoutId = window.setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3200);
+    }
+
+    function formatMoneyEntryDate(value) {
+      const parsed = new Date(value);
+      if (Number.isNaN(parsed.getTime())) return value;
+      return parsed.toLocaleString('en-GB', {
+        timeZone: 'Africa/Cairo',
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+    }
+
+    function inferLegacyChannel(entry) {
+      const combined = `${entry.note || ''} ${entry.channel || ''}`.toLowerCase();
+      if (combined.includes('insta')) return 'InstaPay';
+      if (combined.includes('vodafone') || combined.includes('wallet')) return 'Vodafone Cash';
+      return 'Cash';
+    }
+
+    function normalizeMoneyState(payload) {
+      moneyEntries = Array.isArray(payload?.entries) ? payload.entries : [];
+      moneyChannelTotals = {
+        InstaPay: Number(payload?.channelTotals?.InstaPay || 0),
+        'Vodafone Cash': Number(payload?.channelTotals?.['Vodafone Cash'] || 0),
+        Cash: Number(payload?.channelTotals?.Cash || 0)
+      };
+    }
+
+    function getChannelTotalsFromEntries() {
+      return moneyEntries.reduce((totals, entry) => {
+        const channel = entry?.channel === 'InstaPay' || entry?.channel === 'Vodafone Cash' || entry?.channel === 'Cash'
+          ? entry.channel
+          : 'Cash';
+        const signedAmount = entry?.type === 'minus' ? -Number(entry.amount || 0) : Number(entry.amount || 0);
+        totals[channel] = (totals[channel] || 0) + signedAmount;
+        return totals;
+      }, { InstaPay: 0, 'Vodafone Cash': 0, Cash: 0 });
+    }
+
+    async function parseJson(response) {
+      const text = await response.text();
+      try {
+        return text ? JSON.parse(text) : {};
+      } catch (error) {
+        return { message: text || 'Unexpected server response.' };
+      }
+    }
+
+    async function fetchMoneyState() {
+      const response = await fetch('/api/admin/money');
+      const data = await parseJson(response);
+      if (!response.ok) throw new Error(data.message || 'Failed to load money data.');
+      normalizeMoneyState(data);
+    }
+
+    async function createMoneyEntry(payload) {
+      const response = await fetch('/api/admin/money', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await parseJson(response);
+      if (!response.ok) throw new Error(data.message || 'Failed to save money entry.');
+      normalizeMoneyState(data);
+    }
+
+    async function deleteMoneyEntry(id) {
+      const response = await fetch(`/api/admin/money/${id}`, { method: 'DELETE' });
+      const data = await parseJson(response);
+      if (!response.ok) throw new Error(data.message || 'Failed to delete money entry.');
+      normalizeMoneyState(data);
+    }
+
+    async function clearMoneyEntriesRequest() {
+      const response = await fetch('/api/admin/money/clear', { method: 'POST' });
+      const data = await parseJson(response);
+      if (!response.ok) throw new Error(data.message || 'Failed to clear money history.');
+      normalizeMoneyState(data);
+    }
+
+    async function migrateLegacyMoneyEntriesIfNeeded() {
+      const raw = window.localStorage.getItem(legacyMoneyEntriesStorageKey);
+      if (!raw || moneyEntries.length) return;
+
+      let legacyEntries = [];
+      try {
+        const parsed = JSON.parse(raw);
+        legacyEntries = Array.isArray(parsed) ? parsed : [];
+      } catch (error) {
+        legacyEntries = [];
+      }
+
+      const normalizedLegacyEntries = legacyEntries
+        .filter((entry) => entry && Number.isFinite(Number(entry.amount)) && Number(entry.amount) > 0)
+        .map((entry) => ({
+          note: String(entry.note || 'Money entry'),
+          amount: Math.round(Number(entry.amount)),
+          type: entry.type === 'minus' ? 'minus' : 'plus',
+          channel: inferLegacyChannel(entry)
+        }));
+
+      if (!normalizedLegacyEntries.length) {
+        window.localStorage.removeItem(legacyMoneyEntriesStorageKey);
+        return;
+      }
+
+      for (const legacyEntry of normalizedLegacyEntries) {
+        await createMoneyEntry(legacyEntry);
+      }
+
+      window.localStorage.removeItem(legacyMoneyEntriesStorageKey);
+    }
+
+    function getMoneyTotal() {
+      return moneyEntries.reduce((sum, entry) => sum + (entry.type === 'minus' ? -entry.amount : entry.amount), 0);
+    }
+
+    function updateMoneySummary() {
+      const total = getMoneyTotal();
+      const liveChannelTotals = getChannelTotalsFromEntries();
+      const hasPositiveEntry = moneyEntries.some((entry) => entry.type !== 'minus');
+      moneyChannelTotals = liveChannelTotals;
+      moneyManagerTotal.textContent = total;
+      moneyChannelInstapay.textContent = `${liveChannelTotals.InstaPay || 0} EGP`;
+      moneyChannelVodafone.textContent = `${liveChannelTotals['Vodafone Cash'] || 0} EGP`;
+      if (total < 0) {
+        moneyBalanceDot.classList.add('warn');
+        moneyBalanceLabel.textContent = 'Needs review';
+        moneyManagerHint.textContent = hasPositiveEntry
+          ? 'Current deductions are larger than added amounts.'
+          : 'Old test deductions were detected. Clear history and start fresh.';
+      } else {
+        moneyBalanceDot.classList.remove('warn');
+        moneyBalanceLabel.textContent = 'Healthy balance';
+        moneyManagerHint.textContent = 'Track every added or deducted amount from here.';
+      }
+    }
+
+    function renderMoneyEntries() {
+      moneyEntryList.innerHTML = '';
+
+      if (!moneyEntries.length) {
+        moneyEntryList.innerHTML = '<div class="empty">No money entries added yet.</div>';
+        updateMoneySummary();
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      moneyEntries.slice().reverse().forEach((entry) => {
+        const item = document.createElement('article');
+        item.innerHTML = `
+          <div class="entry-meta">
+            <div class="entry-title">${entry.note}</div>
+            <div class="entry-subtitle">${formatMoneyEntryDate(entry.createdAt)}</div>
+            <div class="entry-channel">${entry.channel || 'Cash'}</div>
+          </div>
+          <div class="entry-amount ${entry.type}">${entry.type === 'minus' ? '-' : '+'}${entry.amount} EGP</div>
+          <button class="btn danger-btn" type="button" data-money-delete="${entry.id}">Delete</button>
+        `;
+        fragment.appendChild(item);
+      });
+
+      moneyEntryList.appendChild(fragment);
+      updateMoneySummary();
+    }
+
+    function resetMoneyEntryForm() {
+      moneyEntryNote.value = '';
+      moneyEntryAmount.value = '';
+      moneyEntryChannel.value = 'InstaPay';
+      moneyEntryType.value = 'plus';
+    }
+
+    async function loadMoneyEntries() {
+      await fetchMoneyState();
+      await migrateLegacyMoneyEntriesIfNeeded();
+      renderMoneyEntries();
+    }
+
+    async function addMoneyEntry() {
+      const note = moneyEntryNote.value.trim();
+      const amount = Number(moneyEntryAmount.value);
+      const channel = moneyEntryChannel.value;
+      const type = moneyEntryType.value === 'minus' ? 'minus' : 'plus';
+
+      if (!note) {
+        showToast('Write a note first.', 'error');
+        moneyEntryNote.focus();
+        return;
+      }
+
+      if (!Number.isFinite(amount) || amount <= 0) {
+        showToast('Enter a valid amount.', 'error');
+        moneyEntryAmount.focus();
+        return;
+      }
+
+      try {
+        await createMoneyEntry({ note, amount: Math.round(amount), type, channel });
+        renderMoneyEntries();
+        resetMoneyEntryForm();
+        showToast('Money entry saved.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    }
+
+    addMoneyEntryButton.addEventListener('click', addMoneyEntry);
+    clearMoneyEntriesButton.addEventListener('click', async () => {
+      if (!moneyEntries.length) {
+        showToast('Money history is already empty.');
+        return;
+      }
+
+      if (!confirm('Clear all money entries? This will remove the shared money history for everyone using the dashboard.')) return;
+
+      try {
+        await clearMoneyEntriesRequest();
+        renderMoneyEntries();
+        showToast('Money history cleared.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    });
+
+    moneyEntryList.addEventListener('click', async (event) => {
+      const deleteButton = event.target.closest('[data-money-delete]');
+      if (!deleteButton) return;
+
+      try {
+        await deleteMoneyEntry(deleteButton.dataset.moneyDelete);
+        renderMoneyEntries();
+        showToast('Money entry deleted.');
+      } catch (error) {
+        showToast(error.message, 'error');
+      }
+    });
+
+    loadMoneyEntries().catch((error) => {
+      showToast(error.message || 'Failed to load money data.', 'error');
+    });
+  </script>
+</body>
+</html>

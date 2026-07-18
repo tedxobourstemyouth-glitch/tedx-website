@@ -24,6 +24,7 @@ app.use('/uploads', express.static(path.join(__dirname, '.data', 'uploads')));
 app.use(express.static(__dirname));
 
 const dbPath = path.join(__dirname, '.data', 'database.json');
+const moneyPath = path.join(__dirname, '.data', 'money.json');
 
 function readDatabase() {
   try {
@@ -38,6 +39,56 @@ function readDatabase() {
 
 function writeDatabase(data) {
   fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+}
+
+function readMoneyStore() {
+  try {
+    if (!fs.existsSync(moneyPath)) return { entries: [] };
+    const raw = fs.readFileSync(moneyPath, 'utf8');
+    if (!raw.trim()) return { entries: [] };
+    const parsed = JSON.parse(raw);
+    const entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+    return { entries };
+  } catch (error) {
+    console.error('Issue detected in money store file, a new clean file has been created.');
+    return { entries: [] };
+  }
+}
+
+function writeMoneyStore(store) {
+  const entries = Array.isArray(store?.entries) ? store.entries : [];
+  fs.writeFileSync(moneyPath, JSON.stringify({ entries }, null, 2));
+}
+
+function normalizeMoneyEntry(entry) {
+  return {
+    id: String(entry.id || `money_${Date.now()}_${Math.random().toString(16).slice(2, 8)}`),
+    note: String(entry.note || 'Money entry').trim() || 'Money entry',
+    amount: Math.max(1, Math.round(Number(entry.amount) || 0)),
+    type: entry.type === 'minus' ? 'minus' : 'plus',
+    channel: ['InstaPay', 'Vodafone Cash', 'Cash'].includes(entry.channel) ? entry.channel : 'Cash',
+    createdAt: entry.createdAt || new Date().toISOString()
+  };
+}
+
+function getMoneySummary() {
+  const store = readMoneyStore();
+  const entries = store.entries
+    .map(normalizeMoneyEntry)
+    .filter((entry) => Number.isFinite(entry.amount) && entry.amount > 0);
+  const total = entries.reduce((sum, entry) => sum + (entry.type === 'minus' ? -entry.amount : entry.amount), 0);
+  const channelTotals = {
+    InstaPay: 0,
+    'Vodafone Cash': 0,
+    Cash: 0
+  };
+
+  entries.forEach((entry) => {
+    if (channelTotals[entry.channel] === undefined) channelTotals[entry.channel] = 0;
+    channelTotals[entry.channel] += entry.type === 'minus' ? -entry.amount : entry.amount;
+  });
+
+  return { entries, total, channelTotals };
 }
 
 function deleteUploadedFile(fileName) {
@@ -622,6 +673,56 @@ app.post('/api/admin/reject/:id', adminAuth, async (req, res) => {
 
 app.get('/admin', adminAuth, (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/api/admin/data', adminAuth, (req, res) => res.json(readDatabase()));
+app.get('/api/admin/money', adminAuth, (req, res) => {
+  res.json(getMoneySummary());
+});
+app.post('/api/admin/money', adminAuth, (req, res) => {
+  const note = String(req.body?.note || '').trim();
+  const amount = Number(req.body?.amount);
+  const type = req.body?.type === 'minus' ? 'minus' : 'plus';
+  const channel = String(req.body?.channel || '').trim();
+
+  if (!note) {
+    return res.status(400).json({ message: 'Money entry note is required.' });
+  }
+
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return res.status(400).json({ message: 'Money entry amount must be greater than zero.' });
+  }
+
+  const normalizedChannel = ['InstaPay', 'Vodafone Cash', 'Cash'].includes(channel) ? channel : 'Cash';
+  const store = readMoneyStore();
+  const entry = normalizeMoneyEntry({
+    note,
+    amount,
+    type,
+    channel: normalizedChannel,
+    createdAt: new Date().toISOString()
+  });
+
+  store.entries.push(entry);
+  writeMoneyStore(store);
+
+  const summary = getMoneySummary();
+  res.json({ message: 'Money entry saved.', entry, ...summary });
+});
+app.delete('/api/admin/money/:id', adminAuth, (req, res) => {
+  const entryId = String(req.params.id || '').trim();
+  const store = readMoneyStore();
+  const nextEntries = store.entries.filter((entry) => String(entry.id) !== entryId);
+
+  if (nextEntries.length === store.entries.length) {
+    return res.status(404).json({ message: 'Money entry not found.' });
+  }
+
+  writeMoneyStore({ entries: nextEntries });
+  const summary = getMoneySummary();
+  res.json({ message: 'Money entry deleted.', ...summary });
+});
+app.post('/api/admin/money/clear', adminAuth, (req, res) => {
+  writeMoneyStore({ entries: [] });
+  res.json({ message: 'Money history cleared.', entries: [], total: 0 });
+});
 app.get('/api/admin/export', adminAuth, (req, res) => {
   res.setHeader('Content-Type', 'application/json');
   res.setHeader('Content-Disposition', `attachment; filename="tedx_responses_${Date.now()}.json"`);
