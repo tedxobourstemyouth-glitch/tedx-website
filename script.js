@@ -104,7 +104,8 @@
         setText('.nav-links .nav-link:nth-child(1)', 'عن الفعالية');
         setText('.nav-links .nav-link:nth-child(2)', 'الثيم');
         setText('.nav-links .nav-link:nth-child(3)', 'المتحدثون');
-        setText('.nav-links .nav-link:nth-child(4)', 'الفريق');
+        setText('.nav-links .nav-link:nth-child(4)', 'الشركاء');
+        setText('.nav-links .nav-link:nth-child(5)', 'الفريق');
         setHtml('.nav-cta', 'احجز التذاكر <span class="arr">↗</span>');
         setHtml('.hero-eyebrow', '<span class="dot"></span> النسخة الثانية · <span>السادس من أكتوبر</span>');
         setHtml('.hero-copy h1', 'غيّر<br><span class="em">زاويتك.</span><br><span class="stroke">واكشف</span><br>المجهول.');
@@ -120,6 +121,9 @@
         setText('#about .body', 'الفعالية تُبنى بالكامل بأيدي الطلاب: من اختيار الأفكار، والإنتاج، وتجهيز المتحدثين، والهوية البصرية، وحتى تجربة الحضور داخل القاعة.');
         setText('#about .stat:nth-child(1) .lab', 'منظم طلابي');
         setText('#about .stat:nth-child(2) .lab', 'مقعد في القاعة');
+        setText('#agenda .eyebrow', 'أجندة اليوم');
+        setText('#agenda h3', 'أجندة اليوم.');
+        setText('.agenda-tease-text', 'يوم كامل من الأحاديث والطاقة واللحظات التي تستحق الانتظار.');
         setText('#theme .section-num', '§ 02 / الثيم');
         setText('#theme .eyebrow', 'ثيم هذا العام · النسخة الثانية');
         setHtml('.theme-main-copy .desc', 'فعالية عن المنظور كأداة. الفكرة المركزية: <em>مكان وقوفك يحدد ما تراه</em>، والتحرك بوعي يكشف حقائق كانت مخفية. كل حديث يطرح سؤالًا أساسيًا: ماذا يتغير عندما تغيّر موضعك؟');
@@ -136,13 +140,17 @@
         setText('.speaker-section-copy', 'الأصوات التي تشكّل هذه النسخة.');
         setText('.speaker-stage-word', 'قائمة المتحدثين');
         document.querySelectorAll('.speaker .field').forEach((node) => { node.textContent = 'متحدث'; });
+        setText('#partners .section-num', '§ 04 / الشركاء');
+        setText('#partners .eyebrow', 'الرعاة والشركاء');
+        setHtml('#partners .display', 'بدعم من<br><span class="em">شركائنا.</span>');
+        setText('.partners-copy', 'الجهات والعلامات الداعمة لهذه النسخة.');
         setText('.m-question', 'ما الحقيقة التي لا تراها؟');
         setAttr('.m-question', 'data-text', 'ما الحقيقة التي لا تراها؟');
         setText('.m-answer', 'تلك التي ترفض أن تتحرك نحوها.');
-        setText('.why .section-num', '§ 04 / لماذا تحضر');
+        setText('.why .section-num', '§ 05 / لماذا تحضر');
         setText('.why .eyebrow', 'لماذا يجب أن تكون في القاعة');
         setHtml('.why .display', 'أربع أسباب<br>و<span class="em">شعور واحد</span>.');
-        setText('#organizers .section-num', '§ 05 / الإدارة');
+        setText('#organizers .section-num', '§ 06 / الإدارة');
         setText('.board-mark', 'الفريق القيادي وراء النسخة الثانية');
         setHtml('#organizers .display', '<span class="board-line">مجلس</span><span class="board-line em">الإدارة.</span>');
         setText('.board-copy', 'ثلاثة قادة يشكلون النسخة الثانية من أول التخطيط حتى لحظة الضوء.');
@@ -154,7 +162,8 @@
         setText('.nav-links .nav-link:nth-child(1)', 'About');
         setText('.nav-links .nav-link:nth-child(2)', 'Theme');
         setText('.nav-links .nav-link:nth-child(3)', 'Speakers');
-        setText('.nav-links .nav-link:nth-child(4)', 'Team');
+        setText('.nav-links .nav-link:nth-child(4)', 'Partners');
+        setText('.nav-links .nav-link:nth-child(5)', 'Team');
         setHtml('.nav-cta', 'Buy Tickets <span class="arr">↗</span>');
         setHtml('.hero-eyebrow', '<span class="dot"></span> Edition 02 · <span>6th of October</span>');
         setHtml('.hero-copy h1', 'Shift your<br><span class="em">perspective.</span><br><span class="stroke">Reveal the</span><br>Unseen.');
@@ -170,6 +179,9 @@
         setText('#about .body', 'The event is shaped by students from the first idea to the final cue: curation, production, speaker preparation, visual identity, and the experience inside the room.');
         setText('#about .stat:nth-child(1) .lab', 'Student Organizers');
         setText('#about .stat:nth-child(2) .lab', 'Seats In The Room');
+        setText('#agenda .eyebrow', "Today's Agenda");
+        setText('#agenda h3', "Today's agenda.");
+        setText('.agenda-tease-text', 'A full day of talks, energy, and moments worth waiting for.');
         setText('#theme .section-num', '§ 02 / THEME');
         setText('#theme .eyebrow', "This Year's Theme · Edition 02");
         setHtml('.theme-main-copy .desc', 'An event about perspective as a tool. The central argument: <em>where you stand determines what you see</em>, and moving deliberately reveals truths that were invisible before. Every talk asks one fundamental question: what changes when you shift position?');
@@ -186,13 +198,17 @@
         setText('.speaker-section-copy', 'The voices behind this edition.');
         setText('.speaker-stage-word', 'Live Lineup');
         document.querySelectorAll('.speaker .field').forEach((node) => { node.textContent = 'Speaker'; });
+        setText('#partners .section-num', '§ 04 / PARTNERS');
+        setText('#partners .eyebrow', 'Sponsors & Partners');
+        setHtml('#partners .display', 'Backed by<br><span class="em">the room.</span>');
+        setText('.partners-copy', 'The brands and communities supporting this edition.');
         setText('.m-question', 'WHAT TRUTH ARE YOU MISSING?');
         setAttr('.m-question', 'data-text', 'WHAT TRUTH ARE YOU MISSING?');
         setText('.m-answer', 'THE ONE YOU REFUSE TO WALK TOWARD.');
-        setText('.why .section-num', '§ 04 / WHY');
+        setText('.why .section-num', '§ 05 / WHY');
         setText('.why .eyebrow', 'Why Be In The Room');
         setHtml('.why .display', 'Four reasons<br>and <span class="em">one feeling</span>.');
-        setText('#organizers .section-num', '§ 05 / BOARD');
+        setText('#organizers .section-num', '§ 06 / BOARD');
         setText('.board-mark', 'Leadership team behind the second edition');
         setHtml('#organizers .display', '<span class="board-line">Management</span><span class="board-line em">Board.</span>');
         setText('.board-copy', 'Three leads shaping the second edition from planning table to spotlight.');
@@ -208,7 +224,8 @@
         setText('.nav-links .nav-link:nth-child(1)', 'عن الفعالية');
         setText('.nav-links .nav-link:nth-child(2)', 'الثيم');
         setText('.nav-links .nav-link:nth-child(3)', 'المتحدثون');
-        setText('.nav-links .nav-link:nth-child(4)', 'الفريق');
+        setText('.nav-links .nav-link:nth-child(4)', 'الشركاء');
+        setText('.nav-links .nav-link:nth-child(5)', 'الفريق');
         setHtml('.nav-cta', 'العودة للرئيسية <span class="arr">↗</span>');
         setText('.ticket-copy .eyebrow', 'التذاكر');
         setHtml('.ticket-title', 'أكمل<br><span class="em">طلب التذكرة.</span>');
@@ -268,7 +285,8 @@
         setText('.nav-links .nav-link:nth-child(1)', 'About');
         setText('.nav-links .nav-link:nth-child(2)', 'Theme');
         setText('.nav-links .nav-link:nth-child(3)', 'Speakers');
-        setText('.nav-links .nav-link:nth-child(4)', 'Team');
+        setText('.nav-links .nav-link:nth-child(4)', 'Partners');
+        setText('.nav-links .nav-link:nth-child(5)', 'Team');
         setHtml('.nav-cta', 'Back Home <span class="arr">↗</span>');
         setText('.ticket-copy .eyebrow', 'Ticketing');
         setHtml('.ticket-title', 'Complete your<br><span class="em">ticket request.</span>');
@@ -552,7 +570,7 @@
         : hasValidPromo
           ? 'Promo Regular'
           : 'Regular';
-      const pricePerTicket = isGoldPromo ? 250 : hasValidPromo ? 300 : 350;
+      const pricePerTicket = isGoldPromo ? 150 : hasValidPromo ? 200 : 350;
       const totalPrice = quantity * pricePerTicket;
       const pricingText = `${pricePerTicket} EGP each • ${totalPrice} EGP total`;
       const requiredFilled = Object.keys(getActiveRequiredValidation()).every((fieldName) => {

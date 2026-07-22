@@ -361,7 +361,21 @@
       gap: 10px;
     }
 
+    .promo-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .money-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+    }
+
+    .promo-btn svg {
       width: 18px;
       height: 18px;
       stroke: currentColor;
@@ -762,6 +776,27 @@
     }
 
     .settings-panel.open { transform: translateX(0); }
+    .promo-panel {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(460px, 100%);
+      height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.1), rgba(230, 43, 30, 0) 28%),
+        linear-gradient(180deg, rgba(20, 20, 22, 0.98), rgba(10, 10, 11, 0.985));
+      border-left: 1px solid var(--rule);
+      padding: 28px 24px;
+      display: grid;
+      grid-template-rows: auto auto auto 1fr;
+      gap: 18px;
+      transform: translateX(100%);
+      transition: 0.25s ease;
+      z-index: 40;
+      box-shadow: -24px 0 54px -34px rgba(0,0,0,0.94);
+    }
+
+    .promo-panel.open { transform: translateX(0); }
     .settings-head {
       display: flex;
       justify-content: space-between;
@@ -818,6 +853,95 @@
     }
 
     .settings-action.danger strong { color: #ffb2ab; }
+
+    .promo-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .promo-summary-card {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid var(--rule);
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.07), rgba(230, 43, 30, 0) 42%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+
+    .promo-summary-card strong {
+      display: block;
+      margin-top: 10px;
+      font-size: 28px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--bone);
+    }
+
+    .promo-list {
+      display: grid;
+      align-content: start;
+      gap: 12px;
+      overflow: auto;
+      padding-right: 4px;
+    }
+
+    .promo-item,
+    .promo-empty {
+      padding: 18px;
+      border-radius: 20px;
+      border: 1px solid var(--rule);
+      background:
+        radial-gradient(circle at top right, rgba(230, 43, 30, 0.05), rgba(230, 43, 30, 0) 42%),
+        linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.015));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
+    }
+
+    .promo-empty {
+      color: var(--bone-dim);
+      text-align: center;
+      border-style: dashed;
+      background: rgba(255,255,255,0.015);
+    }
+
+    .promo-item-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .promo-code-name {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 15px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--bone-soft);
+      overflow-wrap: anywhere;
+    }
+
+    .promo-code-count {
+      min-width: 54px;
+      text-align: center;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(230, 43, 30, 0.24);
+      background: rgba(230, 43, 30, 0.1);
+      color: #ffd3ce;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .promo-item-foot {
+      margin-top: 10px;
+      color: var(--bone-dim);
+      font-size: 13px;
+      line-height: 1.6;
+    }
 
     .money-manager-overlay {
       position: fixed;
@@ -1267,9 +1391,23 @@
       .ticket-card,
       .stat-card { border-radius: 20px; }
       .dashboard-header { padding: 22px; }
-      .header-actions { width: 100%; justify-content: stretch; }
-      .header-actions .btn { flex: 1; }
-      .header-actions .icon-btn { width: 52px; }
+      .header-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        align-items: stretch;
+      }
+      .header-actions .btn {
+        width: 100%;
+        min-width: 0;
+        padding: 0 14px;
+        font-size: 13px;
+      }
+      .header-actions .icon-btn {
+        width: 100%;
+        min-height: 48px;
+      }
       .toolbar { flex-direction: column; }
       .search-shell { min-width: 0; }
       .stats-row { grid-template-columns: 1fr; }
@@ -1289,7 +1427,9 @@
       .modal-actions .btn { width: 100%; }
       .money-manager {
         width: 100%;
-        padding: 22px 16px;
+        height: 100dvh;
+        padding: 22px 16px 28px;
+        overflow-y: auto;
       }
       .money-manager-head {
         flex-direction: column;
@@ -1297,10 +1437,37 @@
         gap: 14px;
       }
       .money-manager-head h2 { font-size: 28px; }
-      .money-manager-copy {
+      .promo-panel,
+      .settings-panel {
+        width: 100%;
+        height: 100dvh;
+        padding: 22px 16px 28px;
+        overflow-y: auto;
+      }
+      .settings-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+      }
+      .settings-head h2 {
+        font-size: 28px;
+      }
+      .money-manager-copy,
+      .settings-copy {
         max-width: none;
         font-size: 13px;
         line-height: 1.65;
+      }
+      .promo-summary-grid {
+        grid-template-columns: 1fr;
+      }
+      .promo-list {
+        gap: 10px;
+      }
+      .promo-item,
+      .promo-summary-card,
+      .settings-action {
+        border-radius: 18px;
       }
       .money-manager-tools {
         flex-direction: column;
@@ -1353,7 +1520,11 @@
         <button class="btn btn-primary" id="downloadCsvBtn" type="button">Download CSV</button>
         <button class="btn money-btn" id="moneyManagerToggle" type="button">
           <svg viewBox="0 0 24 24"><path d="M12 5v14"></path><path d="M5 12h14"></path></svg>
-          Money Control
+          Collected Money
+        </button>
+        <button class="btn promo-btn" id="promoSummaryToggle" type="button">
+          <svg viewBox="0 0 24 24"><path d="M4 7h16"></path><path d="M7 12h10"></path><path d="M9 17h6"></path></svg>
+          Promo Tracking
         </button>
         <button class="icon-btn" id="settingsToggle" type="button" aria-label="Open dashboard settings">
           <svg viewBox="0 0 24 24"><path d="M12 3v3"></path><path d="M12 18v3"></path><path d="M3 12h3"></path><path d="M18 12h3"></path><path d="m5.64 5.64 2.12 2.12"></path><path d="m16.24 16.24 2.12 2.12"></path><path d="m18.36 5.64-2.12 2.12"></path><path d="m7.76 16.24-2.12 2.12"></path><circle cx="12" cy="12" r="3.5"></circle></svg>
@@ -1478,6 +1649,29 @@
     </div>
     <div class="money-entry-list" id="moneyEntryList"></div>
   </aside>
+  <aside class="promo-panel" id="promoPanel" aria-hidden="true">
+    <div class="settings-head">
+      <div>
+        <div class="eyebrow">Promo Summary</div>
+        <h2>Promo Codes</h2>
+      </div>
+      <button class="icon-btn" id="closePromoPanel" type="button" aria-label="Close promo summary">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12"></path><path d="M18 6 6 18"></path></svg>
+      </button>
+    </div>
+    <p class="settings-copy">See which promo codes are repeated most across submitted requests.</p>
+    <div class="promo-summary-grid">
+      <div class="promo-summary-card">
+        <div class="stat-label">Codes Used</div>
+        <strong id="promoCodesUsed">0</strong>
+      </div>
+      <div class="promo-summary-card">
+        <div class="stat-label">Unique Codes</div>
+        <strong id="promoCodesUnique">0</strong>
+      </div>
+    </div>
+    <div class="promo-list" id="promoList"></div>
+  </aside>
   <aside class="settings-panel" id="settingsPanel" aria-hidden="true">
     <div class="settings-head">
       <div>
@@ -1533,15 +1727,22 @@
     let searchTimer = null;
     let isLoadingData = false;
     let moneyEntries = [];
+    let promoSummary = [];
     let moneyChannelTotals = { InstaPay: 0, 'Vodafone Cash': 0, Cash: 0 };
     const legacyMoneyEntriesStorageKey = 'tedx_money_entries';
 
     const dataGrid = document.getElementById('data-grid');
     const searchInput = document.getElementById('searchInput');
     const moneyManagerToggle = document.getElementById('moneyManagerToggle');
+    const promoSummaryToggle = document.getElementById('promoSummaryToggle');
     const moneyManagerPanel = document.getElementById('moneyManagerPanel');
     const moneyManagerOverlay = document.getElementById('moneyManagerOverlay');
     const closeMoneyManagerButton = document.getElementById('closeMoneyManager');
+    const promoPanel = document.getElementById('promoPanel');
+    const closePromoPanelButton = document.getElementById('closePromoPanel');
+    const promoCodesUsed = document.getElementById('promoCodesUsed');
+    const promoCodesUnique = document.getElementById('promoCodesUnique');
+    const promoList = document.getElementById('promoList');
     const moneyEntryNote = document.getElementById('moneyEntryNote');
     const moneyEntryAmount = document.getElementById('moneyEntryAmount');
     const moneyEntryChannel = document.getElementById('moneyEntryChannel');
@@ -1712,6 +1913,59 @@
       }, 0);
     }
 
+    function buildPromoSummary() {
+      const counts = new Map();
+
+      allData.forEach((row) => {
+        const rawCode = String(row?.promo_code || '').trim();
+        if (!rawCode || rawCode === '-') return;
+        const normalizedKey = rawCode.toUpperCase();
+        const current = counts.get(normalizedKey);
+        if (current) {
+          current.count += 1;
+          return;
+        }
+        counts.set(normalizedKey, {
+          code: rawCode,
+          count: 1
+        });
+      });
+
+      promoSummary = Array.from(counts.values()).sort((a, b) => {
+        if (b.count !== a.count) return b.count - a.count;
+        return a.code.localeCompare(b.code);
+      });
+    }
+
+    function renderPromoSummary() {
+      buildPromoSummary();
+      const totalUses = promoSummary.reduce((sum, item) => sum + item.count, 0);
+      promoCodesUsed.textContent = totalUses;
+      promoCodesUnique.textContent = promoSummary.length;
+      promoList.innerHTML = '';
+
+      if (!promoSummary.length) {
+        promoList.innerHTML = '<div class="promo-empty">No promo codes have been used yet.</div>';
+        return;
+      }
+
+      const fragment = document.createDocumentFragment();
+      promoSummary.forEach((item) => {
+        const entry = document.createElement('article');
+        entry.className = 'promo-item';
+        entry.innerHTML = `
+          <div class="promo-item-head">
+            <div class="promo-code-name">${item.code}</div>
+            <div class="promo-code-count">${item.count}x</div>
+          </div>
+          <div class="promo-item-foot">Used ${item.count} ${item.count === 1 ? 'time' : 'times'} in ticket requests.</div>
+        `;
+        fragment.appendChild(entry);
+      });
+
+      promoList.appendChild(fragment);
+    }
+
     function updateMoneySummary() {
       const total = getMoneyTotal();
       const liveChannelTotals = getChannelTotalsFromEntries();
@@ -1789,6 +2043,20 @@
       moneyManagerOverlay.classList.remove('show');
     }
 
+    function openPromoPanel() {
+      renderPromoSummary();
+      closeSettings();
+      promoPanel.classList.add('open');
+      promoPanel.setAttribute('aria-hidden', 'false');
+      settingsOverlay.classList.add('show');
+    }
+
+    function closePromoPanel() {
+      promoPanel.classList.remove('open');
+      promoPanel.setAttribute('aria-hidden', 'true');
+      settingsOverlay.classList.remove('show');
+    }
+
     async function addMoneyEntry() {
       const note = moneyEntryNote.value.trim();
       const amount = Number(moneyEntryAmount.value);
@@ -1841,6 +2109,7 @@
       document.getElementById('statApproved').textContent = counts.approved;
       document.getElementById('statTickets').textContent = counts.tickets;
       document.getElementById('statRejected').textContent = counts.rejected;
+      renderPromoSummary();
     }
 
     function getFilteredData() {
@@ -2150,6 +2419,7 @@
     }
 
     function openSettings() {
+      closePromoPanel();
       settingsPanel.classList.add('open');
       settingsPanel.setAttribute('aria-hidden', 'false');
       settingsOverlay.classList.add('show');
@@ -2203,11 +2473,16 @@
 
     document.getElementById('downloadCsvBtn').addEventListener('click', exportToCSV);
     moneyManagerToggle.addEventListener('click', openMoneyManager);
+    promoSummaryToggle.addEventListener('click', openPromoPanel);
     closeMoneyManagerButton.addEventListener('click', closeMoneyManager);
     moneyManagerOverlay.addEventListener('click', closeMoneyManager);
     document.getElementById('settingsToggle').addEventListener('click', openSettings);
     document.getElementById('closeSettings').addEventListener('click', closeSettings);
-    settingsOverlay.addEventListener('click', closeSettings);
+    closePromoPanelButton.addEventListener('click', closePromoPanel);
+    settingsOverlay.addEventListener('click', () => {
+      closeSettings();
+      closePromoPanel();
+    });
     addMoneyEntryButton.addEventListener('click', addMoneyEntry);
     clearMoneyEntriesButton.addEventListener('click', async () => {
       if (!moneyEntries.length) {
@@ -2333,6 +2608,8 @@
     document.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') {
         closeMoneyManager();
+        closePromoPanel();
+        closeSettings();
       }
     });
 
