@@ -113,15 +113,16 @@
 
       const urlParams = new URLSearchParams(window.location.search);
       const ticketId = urlParams.get('id');
+      const accessToken = urlParams.get('token');
       const statusMsg = document.getElementById('status-message');
 
-      if (!ticketId) {
-        statusMsg.innerText = '[ Error: No Ticket ID Provided ]';
+      if (!ticketId || !accessToken) {
+        statusMsg.innerText = '[ Secure ticket link is incomplete ]';
         return;
       }
 
       try {
-        const res = await fetch(`/api/ticket/${ticketId}`);
+        const res = await fetch(`/api/ticket/${ticketId}?token=${encodeURIComponent(accessToken)}`);
         const data = await res.json();
 
         if (!res.ok) throw new Error(data.message || 'Ticket not found.');
@@ -147,7 +148,7 @@
           statusMsg.style.color = 'var(--red)';
         };
         
-        ticketImg.src = `/api/ticket/render/${ticketId}`;
+        ticketImg.src = `/api/ticket/render/${ticketId}?token=${encodeURIComponent(accessToken)}`;
 
         const downloadBtn = document.getElementById('download-btn');
 
@@ -157,7 +158,7 @@
           
           try {
             // Use Fetch -> Blob to force mobile browsers to download instead of opening a new tab
-            const imgResp = await fetch(`/api/ticket/render/${ticketId}`);
+            const imgResp = await fetch(`/api/ticket/render/${ticketId}?token=${encodeURIComponent(accessToken)}`);
             const imgBlob = await imgResp.blob();
             const url = window.URL.createObjectURL(imgBlob);
             

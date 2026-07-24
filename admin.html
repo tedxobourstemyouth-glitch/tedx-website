@@ -856,7 +856,7 @@
 
     .promo-summary-grid {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 12px;
     }
 
@@ -941,6 +941,92 @@
       color: var(--bone-dim);
       font-size: 13px;
       line-height: 1.6;
+    }
+
+    .promo-item-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .promo-stat {
+      padding: 12px 13px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(255,255,255,0.022);
+    }
+
+    .promo-stat-label {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--bone-dim);
+    }
+
+    .promo-stat-value {
+      display: block;
+      margin-top: 8px;
+      font-size: 22px;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      color: var(--bone);
+      font-weight: 700;
+    }
+
+    .promo-item-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .promo-filter-btn {
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(230, 43, 30, 0.22);
+      background: rgba(230, 43, 30, 0.08);
+      color: #ffd4cf;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .promo-filter-btn:hover {
+      background: rgba(230, 43, 30, 0.15);
+      border-color: rgba(230, 43, 30, 0.34);
+    }
+
+    .promo-id-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .promo-id-chip {
+      min-height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(246, 242, 234, 0.12);
+      background: rgba(255,255,255,0.03);
+      color: var(--bone);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .promo-id-chip:hover {
+      border-color: rgba(230, 43, 30, 0.3);
+      background: rgba(230, 43, 30, 0.1);
+      color: #ffe4e0;
     }
 
     .money-manager-overlay {
@@ -1469,6 +1555,9 @@
       .settings-action {
         border-radius: 18px;
       }
+      .promo-item-stats {
+        grid-template-columns: 1fr 1fr;
+      }
       .money-manager-tools {
         flex-direction: column;
         align-items: stretch;
@@ -1659,7 +1748,7 @@
         <svg viewBox="0 0 24 24"><path d="M6 6l12 12"></path><path d="M18 6 6 18"></path></svg>
       </button>
     </div>
-    <p class="settings-copy">See which promo codes are repeated most across submitted requests.</p>
+    <p class="settings-copy">Track each promo code clearly, see how many requests and tickets it generated, and jump to matching request IDs fast.</p>
     <div class="promo-summary-grid">
       <div class="promo-summary-card">
         <div class="stat-label">Codes Used</div>
@@ -1668,6 +1757,10 @@
       <div class="promo-summary-card">
         <div class="stat-label">Unique Codes</div>
         <strong id="promoCodesUnique">0</strong>
+      </div>
+      <div class="promo-summary-card">
+        <div class="stat-label">Promo Tickets</div>
+        <strong id="promoTicketsTotal">0</strong>
       </div>
     </div>
     <div class="promo-list" id="promoList"></div>
@@ -1742,6 +1835,7 @@
     const closePromoPanelButton = document.getElementById('closePromoPanel');
     const promoCodesUsed = document.getElementById('promoCodesUsed');
     const promoCodesUnique = document.getElementById('promoCodesUnique');
+    const promoTicketsTotal = document.getElementById('promoTicketsTotal');
     const promoList = document.getElementById('promoList');
     const moneyEntryNote = document.getElementById('moneyEntryNote');
     const moneyEntryAmount = document.getElementById('moneyEntryAmount');
@@ -1920,19 +2014,25 @@
         const rawCode = String(row?.promo_code || '').trim();
         if (!rawCode || rawCode === '-') return;
         const normalizedKey = rawCode.toUpperCase();
+        const quantity = parseInt(row?.quantity, 10) || 1;
         const current = counts.get(normalizedKey);
         if (current) {
           current.count += 1;
+          current.ticketCount += quantity;
+          current.ids.push(row.id);
           return;
         }
         counts.set(normalizedKey, {
           code: rawCode,
-          count: 1
+          count: 1,
+          ticketCount: quantity,
+          ids: [row.id]
         });
       });
 
       promoSummary = Array.from(counts.values()).sort((a, b) => {
         if (b.count !== a.count) return b.count - a.count;
+        if (b.ticketCount !== a.ticketCount) return b.ticketCount - a.ticketCount;
         return a.code.localeCompare(b.code);
       });
     }
@@ -1940,8 +2040,10 @@
     function renderPromoSummary() {
       buildPromoSummary();
       const totalUses = promoSummary.reduce((sum, item) => sum + item.count, 0);
+      const totalTickets = promoSummary.reduce((sum, item) => sum + item.ticketCount, 0);
       promoCodesUsed.textContent = totalUses;
       promoCodesUnique.textContent = promoSummary.length;
+      promoTicketsTotal.textContent = totalTickets;
       promoList.innerHTML = '';
 
       if (!promoSummary.length) {
@@ -1953,12 +2055,29 @@
       promoSummary.forEach((item) => {
         const entry = document.createElement('article');
         entry.className = 'promo-item';
+        const uniqueIds = Array.from(new Set(item.ids)).sort((a, b) => a - b);
         entry.innerHTML = `
           <div class="promo-item-head">
             <div class="promo-code-name">${item.code}</div>
             <div class="promo-code-count">${item.count}x</div>
           </div>
-          <div class="promo-item-foot">Used ${item.count} ${item.count === 1 ? 'time' : 'times'} in ticket requests.</div>
+          <div class="promo-item-foot">Used ${item.count} ${item.count === 1 ? 'time' : 'times'} across submitted requests.</div>
+          <div class="promo-item-stats">
+            <div class="promo-stat">
+              <span class="promo-stat-label">Requests</span>
+              <span class="promo-stat-value">${item.count}</span>
+            </div>
+            <div class="promo-stat">
+              <span class="promo-stat-label">Tickets</span>
+              <span class="promo-stat-value">${item.ticketCount}</span>
+            </div>
+          </div>
+          <div class="promo-item-actions">
+            <button class="promo-filter-btn" type="button" data-promo-filter="${item.code}">Show Matching Requests</button>
+          </div>
+          <div class="promo-id-list">
+            ${uniqueIds.map((id) => `<button class="promo-id-chip" type="button" data-ticket-jump="${id}">ID ${id}</button>`).join('')}
+          </div>
         `;
         fragment.appendChild(entry);
       });
@@ -2116,12 +2235,15 @@
       const query = searchInput.value.trim().toLowerCase();
       return allData.filter((row) => {
         const searchable = [
+          String(row.id || ''),
           row.full_name || '',
           row.email || '',
           row.phone || '',
           row.school_name || '',
           row.governorate || '',
-          row.notes || ''
+          row.notes || '',
+          row.promo_code || '',
+          String(row.quantity || '')
         ].join(' ').toLowerCase();
 
         const matchesSearch = searchable.includes(query);
@@ -2170,6 +2292,41 @@
       }).replace(',', ' ·');
     }
 
+    function applyDashboardSearch(value) {
+      searchInput.value = value;
+      renderGrid();
+    }
+
+    function focusTicketRequest(id) {
+      currentFilter = 'all';
+      document.querySelectorAll('.filter-btn').forEach((button) => {
+        button.classList.toggle('active', button.dataset.filter === 'all');
+      });
+      applyDashboardSearch(String(id));
+      closePromoPanel();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.requestAnimationFrame(() => {
+        const card = document.querySelector(`[data-ticket-id="${id}"]`);
+        if (card) {
+          card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          card.style.boxShadow = '0 0 0 1px rgba(230, 43, 30, 0.55), 0 0 0 12px rgba(230, 43, 30, 0.08)';
+          window.setTimeout(() => {
+            card.style.boxShadow = '';
+          }, 1600);
+        }
+      });
+    }
+
+    function filterByPromoCode(code) {
+      currentFilter = 'all';
+      document.querySelectorAll('.filter-btn').forEach((button) => {
+        button.classList.toggle('active', button.dataset.filter === 'all');
+      });
+      applyDashboardSearch(String(code || ''));
+      closePromoPanel();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     function renderGrid() {
       const filteredData = getFilteredData();
       dataGrid.innerHTML = '';
@@ -2183,6 +2340,7 @@
       filteredData.forEach((row) => {
         const card = document.createElement('article');
         card.className = 'ticket-card';
+        card.setAttribute('data-ticket-id', row.id);
 
         const status = row.status || 'pending';
         const quantity = parseInt(row.quantity, 10) || 1;
@@ -2510,6 +2668,19 @@
         currentFilter = button.dataset.filter;
         renderGrid();
       });
+    });
+
+    promoList.addEventListener('click', (event) => {
+      const promoFilterButton = event.target.closest('[data-promo-filter]');
+      const jumpButton = event.target.closest('[data-ticket-jump]');
+
+      if (promoFilterButton) {
+        filterByPromoCode(promoFilterButton.dataset.promoFilter);
+      }
+
+      if (jumpButton) {
+        focusTicketRequest(Number(jumpButton.dataset.ticketJump));
+      }
     });
 
     dataGrid.addEventListener('click', (event) => {

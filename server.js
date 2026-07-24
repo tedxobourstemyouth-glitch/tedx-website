@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
 const QRCode = require('qrcode');
 const JimpRaw = require('jimp');
 const Jimp = JimpRaw.Jimp || JimpRaw.default || JimpRaw;
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -14,14 +15,62 @@ const PORT = process.env.PORT || 3001;
 const HOST = process.env.HOST || '0.0.0.0';
 const BASE_URL = (process.env.BASE_URL || `http://localhost:${PORT}`).replace(/\/$/, '');
 
+function getBasicAuthParts(req) {
+  const authHeader = req.headers.authorization || '';
+  if (!authHeader.startsWith('Basic ')) return null;
+
+  try {
+    return Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+  } catch (error) {
+    return null;
+  }
+}
+
+function isAuthorizedAdmin(req) {
+  const auth = getBasicAuthParts(req);
+  return Boolean(
+    auth &&
+    auth[0] === process.env.ADMIN_USER &&
+    auth[1] === process.env.ADMIN_PASS
+  );
+}
+
+function challengeAdmin(res) {
+  res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
+  return res.status(401).send('Authentication required.');
+}
+
+function createAccessToken() {
+  return crypto.randomBytes(24).toString('hex');
+}
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const dataDir = path.join(__dirname, '.data');
 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-app.use('/uploads', express.static(path.join(__dirname, '.data', 'uploads')));
-app.use(express.static(__dirname));
+app.use((req, res, next) => {
+  const requestPath = decodeURIComponent(req.path || '/');
+  const normalized = requestPath.toLowerCase();
+  const blockedExact = new Set([
+    '/database.json',
+    '/server.js',
+    '/package.json',
+    '/package-lock.json'
+  ]);
+  const blockedPrefixes = ['/.data', '/data', '/node_modules', '/app', '/tedx_scan_app', '/.git', '/.codex', '/.agents'];
+
+  if (blockedExact.has(normalized) || blockedPrefixes.some((prefix) => normalized === prefix || normalized.startsWith(`${prefix}/`))) {
+    return res.status(404).send('Not found');
+  }
+
+  next();
+});
+app.use('/uploads', (req, res, next) => {
+  if (isAuthorizedAdmin(req)) return next();
+  return challengeAdmin(res);
+}, express.static(path.join(__dirname, '.data', 'uploads')));
 
 const dbPath = path.join(__dirname, '.data', 'database.json');
 const moneyPath = path.join(__dirname, '.data', 'money.json');
@@ -39,6 +88,27 @@ function readDatabase() {
 
 function writeDatabase(data) {
   fs.writeFileSync(dbPath, JSON.stringify(data, null, 2));
+}
+
+function ensureTicketAccessToken(ticket) {
+  if (!ticket.ticket_access_token) {
+    ticket.ticket_access_token = createAccessToken();
+  }
+  return ticket.ticket_access_token;
+}
+
+function migrateTicketAccessTokens() {
+  const db = readDatabase();
+  let changed = false;
+
+  db.forEach((ticket) => {
+    if (!ticket.ticket_access_token) {
+      ticket.ticket_access_token = createAccessToken();
+      changed = true;
+    }
+  });
+
+  if (changed) writeDatabase(db);
 }
 
 function readMoneyStore() {
@@ -300,23 +370,14 @@ function validateSubmission(formData, file) {
 }
 
 const adminAuth = (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
-    return res.status(401).send('Authentication required.');
-  }
-
-  const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-  if (auth[0] === process.env.ADMIN_USER && auth[1] === process.env.ADMIN_PASS) {
-    return next();
-  }
-
-  res.setHeader('WWW-Authenticate', 'Basic realm="Admin Area"');
-  return res.status(401).send('Access Denied');
+  if (isAuthorizedAdmin(req)) return next();
+  return challengeAdmin(res);
 };
 
 app.use('/admin.html', adminAuth);
 app.use('/checkin.html', adminAuth);
+app.use('/money.html', adminAuth);
+app.use(express.static(__dirname, { dotfiles: 'deny' }));
 
 const storage = multer.diskStorage({
   destination(req, file, cb) {
@@ -394,6 +455,7 @@ app.post('/submit', (req, res, next) => {
     const db = readDatabase();
     const newEntry = {
       id: getNextTicketId(db),
+      ticket_access_token: createAccessToken(),
       created_at: Date.now(),
       date: new Date().toLocaleString('en-US', {
         timeZone: 'Africa/Cairo',
@@ -530,6 +592,7 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
     }
 
     const attachments = [];
+    const ticketAccessToken = ensureTicketAccessToken(ticket);
 
     if (quantity > 1) {
       for (let i = 1; i <= quantity; i++) {
@@ -595,7 +658,7 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
             <p style="color: #333333; font-size: 16px;">${ticketSummaryText}</p>
             ${ticketListMarkup}
             <div style="margin-top: 30px;">
-              <a href="${BASE_URL}/ticket-view.html?id=${ticket.id}" class="btn">View & Download Ticket Online</a>
+              <a href="${BASE_URL}/ticket-view.html?id=${ticket.id}&token=${ticketAccessToken}" class="btn">View & Download Ticket Online</a>
             </div>
             <p style="color: #777777; font-size: 13px; margin-top: 20px;">* Please use the attached ticket files at the venue entrance.</p>
           </div>
@@ -611,7 +674,7 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
       `Congratulations ${ticket.full_name}!`,
       'Your ticket request is approved.',
       ticketSummaryText,
-      `View online: ${BASE_URL}/ticket-view.html?id=${ticket.id}`,
+      `View online: ${BASE_URL}/ticket-view.html?id=${ticket.id}&token=${ticketAccessToken}`,
       '',
       'Attached files:',
       ...attachments.map((attachment) => `- ${attachment.filename}`)
@@ -783,10 +846,14 @@ app.post('/api/admin/clear-old', adminAuth, (req, res) => {
 
 app.get('/api/ticket/:id', (req, res) => {
   const reqId = parseInt(req.params.id, 10);
+  const accessToken = String(req.query.token || '').trim();
+  if (!accessToken) return res.status(403).json({ message: 'Secure ticket token is required' });
+
   const db = readDatabase();
   const ticket = db.find((t) => t.id === reqId);
   if (!ticket) return res.status(404).json({ message: 'Ticket not found' });
   if (ticket.status !== 'approved') return res.status(403).json({ message: 'Ticket is still pending approval' });
+  if (ticket.ticket_access_token !== accessToken) return res.status(403).json({ message: 'Invalid ticket access token' });
 
   res.json({ id: ticket.id, full_name: ticket.full_name, qr_data: `TEDx-Request-${ticket.id}` });
 });
@@ -794,9 +861,13 @@ app.get('/api/ticket/:id', (req, res) => {
 app.get('/api/ticket/render/:id', async (req, res) => {
   try {
     const reqId = parseInt(req.params.id, 10);
+    const accessToken = String(req.query.token || '').trim();
+    if (!accessToken) return res.status(403).send('Secure ticket token is required');
+
     const db = readDatabase();
     const ticket = db.find((t) => t.id === reqId);
     if (!ticket || ticket.status !== 'approved') return res.status(404).send('Ticket not available');
+    if (ticket.ticket_access_token !== accessToken) return res.status(403).send('Invalid ticket access token');
 
     let templatePath = path.join(__dirname, 'template Event Ticket.jpg');
     if (!fs.existsSync(templatePath)) templatePath = path.join(__dirname, 'Event Ticket.jpg');
@@ -990,6 +1061,8 @@ app.post('/api/admin/checkin/:id', adminAuth, (req, res) => {
 
   res.json({ message: 'Check-in successful!', ticket: updatedTicket });
 });
+
+migrateTicketAccessTokens();
 
 app.listen(PORT, HOST, () => {
   console.log(`
