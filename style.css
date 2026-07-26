@@ -2573,97 +2573,58 @@
   .success-content {
     animation: popInSuccess 0.6s cubic-bezier(0.3, 1.2, 0.6, 1) 0.3s forwards;
     opacity: 0; transform: scale(0.9);
-    max-width: 500px; padding: 20px;
+    width:min(100%, 480px);
+    padding: 34px 24px 24px;
+    border:1px solid var(--rule);
+    border-radius:28px;
+    background:
+      radial-gradient(circle at top, rgba(237, 35, 31, .14), transparent 45%),
+      linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+    box-shadow: 0 28px 90px rgba(0,0,0,.45);
   }
   @keyframes popInSuccess { to { opacity: 1; transform: scale(1); } }
 
   .success-logo {
     font-family: var(--sans); font-weight: 700; font-size: 48px; line-height: 1; letter-spacing: -0.02em; color: var(--bone);
     animation: preloaderPulse 2s ease-in-out infinite alternate;
-    margin-bottom: 30px;
+    margin-bottom: 18px;
   }
   .success-logo .ted { color: var(--red); }
   .success-logo .x { color: var(--red); font-size: 0.55em; vertical-align: super; line-height: 0; margin-left: 1px; font-style: normal; }
 
   .success-animation {
     width: 80px; height: 80px;
-    margin: 0 auto 30px;
+    margin: 0 auto 18px;
   }
 
   .success-title {
     font-family: var(--serif); font-size: 36px; line-height: 1.1; font-weight: 400;
-    color: var(--bone); margin-bottom: 12px;
+    color: var(--bone); margin-bottom: 10px;
   }
   .success-title-main,
   .success-title-sub{
     display:block;
   }
   .success-title-sub{
-    margin-top:8px;
-    font-size:.76em;
+    margin-top:10px;
+    font-size:.58em;
     color:var(--red);
     font-family:var(--sans);
     font-weight:600;
-    letter-spacing:.01em;
+    letter-spacing:.06em;
+    text-transform:uppercase;
   }
   .success-message {
-    color: var(--bone-dim); line-height: 1.7; margin-bottom: 20px;
-    display:grid;
-    gap:8px;
-  }
-  .success-message-line{display:block;}
-  .success-steps{
-    display:grid;
-    gap:10px;
-    margin:0 auto 24px;
-    max-width:420px;
-    text-align:left;
-  }
-  .success-step{
-    padding:12px 14px;
-    border:1px solid var(--rule);
-    background:rgba(255,255,255,.03);
-    color:var(--bone-dim);
-    line-height:1.7;
-    font-size:14px;
-  }
-  .success-step span{
-    color:var(--red);
-    font-family:var(--mono);
-    font-size:10px;
-    letter-spacing:.16em;
-    text-transform:uppercase;
-    margin-right:10px;
-  }
-  .success-group-step{
-    display:grid;
-    grid-template-columns:auto 1fr;
-    gap:12px;
-    align-items:flex-start;
-  }
-  .success-group-step > div{
+    color: var(--bone-dim); line-height: 1.7; margin-bottom: 18px;
     display:grid;
     gap:6px;
-  }
-  .success-group-title{
-    display:block;
-    color:var(--bone);
     font-size:15px;
-    font-weight:600;
   }
-  .success-group-copy{
-    margin:0;
-    color:var(--bone-dim);
-    line-height:1.7;
-  }
+  .success-message-line{display:block;}
   .success-group-link{
     width:100%;
     justify-content:center;
-    margin:0 0 18px;
-  }
-  .success-footer {
-    font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
-    color: var(--red); margin-bottom: 28px; line-height:1.8;
+    margin:0 0 12px;
   }
   .fullscreen-success .btn-ghost { width: 100%; }
 
