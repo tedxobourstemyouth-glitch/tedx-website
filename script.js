@@ -361,16 +361,14 @@
   const preloader = document.getElementById('preloader');
   if (preloader) {
     window.addEventListener('load', () => {
-      setTimeout(() => {
-        preloader.classList.add('hidden');
-        document.body.classList.add('is-ready');
-      }, 180);
+      preloader.classList.add('hidden');
+      document.body.classList.add('is-ready');
     });
       // Fallback: Hide preloader quickly if network is slow
       setTimeout(() => {
         preloader.classList.add('hidden');
         document.body.classList.add('is-ready');
-      }, 1200);
+      }, 500);
   }
 
   // --- Reveal on scroll animations ---
