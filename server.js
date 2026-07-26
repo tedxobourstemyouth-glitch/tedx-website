@@ -680,6 +680,9 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
       ...attachments.map((attachment) => `- ${attachment.filename}`)
     ].join('\n');
 
+    let emailDeliveryFailed = false;
+    let emailFailureMessage = '';
+
     try {
       await sendMailStrict(buildMailOptions({
         to: ticket.email,
@@ -691,11 +694,27 @@ app.post('/api/admin/approve/:id', adminAuth, async (req, res) => {
       console.log(`${quantity} ticket(s) successfully sent to:`, ticket.email);
     } catch (emailErr) {
       console.log('Failed to send email:', emailErr.message);
-      return res.status(500).json({ message: 'Failed to send email, please check the password.' });
+      emailDeliveryFailed = true;
+      emailFailureMessage = emailErr.message || 'Email delivery failed.';
     }
 
     db[ticketIndex].status = 'approved';
+    db[ticketIndex].email_delivery_failed = emailDeliveryFailed;
+    db[ticketIndex].email_failure_message = emailDeliveryFailed ? emailFailureMessage : null;
+    db[ticketIndex].approved_at = new Date().toLocaleString('en-US', {
+      timeZone: 'Africa/Cairo',
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
     writeDatabase(db);
+
+    if (emailDeliveryFailed) {
+      return res.json({
+        warning: true,
+        message: `Ticket approved and ${quantity} QR(s) generated, but email delivery failed. ${emailFailureMessage}`
+      });
+    }
+
     res.json({ message: `Ticket approved, ${quantity} QR(s) generated, and email sent successfully!` });
   } catch (error) {
     console.error('Error during approval:', error);
