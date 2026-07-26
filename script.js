@@ -277,10 +277,13 @@
         setText('.ticket-info-card:nth-child(1) .eyebrow', 'قبل الإرسال');
         setText('.ticket-info-card:nth-child(2) .eyebrow', 'تحتاج مساعدة؟');
         setText('.ticket-help', 'تواصل مع الفريق مباشرة.');
-        setText('.success-title', 'شكرًا لتسجيلك.');
-        setText('.success-message', 'تم استلام طلبك. ستبدأ مراجعة الدفع خلال وقت قصير.');
-        setText('.success-footer', 'نتطلع لرؤيتك في TEDx Obour STEM Youth.');
-        setText('#new-request-button-fullscreen', 'إرسال طلب جديد');
+        setHtml('.success-title', '<span class="success-title-main">Thank you for registering.</span><span class="success-title-sub">شكرًا لتسجيلك.</span>');
+        setHtml('.success-message', '<span class="success-message-line">Your request has been received. Payment review will start shortly.</span><span class="success-message-line">تم استلام طلبك، وستبدأ مراجعة الدفع خلال وقت قصير.</span>');
+        setText('.success-group-title', 'You must join the attendee group. | لازم تدخل جروب الحضور');
+        setHtml('.success-group-copy', 'Please join the official WhatsApp group now to receive updates and event instructions.<br>يرجى الانضمام إلى جروب واتساب الرسمي الآن لمتابعة كل التحديثات والتعليمات الخاصة بالفعالية.');
+        setHtml('#success-group-link', 'Join WhatsApp Group / ادخل جروب واتساب <span class="arr">↗</span>');
+        setHtml('.success-footer', 'We look forward to seeing you at TEDx Obour STEM Youth. · نتطلع لرؤيتك في TEDx Obour STEM Youth.');
+        setText('#new-request-button-fullscreen', 'Submit Another Request / إرسال طلب جديد');
       } else {
         setText('.nav-links .nav-link:nth-child(1)', 'About');
         setText('.nav-links .nav-link:nth-child(2)', 'Theme');
@@ -338,10 +341,13 @@
         setText('.ticket-info-card:nth-child(1) .eyebrow', 'Before You Submit');
         setText('.ticket-info-card:nth-child(2) .eyebrow', 'Need Help?');
         setText('.ticket-help', 'Contact the chapter directly.');
-        setText('.success-title', 'Thank you for registering.');
-        setText('.success-message', 'Your request has been received. Payment review will start shortly.');
-        setText('.success-footer', 'We look forward to seeing you at TEDx Obour STEM Youth.');
-        setText('#new-request-button-fullscreen', 'Submit Another Request');
+        setHtml('.success-title', '<span class="success-title-main">Thank you for registering.</span><span class="success-title-sub">شكرًا لتسجيلك.</span>');
+        setHtml('.success-message', '<span class="success-message-line">Your request has been received. Payment review will start shortly.</span><span class="success-message-line">تم استلام طلبك، وستبدأ مراجعة الدفع خلال وقت قصير.</span>');
+        setText('.success-group-title', 'You must join the attendee group. | لازم تدخل جروب الحضور');
+        setHtml('.success-group-copy', 'Please join the official WhatsApp group now to receive updates and event instructions.<br>يرجى الانضمام إلى جروب واتساب الرسمي الآن لمتابعة كل التحديثات والتعليمات الخاصة بالفعالية.');
+        setHtml('#success-group-link', 'Join WhatsApp Group / ادخل جروب واتساب <span class="arr">↗</span>');
+        setHtml('.success-footer', 'We look forward to seeing you at TEDx Obour STEM Youth. · نتطلع لرؤيتك في TEDx Obour STEM Youth.');
+        setText('#new-request-button-fullscreen', 'Submit Another Request / إرسال طلب جديد');
       }
     }
   };

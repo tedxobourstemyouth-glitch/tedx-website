@@ -2594,9 +2594,24 @@
     font-family: var(--serif); font-size: 36px; line-height: 1.1; font-weight: 400;
     color: var(--bone); margin-bottom: 12px;
   }
+  .success-title-main,
+  .success-title-sub{
+    display:block;
+  }
+  .success-title-sub{
+    margin-top:8px;
+    font-size:.76em;
+    color:var(--red);
+    font-family:var(--sans);
+    font-weight:600;
+    letter-spacing:.01em;
+  }
   .success-message {
     color: var(--bone-dim); line-height: 1.7; margin-bottom: 20px;
+    display:grid;
+    gap:8px;
   }
+  .success-message-line{display:block;}
   .success-steps{
     display:grid;
     gap:10px;
@@ -2620,9 +2635,35 @@
     text-transform:uppercase;
     margin-right:10px;
   }
+  .success-group-step{
+    display:grid;
+    grid-template-columns:auto 1fr;
+    gap:12px;
+    align-items:flex-start;
+  }
+  .success-group-step > div{
+    display:grid;
+    gap:6px;
+  }
+  .success-group-title{
+    display:block;
+    color:var(--bone);
+    font-size:15px;
+    font-weight:600;
+  }
+  .success-group-copy{
+    margin:0;
+    color:var(--bone-dim);
+    line-height:1.7;
+  }
+  .success-group-link{
+    width:100%;
+    justify-content:center;
+    margin:0 0 18px;
+  }
   .success-footer {
-    font-family: var(--mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
-    color: var(--red); margin-bottom: 40px;
+    font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--red); margin-bottom: 28px; line-height:1.8;
   }
   .fullscreen-success .btn-ghost { width: 100%; }
 
