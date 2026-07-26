@@ -239,7 +239,7 @@ function getPricingDetails(promoCode, quantityValue) {
   const quantity = normalizeQuantity(quantityValue, 1);
   const hasValidPromo = isApprovedPromoCode(promoCode);
   const isGroupPromo = hasValidPromo && quantity >= 5;
-  const pricePerTicket = isGroupPromo ? 150 : hasValidPromo ? 200 : 350;
+  const pricePerTicket = 10;
 
   return {
     quantity,
@@ -247,7 +247,7 @@ function getPricingDetails(promoCode, quantityValue) {
     isGroupPromo,
     pricePerTicket,
     totalPrice: quantity * pricePerTicket,
-    track: isGroupPromo ? 'TEDX Gold' : hasValidPromo ? 'Promo Regular' : 'Regular'
+    track: 'Limited Offer'
   };
 }
 

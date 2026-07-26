@@ -571,12 +571,8 @@
       const promoCode = normalizePromoCode(promoCodeField?.value || '');
       const hasValidPromo = isApprovedPromoCode(promoCode);
       const isGoldPromo = hasValidPromo && quantity >= 5;
-      const track = isGoldPromo
-        ? 'TEDX Gold'
-        : hasValidPromo
-          ? 'Promo Regular'
-          : 'Regular';
-      const pricePerTicket = isGoldPromo ? 150 : hasValidPromo ? 200 : 350;
+      const track = 'Limited Offer';
+      const pricePerTicket = 10;
       const totalPrice = quantity * pricePerTicket;
       const pricingText = `${pricePerTicket} EGP each • ${totalPrice} EGP total`;
       const requiredFilled = Object.keys(getActiveRequiredValidation()).every((fieldName) => {
@@ -589,12 +585,7 @@
       summaryPayment.textContent = paymentMethod;
       summaryTrack.textContent = `${track} • ${pricingText}`;
       if (quantityPriceNote) {
-        const promoNote = isGoldPromo
-          ? ' • Group of 5 offer applied'
-          : hasValidPromo
-            ? ' • Promo code applied'
-            : '';
-        quantityPriceNote.textContent = `${pricingText}${promoNote}`;
+        quantityPriceNote.textContent = `${pricingText} • Limited until event day`;
       }
       summaryStatus.textContent = requiredFilled
         ? currentLang === 'ar' ? 'جاهز للإرسال' : 'Ready to submit'
