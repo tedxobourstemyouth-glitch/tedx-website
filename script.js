@@ -354,16 +354,23 @@
 
   applyLanguage(currentLang);
 
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const isLowPowerViewport = window.innerWidth <= 1100 || window.matchMedia('(pointer: coarse)').matches;
+
   // --- Preloader ---
   const preloader = document.getElementById('preloader');
   if (preloader) {
     window.addEventListener('load', () => {
       setTimeout(() => {
         preloader.classList.add('hidden');
-      }, 600); // Small delay for cinematic feel
+        document.body.classList.add('is-ready');
+      }, 180);
     });
-      // Fallback: Hide preloader after 3 seconds if network is slow
-      setTimeout(() => preloader.classList.add('hidden'), 3000);
+      // Fallback: Hide preloader quickly if network is slow
+      setTimeout(() => {
+        preloader.classList.add('hidden');
+        document.body.classList.add('is-ready');
+      }, 1200);
   }
 
   // --- Reveal on scroll animations ---
@@ -374,6 +381,7 @@
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('in');
+          observer.unobserve(entry.target);
         }
       });
     }, {
@@ -389,13 +397,21 @@
   // This adds a "scrolled" class to the nav when you scroll down
   const nav = document.getElementById('nav');
   if (nav) {
-    window.addEventListener('scroll', () => {
+    let navTicking = false;
+    const syncNavState = () => {
       if (window.scrollY > 50) {
         nav.classList.add('scrolled');
       } else {
         nav.classList.remove('scrolled');
       }
-    });
+      navTicking = false;
+    };
+    window.addEventListener('scroll', () => {
+      if (navTicking) return;
+      navTicking = true;
+      window.requestAnimationFrame(syncNavState);
+    }, { passive: true });
+    syncNavState();
   }
 
   // --- Event Countdown ---
@@ -455,7 +471,7 @@
       updateUnit('seconds', seconds);
     };
 
-    if (window.innerWidth > 1100) {
+    if (!prefersReducedMotion && !isLowPowerViewport) {
       let countdownTicking = false;
       countdownRoot.addEventListener('mousemove', (event) => {
         if (countdownTicking) return;
@@ -482,10 +498,9 @@
   // --- Interactive Mouse Parallax (Hero Section) ---
   const heroCopy = document.getElementById('hero-copy-parallax');
   const heroPhoto = document.getElementById('hero-photo-parallax');
-  if (heroCopy && heroPhoto) {
+  if (heroCopy && heroPhoto && !prefersReducedMotion && !isLowPowerViewport) {
     let ticking = false;
     document.addEventListener('mousemove', (e) => {
-      if (window.innerWidth <= 1100) return; // Disable effect on mobile to improve performance
       if (!ticking) {
         window.requestAnimationFrame(() => {
           // Calculate mouse position relative to center of screen (-1 to 1)

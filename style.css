@@ -63,6 +63,7 @@
     transition: opacity 0.8s ease, visibility 0.8s ease;
   }
   #preloader.hidden { opacity: 0; visibility: hidden; }
+  body.is-ready #preloader { display: none !important; }
   .preloader-logo {
     font-family: var(--sans); font-weight: 700; font-size: 48px; line-height: 1; letter-spacing: -0.02em; color: var(--bone);
     animation: preloaderPulse 2s ease-in-out infinite alternate; text-align: center;
@@ -3660,6 +3661,31 @@
     0% { transform: translateY(0) rotate(2deg); }
     50% { transform: translateY(-15px) rotate(-1deg); }
     100% { transform: translateY(0) rotate(2deg); }
+  }
+
+  @media (max-width: 1100px), (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .nav,
+    .nav.scrolled,
+    .nav-links,
+    .hero-marquee,
+    .speaker,
+    .partner-card,
+    .organizer,
+    .ticket-preview-img,
+    .success-content {
+      animation: none !important;
+      transition: none !important;
+    }
+    .nav.scrolled,
+    .nav-links,
+    .partner-card,
+    .organizer {
+      backdrop-filter: none !important;
+    }
+    .hero-marquee { display: none; }
+    .ticket-preview-glow { filter: blur(18px); opacity: .45; }
+    .ticket-preview-img { box-shadow: 0 18px 34px -22px rgba(0,0,0,.62); }
   }
 
 
